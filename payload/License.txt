@@ -1,12 +1,12 @@
 eXPerience2K End-User Notice
 
 eXPerience2K is an unofficial system-resource customization project for
-Windows XP Professional x64 Edition SP2. It is not affiliated with, approved
-by, or supported by Microsoft.
+Windows XP Professional x86 SP3 and Windows XP Professional x64 Edition SP2.
+It is not affiliated with, approved by, or supported by Microsoft.
 
-Windows XP x86 is not supported by this release. Windows Server editions are
-untested and unsupported. The installer exits without changing the system
-when it detects 32-bit Windows.
+Other Windows XP editions and service-pack levels, IA-64, and Windows Server
+editions are untested and unsupported. The installer exits without changing
+the system when it does not detect one of the two exact supported profiles.
 
 This software modifies protected operating-system files. Back up important
 data and create a recovery path before installation. Use it only on systems

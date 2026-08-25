@@ -77,7 +77,7 @@ $expectedState = [ordered]@{
     'SaveLinksOrder.bin'  = @('4',   '67ABDD721024F0FF4E0B3F4C2FC13BC5BAD42D0B7851D456D88D203D15AAA450')
     'ShellBrowserBand.bin'= @('32',  '4CDEDAAD7D8B966F11A3C4E791F97DA22BCB91958E22D39960DBBE73F5DCF8EC')
     # Exact Windows 2000 ShellState with only SSF_WEBVIEW cleared. XP's own
-    # Common Tasks renderer must be off while the native x64 desk band supplies
+    # Common Tasks renderer must be off while the native Explorer desk band supplies
     # the Windows 2000 pane.
     'ShellState.bin'      = @('36',  'E8736B2E909CD4F712735EEC8E96EB447C8DD891D1E6FB5D411CE8F2A1EFD61D')
     'ViewView2-0.bin'     = @('48',  '5048F844F10678E43B5AE421586163D2B862EF5DCE65D2F2EC3C337141158604')
@@ -108,7 +108,11 @@ foreach ($requiredText in @(
     '#define MAX_FEATURES 11',
     'Windows 2000 Explorer folder interface (experimental)',
     'explorer_experiment_architecture_supported',
+    'PROCESSOR_ARCHITECTURE_INTEL',
     'PROCESSOR_ARCHITECTURE_AMD64',
+    'eXPerience2KExplorerBand32.dll',
+    'eXPerience2KExplorerBand64.dll',
+    '@EXPLORERBAND@',
     'delete_machine_tree_view(subkey, KEY_WOW64_64KEY)',
     'delete_machine_tree_view(subkey, KEY_WOW64_32KEY)',
     'apply_w2k_explorer_user_state',
@@ -141,7 +145,7 @@ foreach ($requiredText in @(
     'wvleft.bmp'
 )) {
     if (-not $band.Contains($requiredText)) {
-        throw "Native x64 Explorer pane implementation marker is missing: $requiredText"
+        throw "Native Explorer pane implementation marker is missing: $requiredText"
     }
 }
 
@@ -161,4 +165,4 @@ if (Test-Path -LiteralPath $referenceRoot -PathType Container) {
     }
 }
 
-Write-Host "Verified $($manifest.Count) exact Windows 2000 Web files, $($expectedState.Count) exact Explorer-state assets, the one-bit XP inline-pane ShellState delta, and the x64-only safety boundary."
+Write-Host "Verified $($manifest.Count) exact Windows 2000 Web files, $($expectedState.Count) exact Explorer-state assets, the one-bit XP inline-pane ShellState delta, and the native x86/x64 architecture selection boundary."

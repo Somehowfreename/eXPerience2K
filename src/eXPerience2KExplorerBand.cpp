@@ -15,10 +15,10 @@
 #include <stddef.h>
 
 /*
- * Experimental native-x64 Windows 2000 Explorer pane.
+ * Experimental native Windows 2000 Explorer pane for XP x86 and XP x64.
  *
  * The DLL is deliberately a shell extension, not a replacement explorer.exe.
- * It leaves the XP x64 desktop shell, namespace implementation, context menus,
+ * It leaves the XP desktop shell, namespace implementation, context menus,
  * file operations, drag/drop, and every application-facing shell API native.
  * A BHO inserts a 200-pixel information pane inside each native Shell view,
  * leaving Explorer Bars (especially Win+E's Folders tree) independent.  The
@@ -669,10 +669,23 @@ public:
             if (!view) return;
             RECT area;
             GetClientRect(view, &area);
+            HWND root = GetAncestor(window_, GA_ROOT);
+            HWND list = FindWindowExW(view, NULL, L"SysListView32", NULL);
+            /* Windows 2000 uses the Folders Explorer Bar in place of its
+               information/WebView pane.  When Folders is selected, give the
+               entire native shell view back to that bar instead of showing
+               two adjacent left panes. */
+            if (folders_mode_requested(root)) {
+                ShowWindow(window_, SW_HIDE);
+                if (list) {
+                    SetWindowPos(list, HWND_TOP, 0, 0, area.right, area.bottom,
+                                 SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                }
+                return;
+            }
             int pane_width = area.right < 400 ? area.right / 2 : 200;
             SetWindowPos(window_, HWND_TOP, 0, 0, pane_width, area.bottom,
                          SWP_NOACTIVATE | SWP_SHOWWINDOW);
-            HWND list = FindWindowExW(view, NULL, L"SysListView32", NULL);
             if (list) {
                 SetWindowPos(list, window_, pane_width, 0,
                              area.right - pane_width, area.bottom,
@@ -887,12 +900,26 @@ public:
     }
     STDMETHODIMP SetSite(IUnknown *site)
     {
+        IServiceProvider *provider = NULL;
+        HRESULT direct_result;
         cleanup();
         site_ = site;
         if (site_) site_->AddRef();
         if (!site_) return S_OK;
-        if (FAILED(site_->QueryInterface(IID_IWebBrowser2, (void **)&browser_)))
-            return S_OK;
+        direct_result = site_->QueryInterface(IID_IWebBrowser2,
+                                              (void **)&browser_);
+        if (FAILED(direct_result) || !browser_) {
+            /* XP x86 commonly supplies the top-level shell browser through
+               IServiceProvider instead of exposing IWebBrowser2 directly on
+               the BHO site object.  XP x64 may expose either shape. */
+            if (SUCCEEDED(site_->QueryInterface(IID_IServiceProvider,
+                                                (void **)&provider)) && provider) {
+                provider->QueryService(SID_SWebBrowserApp, IID_IWebBrowser2,
+                                       (void **)&browser_);
+                provider->Release();
+            }
+        }
+        if (!browser_) return S_OK;
         register_hook_class();
         timer_window_ = CreateWindowExW(0, HOOK_CLASS, L"", WS_POPUP,
                                         0, 0, 0, 0, HWND_MESSAGE, NULL,
@@ -917,7 +944,8 @@ private:
     {
         if (!browser_) return;
         SHANDLE_PTR browser_window = 0;
-        if (FAILED(browser_->get_HWND(&browser_window)) || !browser_window) return;
+        HRESULT browser_result = browser_->get_HWND(&browser_window);
+        if (FAILED(browser_result) || !browser_window) return;
         HWND view = find_descendant((HWND)browser_window, L"SHELLDLL_DefView");
         if (!view) return;
         if (inline_band_ && GetParent(inline_band_->PaneWindow()) == view) return;
@@ -926,7 +954,9 @@ private:
             inline_band_ = NULL;
         }
         inline_band_ = new ExplorerBand();
-        if (!inline_band_ || FAILED(inline_band_->AttachInline(browser_, view))) {
+        HRESULT attach_result = inline_band_
+            ? inline_band_->AttachInline(browser_, view) : E_OUTOFMEMORY;
+        if (!inline_band_ || FAILED(attach_result)) {
             if (inline_band_) inline_band_->Release();
             inline_band_ = NULL;
         }
@@ -1003,10 +1033,11 @@ public:
     {
         if (outer) return CLASS_E_NOAGGREGATION;
         IUnknown *object;
-        if (IsEqualCLSID(clsid_, CLSID_E2KExplorerBand))
+        if (IsEqualCLSID(clsid_, CLSID_E2KExplorerBand)) {
             object = static_cast<IDeskBand *>(new ExplorerBand());
-        else
+        } else {
             object = static_cast<IObjectWithSite *>(new ExplorerHook());
+        }
         if (!object) return E_OUTOFMEMORY;
         HRESULT result = object->QueryInterface(iid, out);
         object->Release();

@@ -1451,8 +1451,13 @@ static unsigned discover_protection_caches(const char *target, char paths[][MAX_
     if (path_has_prefix(target, system32)) {
         if (join_path(directory, sizeof(directory), system32, "dllcache"))
             append_cache_path(paths, &count, directory, name);
+#ifdef _WIN64
         if (join_path(directory, sizeof(directory), windows, "ServicePackFiles\\amd64"))
             append_cache_path(paths, &count, directory, name);
+#else
+        if (join_path(directory, sizeof(directory), windows, "ServicePackFiles\\i386"))
+            append_cache_path(paths, &count, directory, name);
+#endif
     } else if (path_has_prefix(target, wow64)) {
         if (join_path(directory, sizeof(directory), wow64, "dllcache"))
             append_cache_path(paths, &count, directory, name);
@@ -1757,8 +1762,8 @@ static int detect_operating_system(DETECTED_OS *detected)
             (version.wSuiteMask & VER_SUITE_PERSONAL) == 0 &&
             detected->service_pack == 3) {
             set_detected_profile(detected, "xp-pro-x86-sp3",
-                "Windows XP Professional x86 SP3", "xp-client-2001",
-                "Windows 2001 Professional");
+                "Windows XP Professional x86 SP3", "original-windows-2002",
+                "Windows 2002 Professional");
             detected->resource_profile_ready = 1;
         }
     } else if (detected->major == 5 && detected->minor == 2 &&
@@ -1766,8 +1771,8 @@ static int detect_operating_system(DETECTED_OS *detected)
         if (version.wProductType == VER_NT_WORKSTATION &&
             equals_ignore_case(detected->architecture, "x64")) {
             set_detected_profile(detected, "xp-pro-x64-sp2",
-                "Windows XP Professional x64 Edition SP2", "xp-x64-2005",
-                "Windows 2005 Professional");
+                "Windows XP Professional x64 Edition SP2", "original-windows-2002",
+                "Windows 2002 Professional");
             detected->resource_profile_ready = 1;
         }
     }

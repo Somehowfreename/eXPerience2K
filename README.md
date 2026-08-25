@@ -1,22 +1,19 @@
 # eXPerience2K
 
-eXPerience2K is an open-source Windows 2000-style conversion for **Windows
-XP Professional x64 Edition SP2**. It preserves XP x64's NT 5.2 system and
-application compatibility while replacing supported shell artwork and
-automating the native Windows settings needed for a cohesive Windows 2000
-experience.
+eXPerience2K is an open-source Windows 2000-style conversion for **Windows XP
+Professional x86 SP3** and **Windows XP Professional x64 Edition SP2**. It
+preserves each operating system's native application compatibility while
+replacing supported shell artwork and automating the native Windows settings
+needed for a cohesive Windows 2000 experience.
 
 > [!IMPORTANT]
-> Windows XP Professional x64 Edition SP2 is the only operating system
-> currently supported and accepted by the installer. Windows Server editions,
-> other XP x64 editions, and every XP x86 edition are rejected before any
-> files or settings are changed. Some x86 code
-> paths remain in the source from development, but their presence is not a
-> compatibility promise. The installer detects 32-bit Windows, explains the
-> support status, and exits before installing files or changing settings.
+> Version 3.0.0 accepts only English Windows XP Professional
+> x86 SP3 and Windows XP Professional x64 Edition SP2. Home, Starter, Media
+> Center, Tablet PC, Embedded, IA-64, Server editions, and other service-pack
+> levels are rejected before any files or settings are changed.
 
-The current release is **eXPerience2K 2.4.1**. Download
-`eXPerience2K-v2.4.1-Setup.exe` from the repository's **Latest** release.
+The current release is **eXPerience2K 3.0.0**. Download
+`eXPerience2K-v3.0.0-Setup.exe` from the repository's **Latest** release.
 
 ## Why I made it
 
@@ -27,9 +24,9 @@ support. I decided to build that missing x64 implementation myself, preserve
 the spirit and artwork of the original, and make the result maintainable and
 open source.
 
-Windows XP Professional x86 support is planned for the next major update, but it is not the
-priority for 2.4.1 because the original project already serves x86 users.
-eXPerience2K first focuses on the platform that was left unsupported.
+The x86 port brings the later eXPerience2K configuration, restoration, sound,
+wallpaper, Explorer, and quality-of-life work back to the platform supported
+by the original patcher, rather than merely wrapping the older x86 conversion.
 
 ## What eXPerience2K adds
 
@@ -37,9 +34,9 @@ The original patcher already provided the Windows 2000-style resource set,
 protected-file backups, a startup reloader, verification, and uninstall
 restoration. eXPerience2K retains that foundation and adds:
 
-- native Windows XP Professional x64 resource discovery and patching across
-  64-bit system files, WoW64 files, WinSxS common controls, and Windows File
-  Protection caches;
+- native Windows XP Professional resource discovery and patching for both x86
+  SP3 and x64 SP2, including the applicable System32, WoW64, WinSxS common
+  controls, and Windows File Protection caches;
 - a reopenable configuration application whose selections reflect the
   machine's current state;
 - a native resizable configuration window with responsive control widths and
@@ -58,8 +55,8 @@ restoration. eXPerience2K retains that foundation and adds:
   double-click/navigation sound;
 - five optional Windows 2000-style wallpapers installed to the interactive
   user's My Pictures folder without overwriting existing files;
-- an experimental native x64 Windows 2000-style Explorer folder interface
-  that keeps XP's original `explorer.exe` and shell functionality;
+- architecture-matched native x86 and x64 Windows 2000-style Explorer folder
+  interfaces that keep XP's original `explorer.exe` and shell functionality;
 - correct interactive-user targeting when XP's **Run As** command uses a
   different administrator account;
 - privacy-safe in-memory diagnostics with user-controlled Open and Save
@@ -91,8 +88,8 @@ The configuration application exposes eleven options:
    curated JPEG wallpapers named `Windows_2000_1.jpg` through
    `Windows_2000_4.jpg`, plus `Windows_9x.jpg`.
 9. **Windows 2000 Explorer folder interface (experimental)** — adds a native
-   64-bit Windows 2000-style information pane and Windows 2000 WebView assets
-   to XP x64 folder windows without replacing `explorer.exe`.
+   architecture-matched Windows 2000-style information pane and Windows 2000
+   WebView assets to XP folder windows without replacing `explorer.exe`.
 10. **Replace all Windows XP sounds with Windows 2000 equivalents** — maps the
     XP event set to eight exact Windows 2000 WAV files; XP-only events with no
     Windows 2000 counterpart are intentionally silent.
@@ -129,9 +126,9 @@ The logon prompt defaults to Solid Navy. The signed-in desktop defaults to the
 Blue Gradient. On a basic or low-color VGA driver, Windows may render a chosen
 gradient as a solid caption until a suitable display driver is installed.
 
-## Exact-state restoration in 2.4.1
+## Exact-state restoration
 
-Before the first Apply transaction changes anything, 2.4.1 captures one
+Before the first Apply transaction changes anything, eXPerience2K captures one
 immutable baseline of every setting managed by every checkbox. That baseline
 is stored separately from the current configuration and is never overwritten
 by later Apply operations.
@@ -145,12 +142,13 @@ exist.
 
 ## Installation and use
 
-1. Use Windows XP Professional x64 Edition SP2 and log on with an
+1. Use English Windows XP Professional x86 SP3 or Windows XP Professional x64
+   Edition SP2 and log on with an
    administrator account, or use XP's **Run As** command with an administrator
    account.
 2. Keep installation media or a complete system image available. Modifying
    protected operating-system resources always carries risk.
-3. Run `eXPerience2K-v2.4.1-Setup.exe`.
+3. Run `eXPerience2K-v3.0.0-Setup.exe`.
 4. Open eXPerience2K, review the selections and caption presets, then click
    **Apply**.
 5. Restart when prompted. Allow the startup reloader to finish.
@@ -173,9 +171,11 @@ The patch engine validates staged PE files, preserves original-file backups,
 records original and patched CRC-32 values, covers protected caches, and
 schedules locked replacements safely. Its verifier classifies each target as
 patched, original, changed, or missing. The startup reloader reapplies managed
-resources if Windows File Protection or an update restores them. The tested
+resources if Windows File Protection or an update restores them. The published
 2.4.1 conversion remained applied through the complete post-install update
-sequence on a clean retail XP x64 system.
+sequence on a clean retail XP x64 system. Version 3.0.0 separately
+passed clean-install Apply, reboot persistence, Revert, repeat Apply, and
+uninstall restoration on XP Professional x86 SP3.
 
 Uninstall performs a restoration transaction before removing the program. If
 restoration cannot be completed and verified, uninstall stops and retains the
@@ -186,10 +186,10 @@ uninstalling the application or deleting the immutable baseline.
 
 ## Scope and deliberate limits
 
-- Supported: English Windows XP Professional x64 Edition SP2.
-- Rejected by the installer in 2.4.1: all Windows XP x86 editions, all other
-  XP x64 editions, and every Windows Server edition.
-- Planned for the next major update: Windows XP Professional x86.
+- Supported by version 3.0.0: English Windows XP Professional x86 SP3 and
+  Windows XP Professional x64 Edition SP2.
+- Rejected: every other XP edition/service-pack combination and every Windows
+  Server edition.
 - Not changed: the kernel and boot screen.
 - Not replaced: `explorer.exe`.
 - Not included: Internet Explorer executable/icon experiments.
@@ -199,12 +199,12 @@ See the [support matrix](docs/SUPPORT-MATRIX.md) for the exact boundary.
 
 ## Release integrity
 
-The sole binary asset attached to release 2.4.1 is:
+The sole binary asset attached to release 3.0.0 is:
 
 ```text
-eXPerience2K-v2.4.1-Setup.exe
-SHA-256: B64CE6446CD1D52B6B8DCDF0F085DED3BAA18D66123D722005A2E196B93CFFE3
-Size:    4,307,201 bytes
+eXPerience2K-v3.0.0-Setup.exe
+SHA-256: 5160B4B101528F1AF544BD9B00C7AEC99968391F98FEE4A65553123CD868958D
+Size:    4,334,250 bytes
 ```
 
 The executable is unsigned. Security products may warn because the requested
@@ -226,7 +226,7 @@ It does not require .NET:
 .\scripts\verify-release.ps1
 ```
 
-The expected installer is `dist\eXPerience2K-v2.4.1-Setup.exe`. See
+The expected installer is `dist\eXPerience2K-v3.0.0-Setup.exe`. See
 [BUILDING.md](docs/BUILDING.md) and
 [REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for prerequisites and the exact
 published-source attestation.
@@ -252,7 +252,7 @@ docs/                   architecture, support, testing and release documentation
 - [Feature and lifecycle testing](docs/TESTING.md)
 - [Validation record](docs/VALIDATION.md)
 - [Experimental Explorer implementation](docs/EXPLORER-EXPERIMENT.md)
-- [Release notes](docs/RELEASE-NOTES-2.4.1.md)
+- [Release notes](docs/RELEASE-NOTES-3.0.0.md)
 - [Security behavior](SECURITY.md)
 - [Legal and redistribution notes](docs/LEGAL.md)
 - [Contributing](CONTRIBUTING.md)

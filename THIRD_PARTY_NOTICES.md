@@ -25,4 +25,4 @@ subject to its own terms and is not covered by `LICENSE-CODE`.
 
 No Windows installation media, product keys, or complete operating-system
 binaries are included. Users must supply and license their own supported copy
-of Windows XP Professional x64 Edition.
+of Windows XP Professional x86 SP3 or Windows XP Professional x64 Edition SP2.

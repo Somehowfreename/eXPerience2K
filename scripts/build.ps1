@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $buildDir = Join-Path $repoRoot 'build'
 $distDir = Join-Path $repoRoot 'dist'
-$releaseDir = Join-Path $repoRoot 'release\v2.4.1'
+$releaseDir = Join-Path $repoRoot 'release\v3.0.0'
 
 Write-Host 'Restoring the exact original Windows 2002 branding artwork...'
 & (Join-Path $PSScriptRoot 'use-original-2002-branding.ps1') `
@@ -53,6 +53,10 @@ function Resolve-BuildTool {
 
 $gccX86 = Resolve-BuildTool -ProvidedPath $GccX86Path -CommandName 'i686-w64-mingw32-gcc.exe' -FriendlyName 'MinGW-w64 x86 GCC'
 $gccX64 = Resolve-BuildTool -ProvidedPath $GccX64Path -CommandName 'x86_64-w64-mingw32-gcc.exe' -FriendlyName 'MinGW-w64 x64 GCC'
+$gppX86 = [System.Text.RegularExpressions.Regex]::Replace($gccX86, 'gcc\.exe$', 'g++.exe', 'IgnoreCase')
+if (-not (Test-Path -LiteralPath $gppX86 -PathType Leaf)) {
+    throw "MinGW-w64 x86 G++ was not found beside GCC: $gppX86"
+}
 $gppX64 = [System.Text.RegularExpressions.Regex]::Replace($gccX64, 'gcc\.exe$', 'g++.exe', 'IgnoreCase')
 if (-not (Test-Path -LiteralPath $gppX64 -PathType Leaf)) {
     throw "MinGW-w64 x64 G++ was not found beside GCC: $gppX64"
@@ -142,62 +146,87 @@ finally {
     $env:PATH = $savedPath
 }
 
-$bandOutput = Join-Path $buildDir 'eXPerience2KExplorerBand64.dll'
-$bandArguments = @(
-    '-std=gnu++11'
-    '-Os'
-    '-Wall'
-    '-Wextra'
-    '-Werror'
-    '-D_WIN32_WINNT=0x0502'
-    '-D_WIN32_IE=0x0600'
-    '-fno-exceptions'
-    '-fno-rtti'
-    '-fno-threadsafe-statics'
-    '-shared'
-    '-static'
-    '-static-libgcc'
-    '-static-libstdc++'
-    '-s'
-    '-Wl,--major-os-version,5,--minor-os-version,2,--major-subsystem-version,5,--minor-subsystem-version,2'
-    '-o'
-    $bandOutput
-    (Join-Path $repoRoot 'src\eXPerience2KExplorerBand.cpp')
-    '-lole32'
-    '-loleaut32'
-    '-luuid'
-    '-lshell32'
-    '-lshlwapi'
-    '-lcomctl32'
-    '-luser32'
-    '-lgdi32'
-)
-$savedPath = $env:PATH
-try {
-    $env:PATH = "$(Split-Path -Parent $gppX64);$env:PATH"
-    Write-Host 'Compiling the experimental native x64 Windows 2000 Explorer pane...'
-    & $gppX64 @bandArguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "Explorer pane G++ failed with exit code $LASTEXITCODE."
+function Build-ExplorerBand {
+    param(
+        [string]$Compiler,
+        [string]$Objdump,
+        [string]$Architecture,
+        [string]$MinimumNtVersion,
+        [string]$LinkerVersion,
+        [string]$OutputName
+    )
+
+    if (-not (Test-Path -LiteralPath $Objdump -PathType Leaf)) {
+        throw "MinGW-w64 $Architecture objdump was not found: $Objdump"
     }
-}
-finally {
-    $env:PATH = $savedPath
+    $output = Join-Path $buildDir $OutputName
+    $arguments = @(
+        '-std=gnu++11'
+        '-Os'
+        '-Wall'
+        '-Wextra'
+        '-Werror'
+        "-D_WIN32_WINNT=$MinimumNtVersion"
+        '-D_WIN32_IE=0x0600'
+        '-fno-exceptions'
+        '-fno-rtti'
+        '-fno-threadsafe-statics'
+        '-shared'
+        '-static'
+        '-static-libgcc'
+        '-static-libstdc++'
+        '-s'
+        $LinkerVersion
+        '-o'
+        $output
+        (Join-Path $repoRoot 'src\eXPerience2KExplorerBand.cpp')
+        '-lole32'
+        '-loleaut32'
+        '-luuid'
+        '-lshell32'
+        '-lshlwapi'
+        '-lcomctl32'
+        '-luser32'
+        '-lgdi32'
+    )
+    $savedPath = $env:PATH
+    try {
+        $env:PATH = "$(Split-Path -Parent $Compiler);$env:PATH"
+        Write-Host "Compiling the experimental native $Architecture Windows 2000 Explorer pane..."
+        & $Compiler @arguments
+        if ($LASTEXITCODE -ne 0) {
+            throw "$Architecture Explorer pane G++ failed with exit code $LASTEXITCODE."
+        }
+    }
+    finally {
+        $env:PATH = $savedPath
+    }
+
+    $bandPe = (& $Objdump -p $output | Out-String)
+    foreach ($forbidden in @(
+        'GetTickCount64', 'libstdc++-6.dll', 'libgcc_s_seh-1.dll',
+        'libgcc_s_sjlj-1.dll', 'libgcc_s_dw2-1.dll', 'libwinpthread-1.dll'
+    )) {
+        if ($bandPe -match [regex]::Escape($forbidden)) {
+            throw "The experimental $Architecture Explorer pane imports an XP-incompatible runtime/API: $forbidden"
+        }
+    }
+    if ($bandPe -notmatch '(?m)DllGetClassObject\r?$' -or
+        $bandPe -notmatch '(?m)DllCanUnloadNow\r?$') {
+        throw "The experimental $Architecture Explorer pane is missing exact undecorated COM exports."
+    }
 }
 
-$objdumpX64 = Join-Path (Split-Path -Parent $gccX64) 'objdump.exe'
-if (-not (Test-Path -LiteralPath $objdumpX64 -PathType Leaf)) {
-    throw "MinGW-w64 x64 objdump was not found beside GCC: $objdumpX64"
-}
-$bandPe = (& $objdumpX64 -p $bandOutput | Out-String)
-foreach ($forbidden in @('GetTickCount64', 'libstdc++-6.dll', 'libgcc_s_seh-1.dll', 'libwinpthread-1.dll')) {
-    if ($bandPe -match [regex]::Escape($forbidden)) {
-        throw "The experimental x64 Explorer pane imports an XP-incompatible runtime/API: $forbidden"
-    }
-}
-if ($bandPe -notmatch 'DllGetClassObject' -or $bandPe -notmatch 'DllCanUnloadNow') {
-    throw 'The experimental x64 Explorer pane is missing required COM exports.'
-}
+Build-ExplorerBand -Compiler $gppX86 `
+    -Objdump (Join-Path (Split-Path -Parent $gccX86) 'objdump.exe') `
+    -Architecture 'x86' -MinimumNtVersion '0x0501' `
+    -LinkerVersion '-Wl,--major-os-version,5,--minor-os-version,1,--major-subsystem-version,5,--minor-subsystem-version,1,--kill-at' `
+    -OutputName 'eXPerience2KExplorerBand32.dll'
+Build-ExplorerBand -Compiler $gppX64 `
+    -Objdump (Join-Path (Split-Path -Parent $gccX64) 'objdump.exe') `
+    -Architecture 'x64' -MinimumNtVersion '0x0502' `
+    -LinkerVersion '-Wl,--major-os-version,5,--minor-os-version,2,--major-subsystem-version,5,--minor-subsystem-version,2' `
+    -OutputName 'eXPerience2KExplorerBand64.dll'
 
 Write-Host 'Building the installer...'
 Push-Location $repoRoot
@@ -211,7 +240,7 @@ finally {
     Pop-Location
 }
 
-$installer = Join-Path $distDir 'eXPerience2K-v2.4.1-Setup.exe'
+$installer = Join-Path $distDir 'eXPerience2K-v3.0.0-Setup.exe'
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
     throw "Expected installer was not produced: $installer"
 }

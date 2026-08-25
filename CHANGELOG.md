@@ -1,5 +1,35 @@
 # Changelog
 
+## 3.0.0
+
+Windows XP Professional x86 SP3 is now fully supported alongside Windows XP
+Professional x64 Edition SP2.
+
+- Ports the complete eleven-option eXPerience2K configuration experience to
+  native XP Professional x86 SP3 with no feature omissions.
+- Adds a native x86 protected-resource engine and architecture-aware selection
+  between the x86 and x64 engines.
+- Adds a native x86 Windows 2000-style Explorer integration while retaining
+  the existing native x64 implementation and XP's original `explorer.exe`.
+- Applies the exact Windows 2002 Professional branding artwork on both
+  supported architectures.
+- Retains Classic theme, Classic Start menu/taskbar, Classic Control Panel,
+  sliding/fading animation, classic logon, wallpaper, sound, independent
+  folder sound, Explorer pane, caption presets, and exact-state restoration.
+- Adds strict installer and application gates for the two supported profiles:
+  XP Professional x86 SP3 and XP Professional x64 Edition SP2.
+- Rejects Home, Starter, Media Center, Tablet PC, Embedded, IA-64, Server
+  editions, and unsupported service-pack levels before changing anything.
+- Fixes native x86 Explorer COM exports and makes the Windows 2000 information
+  pane coexist correctly with Explorer's optional Folders bar.
+- Corrects Revert state reporting so reopened controls reflect the restored
+  pre-Apply configuration.
+- Verifies the x86 lifecycle from a clean snapshot: all 134 protected targets
+  patched after reboot, all 134 originals restored by Revert, repeat Apply,
+  and fail-closed uninstall restoration.
+- Revalidates the same 3.0.0 dual-architecture build on XP Professional x64
+  Edition SP2.
+
 ## 2.4.1
 
 Initial public release of eXPerience2K.

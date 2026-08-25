@@ -1,12 +1,9 @@
 # Reproducibility and source attestation
 
-The repository release tag contains the source, installer definition,
-manifests, payload, reference inputs, and build script used for the published
-v2.4.1 installer.
+The `v3.0.0` tag contains the source, installer definition, manifests, payload,
+reference inputs, and build scripts used for the published 3.0.0 installer.
 
-Before publication, the following build-input groups were compared against the
-preserved exact-state-restore source lineage and then updated only for the
-documented x64 refusal boundary:
+The release build-input groups are:
 
 ```text
 src/
@@ -14,35 +11,31 @@ installer/
 payload/
 reference-assets/
 tools/
-scripts/build.ps1
+scripts/
 ```
 
-The final release-candidate build-input set contains 967 files. The
-deterministic SHA-256 over sorted UTF-8 records of
-`relative-path|file-sha256` is:
+This set contains 969 files. The deterministic SHA-256 over sorted UTF-8
+records of `relative-path|file-sha256`, with forward-slash paths and one LF
+after every record, is:
 
 ```text
-d2fab9646c1d5a2a75526292f7df9e55d6f876f92b5e739df0c9b11887a7e928
+392ab8a0b7fb2fbef192c2529bafc77057baacd12fbc83d0f7605d31208628a2
 ```
 
-Relative to the preserved exact-state-restore checkpoint, the executable
-release path changes only the documented x64 support enforcement in
-`installer/eXPerience2K.nsi` and `src/eXPerience2KConfig.c`: x86 is rejected
-before installation or configuration, and the x86 core is no longer packaged.
+Version 3.0.0 descends directly from the tested 2.4.1 exact-state-restore
+source. Its functional changes add the native XP Professional x86 SP3 engine,
+native x86 Explorer module, strict dual-profile selection, and shared
+architecture-aware configuration paths while retaining the existing XP
+Professional x64 Edition SP2 implementation.
 
-The resulting installer is 4,307,201 bytes with SHA-256:
+The final installer is 4,334,250 bytes with SHA-256:
 
 ```text
-B64CE6446CD1D52B6B8DCDF0F085DED3BAA18D66123D722005A2E196B93CFFE3
+5160B4B101528F1AF544BD9B00C7AEC99968391F98FEE4A65553123CD868958D
 ```
-
-Build documentation, release automation, and public-facing documentation may
-differ from the private development checkpoint because obsolete test naming
-and unsupported-platform claims were removed. They do not introduce a second
-source lineage.
 
 Byte-identical rebuilds are not guaranteed across compiler, linker, NSIS, and
 compression versions because generated PE and installer metadata may contain
 timestamps. Verification therefore combines source/payload hashes, PE checks,
-manifest checks, asset hashes, version metadata, and the exact release-asset
-SHA-256.
+manifest checks, asset hashes, version metadata, exact x86 COM export names,
+strict operating-system gates, and the published installer SHA-256.

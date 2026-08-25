@@ -3,8 +3,8 @@
 ## Requirements
 
 - Windows PowerShell 5.1 or later for the build scripts;
-- MinGW-w64 i686 GCC for the configuration application and retained x86
-  development core;
+- MinGW-w64 i686 GCC/G++ and `objdump.exe` for the configuration application,
+  native x86 resource engine, and x86 Explorer module;
 - MinGW-w64 x86_64 GCC/G++ and `objdump.exe` for the native XP x64 engine and
   Explorer module; and
 - NSIS 3 with `makensis.exe`.
@@ -33,13 +33,14 @@ Expected outputs:
 build/eXPerience2K.exe
 build/eXPerience2KCore-x86.exe
 build/eXPerience2KCore-x64.exe
+build/eXPerience2KExplorerBand32.dll
 build/eXPerience2KExplorerBand64.dll
-dist/eXPerience2K-v2.4.1-Setup.exe
+dist/eXPerience2K-v3.0.0-Setup.exe
 ```
 
-The x86 core is compiled as retained development material, but it is not
-included in the v2.4.1 installer. The installer and configuration application
-both enforce the XP x64-only release boundary.
+Both native cores and both Explorer modules are included. The installer and
+configuration application enforce the exact XP Professional x86 SP3/x64 SP2
+support boundary.
 
 ## Verify
 
@@ -49,13 +50,14 @@ both enforce the XP x64-only release boundary.
 
 Verification checks the expected output names, PE architecture/NT-version
 fields, payload counts, branding, icon, wallpaper, sound and Explorer hashes,
-feature defaults, the x86 refusal guard, and the installer version metadata.
+feature defaults, strict dual-profile gates, undecorated x86 COM exports, and
+the installer version metadata.
 
 ## GitHub Actions
 
 `.github/workflows/build.yml` runs the same build and verification sequence on
 Windows. Workflow artifacts are continuous-integration outputs, not official
-releases. The official 2.4.1 release asset is the single installer attached to
+releases. The official 3.0.0 release asset is the single installer attached to
 the GitHub release.
 
 ## Reproducibility note

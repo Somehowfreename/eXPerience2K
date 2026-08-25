@@ -1,3 +1,3 @@
 profile_id	display_name	nt_version	build	service_pack	architecture	product_type	r2	tablet	media_center	edition_signal	branding_id	branding_label	support_level
-xp-pro-x86-sp3	Windows XP Professional x86 SP3	5.1	2600	3	x86	WinNT	no	no	no	professional-only	xp-client-2001	Windows 2001 Professional	explicit
-xp-pro-x64-sp2	Windows XP Professional x64 Edition SP2	5.2	3790	2	x64	WinNT	no	no	no	workstation+x64	xp-x64-2005	Windows 2005 Professional	explicit
+xp-pro-x86-sp3	Windows XP Professional x86 SP3	5.1	2600	3	x86	WinNT	no	no	no	professional-only	original-windows-2002	Windows 2002 Professional	explicit
+xp-pro-x64-sp2	Windows XP Professional x64 Edition SP2	5.2	3790	2	x64	WinNT	no	no	no	workstation+x64	original-windows-2002	Windows 2002 Professional	explicit

@@ -1,9 +1,9 @@
 # Architecture
 
-eXPerience2K is a native Win32 application for Windows XP Professional x64
-Edition SP2. It is divided into a 32-bit configuration front end, a native
-64-bit resource engine, a native 64-bit Explorer extension, an NSIS installer,
-and data-driven payload manifests.
+eXPerience2K supports Windows XP Professional x86 SP3 and Windows XP
+Professional x64 Edition SP2. It is divided into a 32-bit configuration front
+end, native x86/x64 resource engines, architecture-matched Explorer extensions,
+an NSIS installer, and data-driven payload manifests.
 
 ## Components
 
@@ -12,21 +12,22 @@ and data-driven payload manifests.
 `src/eXPerience2KConfig.c` builds as a PE32/NT 5.1 GUI program so it runs under
 XP x64's WoW64 subsystem without .NET. It:
 
-- detects the native processor architecture and refuses 32-bit Windows before
-  any feature logic runs;
+- detects the native processor architecture and exact supported XP profile
+  before any feature logic runs;
 - discovers the interactive desktop user independently of the administrator
   account supplied through **Run As**;
 - detects each feature's current state;
 - captures the immutable pre-Apply baseline;
 - applies and restores user-scoped settings;
-- invokes the native x64 resource engine for protected files;
-- installs or removes the native x64 Explorer integration;
+- invokes the architecture-matched resource engine for protected files;
+- installs or removes the architecture-matched Explorer integration;
 - keeps privacy-safe diagnostics in memory; and
 - provides unattended maintenance entry points used by reload and uninstall.
 
 ### Resource engine
 
-`src/eXPerience2KCore.c` builds as a native PE32+ executable targeting NT 5.2.
+`src/eXPerience2KCore.c` builds as native PE32/NT 5.1 and PE32+/NT 5.2
+executables.
 It consumes `payload/operations.tsv`, `payload/targets.tsv`, and the resource
 tree. Its responsibilities include:
 
@@ -40,15 +41,15 @@ tree. Its responsibilities include:
 - reporting patched/original/changed/missing state; and
 - reload, repair, inventory, verification, and complete restoration modes.
 
-The repository retains an x86 core source/build target for future development,
-but v2.4.1 neither supports nor installs the x86 engine.
+The installer includes both engines and the configuration application chooses
+the one matching the detected supported operating system.
 
 ### Explorer integration
 
-`src/eXPerience2KExplorerBand.cpp` is a native 64-bit in-process COM module for
-XP x64 Explorer. It adds the optional Windows 2000-style folder information
-pane while retaining XP's original `explorer.exe`, namespace, context menus,
-drag/drop, shell APIs, file operations, and Win+E folder tree.
+`src/eXPerience2KExplorerBand.cpp` builds as native x86 and x64 in-process COM
+modules. The matching module adds the optional Windows 2000-style folder
+information pane while retaining XP's original `explorer.exe`, namespace,
+context menus, drag/drop, shell APIs, file operations, and Win+E folder tree.
 
 The integration is explicitly marked experimental and has its own apply and
 restore state. See [EXPLORER-EXPERIMENT.md](EXPLORER-EXPERIMENT.md).
@@ -56,9 +57,9 @@ restore state. See [EXPLORER-EXPERIMENT.md](EXPLORER-EXPERIMENT.md).
 ### Installer and uninstaller
 
 `installer/eXPerience2K.nsi` builds the NSIS installer. Its `.onInit` handler
-checks for 64-bit Windows before displaying install pages. On x86 it displays
-the support-status message and aborts before extracting files or writing
-settings.
+checks the architecture, workstation edition, NT build, service pack, and
+specialized-edition markers before displaying install pages. Only the two
+documented Professional profiles proceed.
 
 The uninstaller first invokes the configuration application's complete
 restore path. It removes program files and recovery metadata only after that
@@ -69,8 +70,8 @@ remain available for repair.
 
 - `payload/features.tsv` defines the eleven user-facing features and their
   first-launch defaults, scope, privilege requirements, and maturity.
-- `payload/profiles.tsv` retains the development OS-profile data. The public
-  v2.4.1 support boundary is narrower: XP Professional x64 SP2 only.
+- `payload/profiles.tsv` defines the exact XP Professional x86 SP3 and x64 SP2
+  profiles accepted by version 3.0.0.
 - `payload/targets.tsv` describes 147 logical protected-file targets.
 - `payload/operations.tsv` describes 672 resource operations.
 - `payload/Resources/` contains the icon, bitmap, animation, string, and

@@ -5,18 +5,19 @@ testing belongs in a disposable virtual machine snapshot.
 
 ## Required platform
 
-- English Windows XP Professional x64 Edition SP2;
+- English Windows XP Professional x86 SP3 or Windows XP Professional x64
+  Edition SP2;
 - administrator account available;
 - 32-bit color display driver for gradient-caption validation; and
 - audio enabled for sound validation.
 
-Server editions, other XP x64 editions, IA-64, and XP x86 are negative-test
-platforms only. Each must receive the support-status message before the
-installer UI and must remain unchanged.
+Server editions, specialized XP editions, other service-pack levels, and IA-64
+are negative-test platforms only. Each must receive the support-status message
+before the installer UI and must remain unchanged.
 
 ## Clean-install lifecycle
 
-1. Restore a clean XP x64 snapshot.
+1. Restore a clean supported XP snapshot.
 2. Record the original Classic/Luna theme, Start-menu/taskbar layout, Control
    Panel view, menu animation, Winlogon mode, captions, Explorer view, sound
    assignments, fonts/metrics, and relevant value absence.
@@ -87,15 +88,13 @@ installer UI and must remain unchanged.
 
 ## Strict operating-system refusal tests
 
-Test at least Windows XP Professional x86, Server 2003 x86, Server 2003 x64,
-and Server 2003 R2 x64. Launch the installer and confirm on each platform:
+Test an unsupported XP x86 edition or service pack, Server 2003 x86, Server
+2003 x64, and Server 2003 R2 x64. Launch the installer and confirm on each:
 
-- the message states that only Windows XP Professional x64 Edition SP2 is
-  currently supported;
-- it explains that other XP x64 editions, every Windows Server edition, and
-  all XP x86 editions are unsupported;
-- it states that Windows XP Professional x86 support is planned for the next
-  major update;
+- the message states that only Windows XP Professional x86 SP3 and Windows XP
+  Professional x64 Edition SP2 are supported;
+- it explains that specialized XP editions, IA-64, other service-pack levels,
+  and every Windows Server edition are unsupported;
 - it includes `https://github.com/Somehowfreename/eXPerience2K` and advises the
   user to keep checking for an update;
 - the installer exits after the dialog; and

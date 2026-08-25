@@ -9,15 +9,15 @@ SetCompressorDictSize 32
 !include "Sections.nsh"
 
 !define PRODUCT_NAME "eXPerience2K"
-!define PRODUCT_VERSION "2.4.1.0"
-!define PRODUCT_DISPLAY_VERSION "2.4.1"
+!define PRODUCT_VERSION "3.0.0.0"
+!define PRODUCT_DISPLAY_VERSION "3.0.0"
 !define PRODUCT_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\eXPerience2K"
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN "$INSTDIR\eXPerience2K.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Open eXPerience2K configuration"
 
 Name "${PRODUCT_NAME}"
-OutFile "..\dist\eXPerience2K-v2.4.1-Setup.exe"
+OutFile "..\dist\eXPerience2K-v3.0.0-Setup.exe"
 InstallDir "$WINDIR\eXPerience2K"
 ShowInstDetails show
 ShowUninstDetails show
@@ -25,7 +25,7 @@ ShowUninstDetails show
 VIProductVersion "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "CompanyName" "eXPerience2K project"
-VIAddVersionKey /LANG=1033 "FileDescription" "Windows 2000-style conversion for XP x64"
+VIAddVersionKey /LANG=1033 "FileDescription" "Windows 2000-style conversion for Windows XP Professional"
 VIAddVersionKey /LANG=1033 "FileVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Project code and third-party visual resources retain their respective terms."
@@ -44,39 +44,77 @@ VIAddVersionKey /LANG=1033 "LegalCopyright" "Project code and third-party visual
 Var CoreExe
 
 Function .onInit
-  ${IfNot} ${RunningX64}
-    Goto unsupported_os
+  ${If} ${RunningX64}
+    Goto check_x64
+  ${Else}
+    Goto check_x86
   ${EndIf}
 
-  ; NSIS is a 32-bit process. On the one supported platform, Windows exposes
-  ; the native processor through PROCESSOR_ARCHITEW6432 as AMD64. This also
-  ; fails closed on x86 and IA-64 systems.
+  check_x64:
+  ; NSIS is a 32-bit process. Windows exposes the native x64 processor through
+  ; PROCESSOR_ARCHITEW6432. Fail closed on IA-64 and unknown architectures.
   ReadEnvStr $0 "PROCESSOR_ARCHITEW6432"
-  StrCmp $0 "AMD64" architecture_ok unsupported_os
+  StrCmp $0 "AMD64" x64_architecture_ok unsupported_os
 
-  architecture_ok:
-  ; Read the native registry view, then require the exact NT 5.2 workstation
-  ; identity used by Windows XP Professional x64 Edition SP2. ProductType
-  ; WinNT excludes Server 2003 and Server 2003 R2, whose values are ServerNT
-  ; or LanmanNT. CSDVersion 0x200 is the language-independent SP2 marker.
+  x64_architecture_ok:
   SetRegView 64
   ReadRegStr $0 HKLM "SYSTEM\CurrentControlSet\Control\ProductOptions" "ProductType"
-  StrCmp $0 "WinNT" workstation_ok unsupported_os_native_view
+  StrCmp $0 "WinNT" x64_workstation_ok unsupported_os_native_view
 
-  workstation_ok:
+  x64_workstation_ok:
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentVersion"
-  StrCmp $0 "5.2" version_ok unsupported_os_native_view
+  StrCmp $0 "5.2" x64_version_ok unsupported_os_native_view
 
-  version_ok:
+  x64_version_ok:
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"
-  StrCmp $0 "3790" build_ok unsupported_os_native_view
+  StrCmp $0 "3790" x64_build_ok unsupported_os_native_view
 
-  build_ok:
+  x64_build_ok:
   ReadRegDWORD $0 HKLM "SYSTEM\CurrentControlSet\Control\Windows" "CSDVersion"
   IntCmp $0 0x200 supported_os unsupported_os_native_view unsupported_os_native_view
 
+  check_x86:
+  SetRegView 32
+  ReadEnvStr $0 "PROCESSOR_ARCHITECTURE"
+  StrCmp $0 "x86" x86_architecture_ok unsupported_os
+
+  x86_architecture_ok:
+  ReadRegStr $0 HKLM "SYSTEM\CurrentControlSet\Control\ProductOptions" "ProductType"
+  StrCmp $0 "WinNT" x86_workstation_ok unsupported_os
+
+  x86_workstation_ok:
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentVersion"
+  StrCmp $0 "5.1" x86_version_ok unsupported_os
+
+  x86_version_ok:
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"
+  StrCmp $0 "2600" x86_build_ok unsupported_os
+
+  x86_build_ok:
+  ReadRegDWORD $0 HKLM "SYSTEM\CurrentControlSet\Control\Windows" "CSDVersion"
+  IntCmp $0 0x300 x86_suite_check unsupported_os unsupported_os
+
+  x86_suite_check:
+  ; XP Professional has no consumer or specialized ProductSuite marker. This
+  ; excludes Home, Starter, Media Center, Tablet PC, and embedded derivatives.
+  ClearErrors
+  ReadRegStr $0 HKLM "SYSTEM\CurrentControlSet\Control\ProductOptions" "ProductSuite"
+  IfErrors x86_media_center_check
+  StrCmp $0 "" x86_media_center_check unsupported_os
+
+  x86_media_center_check:
+  ClearErrors
+  ReadRegDWORD $0 HKLM "SYSTEM\WPA\MediaCenter" "Installed"
+  IfErrors x86_tablet_check
+  IntCmp $0 0 x86_tablet_check unsupported_os unsupported_os
+
+  x86_tablet_check:
+  ClearErrors
+  ReadRegDWORD $0 HKLM "SYSTEM\WPA\TabletPC" "Installed"
+  IfErrors supported_os
+  IntCmp $0 0 supported_os unsupported_os unsupported_os
+
   supported_os:
-  ; Preserve the registry-view behavior of the previously verified installer.
   SetRegView 32
   Return
 
@@ -84,12 +122,16 @@ Function .onInit
   SetRegView 32
   unsupported_os:
   MessageBox MB_OK|MB_ICONSTOP \
-    "Only Windows XP Professional x64 Edition Service Pack 2 is currently supported by eXPerience2K.$\r$\n$\r$\nOther x64 editions of Windows XP, all Windows Server editions, and all x86 editions of Windows XP are not supported at this time. Windows XP Professional x86 support is planned for the next major update.$\r$\n$\r$\nPlease keep checking for an update:$\r$\nhttps://github.com/Somehowfreename/eXPerience2K$\r$\n$\r$\nNo files or settings have been changed."
+    "eXPerience2K 3.0.0 supports only Windows XP Professional x86 Service Pack 3 and Windows XP Professional x64 Edition Service Pack 2.$\r$\n$\r$\nWindows XP Home, Starter, Media Center, Tablet PC, Embedded, IA-64, and every Windows Server edition are not supported.$\r$\n$\r$\nhttps://github.com/Somehowfreename/eXPerience2K$\r$\n$\r$\nNo files or settings have been changed."
   Abort
 FunctionEnd
 
 Function SelectCore
-  StrCpy $CoreExe "$INSTDIR\eXPerience2KCore-x64.exe"
+  ${If} ${RunningX64}
+    StrCpy $CoreExe "$INSTDIR\eXPerience2KCore-x64.exe"
+  ${Else}
+    StrCpy $CoreExe "$INSTDIR\eXPerience2KCore-x86.exe"
+  ${EndIf}
 FunctionEnd
 
 Section "eXPerience2K application" SecFiles
@@ -98,7 +140,9 @@ Section "eXPerience2K application" SecFiles
   SetOutPath "$INSTDIR"
   File /r "..\payload\*.*"
   File "..\build\eXPerience2K.exe"
+  File "..\build\eXPerience2KCore-x86.exe"
   File "..\build\eXPerience2KCore-x64.exe"
+  File "..\build\eXPerience2KExplorerBand32.dll"
   File "..\build\eXPerience2KExplorerBand64.dll"
   SetOutPath "$INSTDIR\Tools"
   File /oname=ResourceHacker.exe "..\tools\resource-hacker\ResourceHacker.exe"

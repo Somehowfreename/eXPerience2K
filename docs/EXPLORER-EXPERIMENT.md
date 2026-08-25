@@ -1,16 +1,16 @@
 # Experimental Windows 2000 Explorer folder interface
 
-The optional Explorer feature is a native 64-bit integration for Windows XP
-Professional x64 Edition SP2. It aims to make ordinary Explorer folder views
-look and behave like the Windows 2000 folder interface while preserving XP
-x64's shell implementation.
+The optional Explorer feature provides architecture-matched native x86 and
+x64 integrations for the supported Windows XP Professional systems. It aims
+to make ordinary Explorer folder views look and behave like the Windows 2000
+folder interface while preserving XP's shell implementation.
 
 ## Implementation
 
-The feature installs `eXPerience2KExplorerBand64.dll`, a native x64 in-process
-COM module, and a hash-verified Windows 2000 WebView asset tree. The module
-inserts a headerless, 200-pixel Windows 2000-style information pane into native
-`SHELLDLL_DefView` folder windows.
+The feature installs `eXPerience2KExplorerBand32.dll` on x86 or
+`eXPerience2KExplorerBand64.dll` on x64, plus a hash-verified Windows 2000
+WebView asset tree. The module inserts a headerless, 200-pixel Windows
+2000-style information pane into native `SHELLDLL_DefView` folder windows.
 
 It does **not** replace or patch `explorer.exe`. XP continues to provide:
 
@@ -41,4 +41,4 @@ original values and files without affecting unrelated selected features.
 This feature is marked **experimental** in the user interface because it is an
 in-process shell extension and because Explorer folder-state behavior can vary
 with existing ShellBags and third-party shell extensions. It is restricted to
-the supported XP x64 platform.
+the two supported XP Professional profiles.

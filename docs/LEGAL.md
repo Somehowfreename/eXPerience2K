@@ -29,7 +29,7 @@ notice boundary.
 
 The repository contains no Windows installation media, product keys, or
 complete Microsoft operating-system binaries. Users must provide and license
-their own supported Windows XP Professional x64 Edition installation.
+their own supported Windows XP Professional installation.
 
 ## Independence
 

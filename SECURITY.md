@@ -3,7 +3,8 @@
 ## Supported release
 
 Security reports are accepted for the latest tagged release on its documented
-platform: Windows XP Professional x64 Edition SP2.
+platforms: Windows XP Professional x86 SP3 and Windows XP Professional x64
+Edition SP2.
 
 ## Reporting
 

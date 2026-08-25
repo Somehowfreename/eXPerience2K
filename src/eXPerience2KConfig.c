@@ -1665,7 +1665,20 @@ static int explorer_experiment_architecture_supported(void)
     SYSTEM_INFO information;
     ZeroMemory(&information, sizeof(information));
     GetNativeSystemInfo(&information);
-    return information.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
+    return information.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL ||
+           information.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
+}
+
+static const char *explorer_band_filename(void)
+{
+    SYSTEM_INFO information;
+    ZeroMemory(&information, sizeof(information));
+    GetNativeSystemInfo(&information);
+    if (information.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+        return "eXPerience2KExplorerBand64.dll";
+    if (information.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+        return "eXPerience2KExplorerBand32.dll";
+    return "";
 }
 
 static int detect_feature_state(int index)
@@ -1739,7 +1752,7 @@ static const EXPLORER_DWORD_VALUE g_explorer_dwords[] = {
     {"ExplorerShowInfoTip", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "ShowInfoTip", 1},
     {"ExplorerHideIcons", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "HideIcons", 0},
     {"ExplorerMapNetDrvBtn", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "MapNetDrvBtn", 0},
-    /* XP's Common Tasks pane must be off because the experimental native x64
+    /* XP's Common Tasks pane must be off because the architecture-matched
        desk band supplies the authentic Windows 2000 information pane. */
     {"ExplorerWebView", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "WebView", 0},
     {"ExplorerFilter", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "Filter", 0},
@@ -1801,24 +1814,6 @@ static int read_explorer_state_asset(const char *asset, BYTE **data, DWORD *size
     *data = buffer;
     *size = low;
     return 1;
-}
-
-static int user_binary_matches_asset(const EXPLORER_BINARY_VALUE *item)
-{
-    BYTE *asset = NULL, *current = NULL;
-    DWORD asset_size = 0, current_size = 0;
-    int result = 0;
-    if (!read_explorer_state_asset(item->asset, &asset, &asset_size) ||
-        !read_user_binary(item->subkey, item->name, NULL, &current_size) ||
-        current_size != asset_size) goto done;
-    current = (BYTE *)HeapAlloc(GetProcessHeap(), 0, current_size);
-    if (!current || !read_user_binary(item->subkey, item->name,
-                                      current, &current_size)) goto done;
-    result = memcmp(asset, current, asset_size) == 0;
-done:
-    if (asset) HeapFree(GetProcessHeap(), 0, asset);
-    if (current) HeapFree(GetProcessHeap(), 0, current);
-    return result;
 }
 
 static int write_user_binary_asset(const EXPLORER_BINARY_VALUE *item)
@@ -1947,7 +1942,7 @@ static int explorer_experiment_detected(void)
 {
     DWORD enabled = 0, value = 0;
     size_t index;
-    char payload_root[MAX_PATH], payload_file[MAX_PATH];
+    char payload_root[MAX_PATH], payload_file[MAX_PATH], band_file[MAX_PATH];
     char windows[MAX_PATH], web_root[MAX_PATH], installed_file[MAX_PATH];
     if (!read_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled", &enabled) ||
         !enabled ||
@@ -1963,11 +1958,15 @@ static int explorer_experiment_detected(void)
                                 g_explorer_strings[index].name,
                                 g_explorer_strings[index].value)) return 0;
     }
-    for (index = 0; index < sizeof(g_explorer_binaries) / sizeof(g_explorer_binaries[0]); ++index) {
-        if (!user_binary_matches_asset(&g_explorer_binaries[index])) return 0;
-    }
+    /* Cabinet and toolbar blobs are initial defaults, not durable enablement
+       markers.  Normal Explorer actions such as showing the Folders bar or
+       resizing a toolbar legitimately mutate them while the pane remains
+       installed and active. */
     if (!join_path(payload_root, sizeof(payload_root), g_install_root, "ExplorerWeb") ||
         !join_path(payload_file, sizeof(payload_file), payload_root, "folder.htt") ||
+        !join_path(band_file, sizeof(band_file), g_install_root,
+                   explorer_band_filename()) ||
+        !file_exists(band_file) ||
         !GetWindowsDirectoryA(windows, sizeof(windows)) ||
         !join_path(web_root, sizeof(web_root), windows, "Web") ||
         !join_path(installed_file, sizeof(installed_file), web_root, "folder.htt"))
@@ -2726,10 +2725,10 @@ typedef struct {
 
 static const EXPLORER_MACHINE_TEXT g_explorer_machine_text[] = {
     {"ExplorerBandClsidName", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}", "", REG_SZ, "eXPerience2K Windows 2000 Explorer Pane"},
-    {"ExplorerBandInproc", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}\\InprocServer32", "", REG_SZ, "@INSTALL@\\eXPerience2KExplorerBand64.dll"},
+    {"ExplorerBandInproc", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}\\InprocServer32", "", REG_SZ, "@EXPLORERBAND@"},
     {"ExplorerBandThreading", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}\\InprocServer32", "ThreadingModel", REG_SZ, "Apartment"},
     {"ExplorerHookClsidName", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K Explorer Hook"},
-    {"ExplorerHookInproc", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}\\InprocServer32", "", REG_SZ, "@INSTALL@\\eXPerience2KExplorerBand64.dll"},
+    {"ExplorerHookInproc", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}\\InprocServer32", "", REG_SZ, "@EXPLORERBAND@"},
     {"ExplorerHookThreading", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}\\InprocServer32", "ThreadingModel", REG_SZ, "Apartment"},
     {"ExplorerHookBho", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Browser Helper Objects\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K Explorer Hook"},
     {"ExplorerHookPreApproved", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Ext\\PreApproved\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K Explorer Hook"},
@@ -2814,6 +2813,15 @@ static int apply_explorer_machine_registry(int enabled)
                     continue;
                 }
                 value = expanded;
+            } else if (lstrcmpiA(item->value, "@EXPLORERBAND@") == 0) {
+                const char *band_name = explorer_band_filename();
+                if (!band_name[0] ||
+                    !join_path(expanded, sizeof(expanded), g_install_root,
+                               band_name)) {
+                    ok = 0;
+                    continue;
+                }
+                value = expanded;
             }
             ok &= write_machine_value(item->subkey, item->name, item->type,
                 (const BYTE *)value, (DWORD)strlen(value) + 1);
@@ -2829,7 +2837,7 @@ static int apply_w2k_explorer_machine_state(int enabled)
 {
     int ok;
     if (enabled && !explorer_experiment_architecture_supported()) {
-        append_log_line("ERROR: the experimental Explorer pane is available only on Windows XP Professional x64 Edition SP2.");
+        append_log_line("ERROR: the experimental Explorer pane requires a supported Windows XP Professional x86 SP3 or x64 SP2 installation.");
         return 0;
     }
     if (enabled) {
@@ -3264,7 +3272,15 @@ static int restore_all_managed_features(int clear_saved_state)
         if (!run_captured(command)) {
             append_log_line("ERROR: protected resource restoration failed.");
             ok = 0;
+        } else {
+            record_restore_result(&ok,
+                write_user_dword(CONFIG_KEY, "ResourceConversionEnabled", 0),
+                "resource-conversion state marker");
         }
+    } else {
+        record_restore_result(&ok,
+            write_user_dword(CONFIG_KEY, "ResourceConversionEnabled", 0),
+            "resource-conversion state marker");
     }
 
     {
@@ -3985,18 +4001,21 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     parent_directory(g_install_root);
     ZeroMemory(&system_info, sizeof(system_info));
     GetNativeSystemInfo(&system_info);
-    if (system_info.wProcessorArchitecture != PROCESSOR_ARCHITECTURE_AMD64) {
+    if (system_info.wProcessorArchitecture != PROCESSOR_ARCHITECTURE_AMD64 &&
+        system_info.wProcessorArchitecture != PROCESSOR_ARCHITECTURE_INTEL) {
         MessageBoxA(NULL,
-            "Windows XP x86 is not currently supported by eXPerience2K. "
-            "x86 support is in the works and should be available soon. "
-            "Please keep an eye on the eXPerience2K GitHub repository for updates.\n\n"
+            "Only Windows XP Professional x86 Service Pack 3 and Windows XP "
+            "Professional x64 Edition Service Pack 2 are supported by "
+            "eXPerience2K 3.0.0.\n\n"
             "No files or settings have been changed.",
             "eXPerience2K - Unsupported operating system",
             MB_OK | MB_ICONSTOP);
         return 1;
     }
     join_path(g_core_path, sizeof(g_core_path), g_install_root,
-        "eXPerience2KCore-x64.exe");
+        system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
+            ? "eXPerience2KCore-x64.exe"
+            : "eXPerience2KCore-x86.exe");
     discover_interactive_user();
     g_probe.administrator = token_is_administrator();
     append_log_line("eXPerience2K diagnostic log (privacy-safe; no account names, SIDs, profile paths, or product keys)." );
@@ -4023,7 +4042,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         int explorer_ok;
         if (!g_probe.supported || !g_probe.administrator ||
             !explorer_experiment_architecture_supported()) {
-            append_log_line("ERROR: Explorer experiment requires Windows XP Professional x64 Edition SP2 and administrator privileges.");
+            append_log_line("ERROR: Explorer experiment requires a supported Windows XP Professional x86 SP3 or x64 SP2 installation and administrator privileges.");
             save_unattended_log();
             return 1;
         }
