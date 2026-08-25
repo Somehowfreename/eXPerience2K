@@ -13,7 +13,7 @@ binaries in a normal issue.
 
 ## Expected high-risk behavior
 
-eXPerience2K64 is a protected-system-file modifier. It requests administrator
+eXPerience2K is a protected-system-file modifier. It requests administrator
 rights, creates recoverable backups, modifies PE resources, and temporarily
 suspends Windows File Protection so requested files can be replaced. That
 suspension path enables `SeDebugPrivilege`, interacts with Winlogon, and starts

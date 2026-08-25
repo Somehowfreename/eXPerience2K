@@ -11,7 +11,7 @@ $output = [System.IO.Path]::GetFullPath($OutputIso)
 
 $image = New-Object -ComObject IMAPI2FS.MsftFileSystemImage
 $image.FileSystemsToCreate = 3
-$image.VolumeName = 'EXPERIENCE2K64'
+$image.VolumeName = 'EXPERIENCE2K'
 $image.Root.AddTree($source, $false)
 $result = $image.CreateResultImage()
 
@@ -20,7 +20,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-public static class Experience2K64ComStreamCopy {
+public static class Experience2KComStreamCopy {
     public static void Save(object source, string destination) {
         IStream stream = (IStream)source;
         using (FileStream file = new FileStream(destination, FileMode.Create, FileAccess.Write)) {
@@ -42,5 +42,5 @@ public static class Experience2K64ComStreamCopy {
 }
 '@
 
-[Experience2K64ComStreamCopy]::Save($result.ImageStream, $output)
+[Experience2KComStreamCopy]::Save($result.ImageStream, $output)
 Get-Item -LiteralPath $output

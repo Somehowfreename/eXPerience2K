@@ -1,6 +1,6 @@
-# eXPerience2K64 2.4.1
+# eXPerience2K 2.4.1
 
-eXPerience2K64 brings the Windows 2000-style conversion to Windows XP
+eXPerience2K brings the Windows 2000-style conversion to Windows XP
 Professional x64 Edition SP2 and adds a configurable, reversible layer around
 the resource conversion.
 
@@ -19,18 +19,21 @@ the resource conversion.
   replacing `explorer.exe`.
 - Startup repair, CRC verification, privacy-safe diagnostics, and fail-closed
   uninstall restoration.
-- Explicit x86 refusal before installation, with a clear message that x86
-  support is in development.
+- Fail-closed installer detection that accepts only AMD64 Windows XP
+  Professional x64 Edition SP2 and rejects x86, IA-64, other XP x64 editions,
+  and every Windows Server edition before installation.
 
 ## Supported platform
 
-Only English Windows XP Professional x64 Edition SP2 is supported and tested.
-Server editions are untested and unsupported. Windows XP x86 is unsupported in
-this release and is blocked by the installer.
+Only English Windows XP Professional x64 Edition SP2 is supported, tested, and
+accepted by the installer. Server editions, other XP x64 editions, IA-64, and
+all Windows XP x86 editions are rejected before any files or settings are
+changed. Windows XP Professional x86 support is planned for the next major
+update.
 
 ## Installation
 
-Run `eXPerience2K64-v2.4.1-Setup.exe` as an administrator, open the installed
+Run `eXPerience2K-v2.4.1-Setup.exe` as an administrator, open the installed
 configuration application, choose the desired features, click **Apply**, and
 restart when prompted.
 
@@ -39,9 +42,9 @@ restart when prompted.
 The GitHub release contains only the installer:
 
 ```text
-eXPerience2K64-v2.4.1-Setup.exe
-SHA-256: 5A5E86B179BEDF6F948140A9265C2BAE2D315BC2A6B06DE6530031E859C232AD
-Size:    4,328,258 bytes
+eXPerience2K-v2.4.1-Setup.exe
+SHA-256: B64CE6446CD1D52B6B8DCDF0F085DED3BAA18D66123D722005A2E196B93CFFE3
+Size:    4,307,201 bytes
 ```
 
 ## Important safety note

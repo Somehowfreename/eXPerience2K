@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping improve eXPerience2K64.
+Thank you for helping improve eXPerience2K.
 
 Before opening a pull request:
 

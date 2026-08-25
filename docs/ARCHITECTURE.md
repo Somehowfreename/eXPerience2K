@@ -1,6 +1,6 @@
 # Architecture
 
-eXPerience2K64 is a native Win32 application for Windows XP Professional x64
+eXPerience2K is a native Win32 application for Windows XP Professional x64
 Edition SP2. It is divided into a 32-bit configuration front end, a native
 64-bit resource engine, a native 64-bit Explorer extension, an NSIS installer,
 and data-driven payload manifests.

@@ -2233,7 +2233,7 @@ static int cleanup_explorer_registrations(void)
 static void usage(void)
 {
     fprintf(stderr,
-        "eXPerience2K64 Core\n"
+        "eXPerience2K Core\n"
         "Usage:\n"
         "  eXPerience2KCore.exe patch-one <input> <script> <install-root> <output>\n"
         "  eXPerience2KCore.exe fallback-one <input> <script> <install-root> <output>\n"

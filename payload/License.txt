@@ -1,6 +1,6 @@
-eXPerience2K64 End-User Notice
+eXPerience2K End-User Notice
 
-eXPerience2K64 is an unofficial system-resource customization project for
+eXPerience2K is an unofficial system-resource customization project for
 Windows XP Professional x64 Edition SP2. It is not affiliated with, approved
 by, or supported by Microsoft.
 

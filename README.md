@@ -1,6 +1,6 @@
-# eXPerience2K64
+# eXPerience2K
 
-eXPerience2K64 is an open-source Windows 2000-style conversion for **Windows
+eXPerience2K is an open-source Windows 2000-style conversion for **Windows
 XP Professional x64 Edition SP2**. It preserves XP x64's NT 5.2 system and
 application compatibility while replacing supported shell artwork and
 automating the native Windows settings needed for a cohesive Windows 2000
@@ -8,14 +8,15 @@ experience.
 
 > [!IMPORTANT]
 > Windows XP Professional x64 Edition SP2 is the only operating system
-> currently supported and tested. Windows Server editions are untested and
-> unsupported. Windows XP x86 is not supported by this release. Some x86 code
+> currently supported and accepted by the installer. Windows Server editions,
+> other XP x64 editions, and every XP x86 edition are rejected before any
+> files or settings are changed. Some x86 code
 > paths remain in the source from development, but their presence is not a
 > compatibility promise. The installer detects 32-bit Windows, explains the
 > support status, and exits before installing files or changing settings.
 
-The current release is **eXPerience2K64 2.4.1**. Download
-`eXPerience2K64-v2.4.1-Setup.exe` from the repository's **Latest** release.
+The current release is **eXPerience2K 2.4.1**. Download
+`eXPerience2K-v2.4.1-Setup.exe` from the repository's **Latest** release.
 
 ## Why I made it
 
@@ -26,21 +27,24 @@ support. I decided to build that missing x64 implementation myself, preserve
 the spirit and artwork of the original, and make the result maintainable and
 open source.
 
-Windows XP x86 support is planned for a future release, but it is not the
+Windows XP Professional x86 support is planned for the next major update, but it is not the
 priority for 2.4.1 because the original project already serves x86 users.
-eXPerience2K64 first focuses on the platform that was left unsupported.
+eXPerience2K first focuses on the platform that was left unsupported.
 
-## What eXPerience2K64 adds
+## What eXPerience2K adds
 
 The original patcher already provided the Windows 2000-style resource set,
 protected-file backups, a startup reloader, verification, and uninstall
-restoration. eXPerience2K64 retains that foundation and adds:
+restoration. eXPerience2K retains that foundation and adds:
 
 - native Windows XP Professional x64 resource discovery and patching across
   64-bit system files, WoW64 files, WinSxS common controls, and Windows File
   Protection caches;
 - a reopenable configuration application whose selections reflect the
   machine's current state;
+- a native resizable configuration window with responsive control widths and
+  a right-side vertical scrollbar whenever the available height cannot show
+  the complete interface;
 - an immutable first-Apply baseline that restores the exact original registry
   data, type, value absence, shell state, sounds, fonts, metrics, theme,
   Explorer state, and logon settings when features are later cleared;
@@ -99,6 +103,19 @@ Default-on choices are defaults only on the first launch. After the first
 Apply, reopening the program shows the current configuration and never
 silently re-enables a choice the user cleared.
 
+The bottom-row **Revert** button provides a separate full-reset path. It asks
+for Yes/No confirmation, defaults to No, and on confirmation restores every
+managed feature and caption setting to the immutable baseline captured before
+the first Apply. The baseline is retained after a successful Revert so later
+launches continue to show the actual restored configuration instead of
+reasserting first-launch defaults.
+
+The configuration window can be resized from every edge and corner or
+maximized. Its controls widen with the window. If the available height is too
+small for the full interface, the native vertical scrollbar and mouse wheel
+move through the hidden content; opening the diagnostic log scrolls directly
+to it.
+
 ### Caption presets
 
 The secure logon prompt and signed-in Windows each have their own independent
@@ -133,11 +150,11 @@ exist.
    account.
 2. Keep installation media or a complete system image available. Modifying
    protected operating-system resources always carries risk.
-3. Run `eXPerience2K64-v2.4.1-Setup.exe`.
-4. Open eXPerience2K64, review the selections and caption presets, then click
+3. Run `eXPerience2K-v2.4.1-Setup.exe`.
+4. Open eXPerience2K, review the selections and caption presets, then click
    **Apply**.
 5. Restart when prompted. Allow the startup reloader to finish.
-6. Reopen eXPerience2K64 whenever you want to inspect, enable, or restore
+6. Reopen eXPerience2K whenever you want to inspect, enable, or restore
    individual features.
 
 Machine-level choices require administrator rights. User-level choices target
@@ -164,11 +181,15 @@ Uninstall performs a restoration transaction before removing the program. If
 restoration cannot be completed and verified, uninstall stops and retains the
 application and backup data rather than destroying the recovery path.
 
+The **Revert** button uses the same complete restoration stages without
+uninstalling the application or deleting the immutable baseline.
+
 ## Scope and deliberate limits
 
 - Supported: English Windows XP Professional x64 Edition SP2.
-- Unsupported in 2.4.1: all Windows XP x86 editions.
-- Untested and unsupported: Windows Server 2003 and Server 2003 R2 editions.
+- Rejected by the installer in 2.4.1: all Windows XP x86 editions, all other
+  XP x64 editions, and every Windows Server edition.
+- Planned for the next major update: Windows XP Professional x86.
 - Not changed: the kernel and boot screen.
 - Not replaced: `explorer.exe`.
 - Not included: Internet Explorer executable/icon experiments.
@@ -181,9 +202,9 @@ See the [support matrix](docs/SUPPORT-MATRIX.md) for the exact boundary.
 The sole binary asset attached to release 2.4.1 is:
 
 ```text
-eXPerience2K64-v2.4.1-Setup.exe
-SHA-256: 5A5E86B179BEDF6F948140A9265C2BAE2D315BC2A6B06DE6530031E859C232AD
-Size:    4,328,258 bytes
+eXPerience2K-v2.4.1-Setup.exe
+SHA-256: B64CE6446CD1D52B6B8DCDF0F085DED3BAA18D66123D722005A2E196B93CFFE3
+Size:    4,307,201 bytes
 ```
 
 The executable is unsigned. Security products may warn because the requested
@@ -205,7 +226,7 @@ It does not require .NET:
 .\scripts\verify-release.ps1
 ```
 
-The expected installer is `dist\eXPerience2K64-v2.4.1-Setup.exe`. See
+The expected installer is `dist\eXPerience2K-v2.4.1-Setup.exe`. See
 [BUILDING.md](docs/BUILDING.md) and
 [REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for prerequisites and the exact
 published-source attestation.

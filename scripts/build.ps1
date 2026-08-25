@@ -108,7 +108,7 @@ Build-Core -Compiler $gccX64 -Architecture 'x64' -MinimumNtVersion '0x0502' `
     -LinkerVersion '-Wl,--major-os-version,5,--minor-os-version,2,--major-subsystem-version,5,--minor-subsystem-version,2' `
     -OutputName 'eXPerience2KCore-x64.exe'
 
-$configOutput = Join-Path $buildDir 'eXPerience2K64.exe'
+$configOutput = Join-Path $buildDir 'eXPerience2K.exe'
 $configArguments = @(
     '-std=c99'
     '-Os'
@@ -211,7 +211,7 @@ finally {
     Pop-Location
 }
 
-$installer = Join-Path $distDir 'eXPerience2K64-v2.4.1-Setup.exe'
+$installer = Join-Path $distDir 'eXPerience2K-v2.4.1-Setup.exe'
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
     throw "Expected installer was not produced: $installer"
 }

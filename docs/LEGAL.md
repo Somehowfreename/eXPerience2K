@@ -33,5 +33,5 @@ their own supported Windows XP Professional x64 Edition installation.
 
 ## Independence
 
-eXPerience2K64 is an independent community project. It is not affiliated with,
+eXPerience2K is an independent community project. It is not affiliated with,
 approved by, sponsored by, or supported by Microsoft.

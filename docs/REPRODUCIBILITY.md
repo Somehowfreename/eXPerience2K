@@ -30,10 +30,10 @@ release path changes only the documented x64 support enforcement in
 `installer/eXPerience2K.nsi` and `src/eXPerience2KConfig.c`: x86 is rejected
 before installation or configuration, and the x86 core is no longer packaged.
 
-The resulting installer is 4,328,258 bytes with SHA-256:
+The resulting installer is 4,307,201 bytes with SHA-256:
 
 ```text
-5A5E86B179BEDF6F948140A9265C2BAE2D315BC2A6B06DE6530031E859C232AD
+B64CE6446CD1D52B6B8DCDF0F085DED3BAA18D66123D722005A2E196B93CFFE3
 ```
 
 Build documentation, release automation, and public-facing documentation may

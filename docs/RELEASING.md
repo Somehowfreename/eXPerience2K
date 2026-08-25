@@ -9,7 +9,7 @@
 6. Commit the exact source and documentation.
 7. Tag the verified commit `v2.4.1`.
 8. Create a non-draft, non-prerelease GitHub release and mark it Latest.
-9. Attach only `eXPerience2K64-v2.4.1-Setup.exe`.
+9. Attach only `eXPerience2K-v2.4.1-Setup.exe`.
 10. Verify the repository visibility remains private until the project owner
     explicitly chooses to publish it.
 

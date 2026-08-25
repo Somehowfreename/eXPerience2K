@@ -3,7 +3,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$installer = Join-Path $repoRoot 'dist\eXPerience2K64-v2.4.1-Setup.exe'
+$installer = Join-Path $repoRoot 'dist\eXPerience2K-v2.4.1-Setup.exe'
 $releaseDir = Join-Path $repoRoot 'release\v2.4.1'
 
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
@@ -17,7 +17,7 @@ $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash
 $checksum = Join-Path $releaseDir 'SHA256SUMS.txt'
 [System.IO.File]::WriteAllText(
     $checksum,
-    "$hash  eXPerience2K64-v2.4.1-Setup.exe`r`n",
+    "$hash  eXPerience2K-v2.4.1-Setup.exe`r`n",
     [System.Text.UTF8Encoding]::new($false)
 )
 

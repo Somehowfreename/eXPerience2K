@@ -13,9 +13,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define APP_TITLE "eXPerience2K64"
-#define CONFIG_KEY "Software\\eXPerience2K64\\Config"
-#define EXPLORER_MACHINE_STATE_KEY "SOFTWARE\\eXPerience2K64\\ExplorerExperiment"
+#define APP_TITLE "eXPerience2K"
+#define CONFIG_KEY "Software\\eXPerience2K\\Config"
+#define EXPLORER_MACHINE_STATE_KEY "SOFTWARE\\eXPerience2K\\ExplorerExperiment"
 #define MAX_FEATURES 11
 #define LOG_CAPACITY 262144
 #define IDC_FEATURE_BASE 1000
@@ -29,13 +29,17 @@
 #define IDC_DESKTOP_CAPTION_PRESET 2008
 #define IDC_LOGON_CAPTION_LABEL 2009
 #define IDC_DESKTOP_CAPTION_LABEL 2010
+#define IDC_REVERT 2011
+#define IDC_CAPTION_PRESET_GROUP 2012
 #define MAIN_CLIENT_WIDTH 514
+#define MAIN_MIN_CLIENT_WIDTH 460
+#define MAIN_MIN_CLIENT_HEIGHT 180
 #define MAIN_COMPACT_CLIENT_HEIGHT 519
 #define MAIN_EXPANDED_CLIENT_HEIGHT 657
 #define MAIN_BUTTON_TOP 473
 #define MAIN_LOG_TOP 515
 #define MAIN_LOG_HEIGHT 126
-#define APPLYING_WINDOW_CLASS "eXPerience2K64ApplyingWindow"
+#define APPLYING_WINDOW_CLASS "eXPerience2KApplyingWindow"
 
 #ifndef SPI_GETMENUANIMATION
 #define SPI_GETMENUANIMATION 0x1002
@@ -98,6 +102,8 @@ static HWND g_desktop_caption_combo;
 static HWND g_logon_caption_label;
 static HWND g_desktop_caption_label;
 static int g_apply_in_progress;
+static int g_scroll_y;
+static int g_scrollbar_visible = 1;
 static char g_install_root[MAX_PATH];
 static char g_core_path[MAX_PATH];
 static char g_log[LOG_CAPACITY];
@@ -1384,14 +1390,14 @@ static int delete_machine_tree(const char *subkey)
 static int configure_resource_reloader(int enabled)
 {
     const char *run_key = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
-    const char *value_name = "eXPerience2K64 Resource Reloader";
+    const char *value_name = "eXPerience2K Resource Reloader";
     char application[MAX_PATH];
     char command[2 * MAX_PATH + 64];
     if (!enabled)
         return restore_original_machine_value("ResourceReloaderRun",
                                               run_key, value_name);
     if (!join_path(application, sizeof(application), g_install_root,
-                   "eXPerience2K64.exe") ||
+                   "eXPerience2K.exe") ||
         _snprintf(command, sizeof(command), "\"%s\" /reload-resources",
                   application) < 0)
         return 0;
@@ -2719,14 +2725,14 @@ typedef struct {
 } EXPLORER_MACHINE_TEXT;
 
 static const EXPLORER_MACHINE_TEXT g_explorer_machine_text[] = {
-    {"ExplorerBandClsidName", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}", "", REG_SZ, "eXPerience2K64 Windows 2000 Explorer Pane"},
+    {"ExplorerBandClsidName", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}", "", REG_SZ, "eXPerience2K Windows 2000 Explorer Pane"},
     {"ExplorerBandInproc", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}\\InprocServer32", "", REG_SZ, "@INSTALL@\\eXPerience2KExplorerBand64.dll"},
     {"ExplorerBandThreading", "SOFTWARE\\Classes\\CLSID\\{6D638B73-08F5-4B6D-A8CC-5A7B31FC2A64}\\InprocServer32", "ThreadingModel", REG_SZ, "Apartment"},
-    {"ExplorerHookClsidName", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K64 Explorer Hook"},
+    {"ExplorerHookClsidName", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K Explorer Hook"},
     {"ExplorerHookInproc", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}\\InprocServer32", "", REG_SZ, "@INSTALL@\\eXPerience2KExplorerBand64.dll"},
     {"ExplorerHookThreading", "SOFTWARE\\Classes\\CLSID\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}\\InprocServer32", "ThreadingModel", REG_SZ, "Apartment"},
-    {"ExplorerHookBho", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Browser Helper Objects\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K64 Explorer Hook"},
-    {"ExplorerHookPreApproved", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Ext\\PreApproved\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K64 Explorer Hook"},
+    {"ExplorerHookBho", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Browser Helper Objects\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K Explorer Hook"},
+    {"ExplorerHookPreApproved", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Ext\\PreApproved\\{7D298B9A-9BE0-48E9-9733-AD9A17EA6D20}", "", REG_SZ, "eXPerience2K Explorer Hook"},
 
     {"WebMacroBackground", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\WebView\\TemplateMacros\\BACKGROUNDIMAGE", "", REG_EXPAND_SZ, "%SystemRoot%\\Web\\wvleft.bmp"},
     {"WebMacroLogoLine", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\WebView\\TemplateMacros\\LOGOLINE", "", REG_EXPAND_SZ, "%SystemRoot%\\Web\\wvline.gif"},
@@ -2913,7 +2919,7 @@ static int capture_exact_user_baseline(void)
 
     if (read_user_dword(CONFIG_KEY, "BaselineUserSchema", &schema) && schema == 1)
         return 1;
-    append_log_line("Capturing the immutable pre-eXPerience2K64 user baseline...");
+    append_log_line("Capturing the immutable pre-eXPerience2K user baseline...");
 
     ok &= capture_original_user_value_checked("ThemeActive",
         "Software\\Microsoft\\Windows\\CurrentVersion\\ThemeManager", "ThemeActive");
@@ -3036,7 +3042,7 @@ static int capture_exact_machine_baseline(void)
     int ok = 1;
     if (read_user_dword(CONFIG_KEY, "BaselineMachineSchema", &schema) && schema == 1)
         return 1;
-    append_log_line("Capturing the immutable pre-eXPerience2K64 machine baseline...");
+    append_log_line("Capturing the immutable pre-eXPerience2K machine baseline...");
 
     if (!read_user_dword(CONFIG_KEY, "Original_LogonType_Present", &present)) {
         if (read_machine_dword("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon",
@@ -3084,7 +3090,7 @@ static int capture_exact_machine_baseline(void)
 
     ok &= capture_original_machine_value_checked("ResourceReloaderRun",
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
-        "eXPerience2K64 Resource Reloader");
+        "eXPerience2K Resource Reloader");
     for (index = 0; index < sizeof(g_explorer_machine_text) /
                               sizeof(g_explorer_machine_text[0]); ++index)
         ok &= capture_original_machine_value_checked(g_explorer_machine_text[index].marker,
@@ -3230,7 +3236,7 @@ static void record_restore_result(int *overall, int result, const char *stage)
     append_log_line(message);
 }
 
-static int restore_all_managed_features(void)
+static int restore_all_managed_features(int clear_saved_state)
 {
     DWORD configured = 0, marker = 0, value = 0, present = 0;
     DWORD animation_value = 1, fade_value = 1;
@@ -3242,7 +3248,9 @@ static int restore_all_managed_features(void)
     int logon_caption_preset = saved_caption_preset(
         "LogonCaptionPreset", CAPTION_PRESET_SOLID_NAVY);
 
-    append_log_line("Starting complete uninstall restoration for the interactive user and protected system files...");
+    append_log_line(clear_saved_state
+        ? "Starting complete uninstall restoration for the interactive user and protected system files..."
+        : "Starting complete Revert restoration to the immutable pre-Apply baseline...");
     if (!g_probe.administrator) {
         append_log_line("ERROR: complete uninstall restoration requires administrator privileges.");
         return 0;
@@ -3348,11 +3356,16 @@ static int restore_all_managed_features(void)
                               "login-desktop appearance");
     }
 
-    if (ok) {
-        ok &= delete_user_tree("Software\\eXPerience2K64");
+    if (ok && clear_saved_state) {
         ok &= delete_user_tree("Software\\eXPerience2K");
+        ok &= delete_user_tree("Software\\eXPerience2K64");
         append_log_line(ok ? "Complete uninstall restoration succeeded."
                            : "ERROR: restored settings but could not remove saved configuration state.");
+    } else if (ok) {
+        ok &= write_user_dword(CONFIG_KEY, "Configured", 1);
+        append_log_line(ok
+            ? "Complete Revert restoration succeeded; the immutable baseline was retained."
+            : "ERROR: the original setup was restored but its configured-state marker could not be retained.");
     }
     return ok;
 }
@@ -3475,27 +3488,158 @@ static void refresh_states(int use_first_launch_defaults)
 
 static void set_log_visibility(int visible)
 {
-    RECT rectangle;
-    DWORD style;
-    DWORD extended_style;
-    int client_height = visible ? MAIN_EXPANDED_CLIENT_HEIGHT :
-                                  MAIN_COMPACT_CLIENT_HEIGHT;
     if (!g_window || !g_log_edit) return;
-    if (!visible) ShowWindow(g_log_edit, SW_HIDE);
-    rectangle.left = 0;
-    rectangle.top = 0;
-    rectangle.right = MAIN_CLIENT_WIDTH;
-    rectangle.bottom = client_height;
-    style = (DWORD)GetWindowLongA(g_window, GWL_STYLE);
-    extended_style = (DWORD)GetWindowLongA(g_window, GWL_EXSTYLE);
-    AdjustWindowRectEx(&rectangle, style, FALSE, extended_style);
-    SetWindowPos(g_window, NULL, 0, 0,
-        rectangle.right - rectangle.left, rectangle.bottom - rectangle.top,
-        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
-    if (visible) ShowWindow(g_log_edit, SW_SHOW);
+    ShowWindow(g_log_edit, visible ? SW_SHOW : SW_HIDE);
+    SetWindowTextA(GetDlgItem(g_window, IDC_OPEN_LOG),
+        visible ? "&Hide log" : "&Open log");
+    g_scroll_y = visible ? MAIN_EXPANDED_CLIENT_HEIGHT : 0;
+    SendMessageA(g_window, WM_SIZE, SIZE_RESTORED, 0);
 }
 
-static HWND show_applying_dialog(void)
+static int main_content_height(void)
+{
+    return g_log_edit && IsWindowVisible(g_log_edit)
+        ? MAIN_EXPANDED_CLIENT_HEIGHT : MAIN_COMPACT_CLIENT_HEIGHT;
+}
+
+static void layout_main_controls(HWND window)
+{
+    RECT client;
+    SCROLLINFO scroll;
+    int client_width;
+    int client_height;
+    int content_height;
+    int maximum_scroll;
+    int y_offset;
+    int index;
+    int button_width;
+    int button_gap = 7;
+    int button_x;
+    int left_combo_x = 34;
+    int left_combo_width;
+    int right_combo_x;
+    int right_combo_width;
+    int combo_gap;
+    HWND preset_group;
+    HWND button;
+    const int button_ids[] = {
+        IDC_APPLY, IDC_REVERT, IDC_OPEN_LOG, IDC_SAVE_LOG, IDC_CLOSE
+    };
+
+    if (!window || !g_status) return;
+    GetClientRect(window, &client);
+    client_width = client.right - client.left;
+    client_height = client.bottom - client.top;
+    content_height = main_content_height();
+    maximum_scroll = content_height > client_height
+        ? content_height - client_height : 0;
+    if (g_scroll_y < 0) g_scroll_y = 0;
+    if (g_scroll_y > maximum_scroll) g_scroll_y = maximum_scroll;
+
+    if ((maximum_scroll > 0) != g_scrollbar_visible) {
+        g_scrollbar_visible = maximum_scroll > 0;
+        ShowScrollBar(window, SB_VERT, g_scrollbar_visible);
+        GetClientRect(window, &client);
+        client_width = client.right - client.left;
+        client_height = client.bottom - client.top;
+        maximum_scroll = content_height > client_height
+            ? content_height - client_height : 0;
+        if (g_scroll_y > maximum_scroll) g_scroll_y = maximum_scroll;
+    }
+
+    ZeroMemory(&scroll, sizeof(scroll));
+    scroll.cbSize = sizeof(scroll);
+    scroll.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
+    scroll.nMin = 0;
+    scroll.nMax = content_height > 0 ? content_height - 1 : 0;
+    scroll.nPage = client_height > 0 ? (UINT)client_height : 0;
+    scroll.nPos = g_scroll_y;
+    SetScrollInfo(window, SB_VERT, &scroll, TRUE);
+    y_offset = -g_scroll_y;
+
+    MoveWindow(g_status, 16, 14 + y_offset,
+        client_width > 32 ? client_width - 32 : 1, 72, TRUE);
+    for (index = 0; index < MAX_FEATURES; ++index) {
+        if (g_features[index].checkbox)
+            MoveWindow(g_features[index].checkbox, 22,
+                92 + index * 27 + y_offset,
+                client_width > 42 ? client_width - 42 : 1, 23, TRUE);
+    }
+
+    preset_group = GetDlgItem(window, IDC_CAPTION_PRESET_GROUP);
+    if (preset_group)
+        MoveWindow(preset_group, 22, 390 + y_offset,
+            client_width > 42 ? client_width - 42 : 1, 69, TRUE);
+
+    if (client_width >= MAIN_CLIENT_WIDTH) {
+        int extra = client_width - MAIN_CLIENT_WIDTH;
+        left_combo_width = 200 + extra / 2;
+        right_combo_x = 266 + extra / 2;
+        right_combo_width = client_width - right_combo_x - 48;
+    } else {
+        combo_gap = 16;
+        left_combo_width = (client_width - 68 - combo_gap) / 2;
+        if (left_combo_width < 120) left_combo_width = 120;
+        right_combo_x = left_combo_x + left_combo_width + combo_gap;
+        right_combo_width = client_width - right_combo_x - 34;
+        if (right_combo_width < 120) right_combo_width = 120;
+    }
+    MoveWindow(g_logon_caption_label, left_combo_x, 408 + y_offset,
+        left_combo_width, 17, TRUE);
+    MoveWindow(g_desktop_caption_label, right_combo_x, 408 + y_offset,
+        right_combo_width, 17, TRUE);
+    MoveWindow(g_logon_caption_combo, left_combo_x, 425 + y_offset,
+        left_combo_width, 100, TRUE);
+    MoveWindow(g_desktop_caption_combo, right_combo_x, 425 + y_offset,
+        right_combo_width, 100, TRUE);
+
+    button_width = (client_width - 44 - button_gap * 4) / 5;
+    if (button_width < 64) button_width = 64;
+    button_x = 22;
+    for (index = 0; index < 5; ++index) {
+        button = GetDlgItem(window, button_ids[index]);
+        if (button)
+            MoveWindow(button, button_x, MAIN_BUTTON_TOP + y_offset,
+                button_width, 30, TRUE);
+        button_x += button_width + button_gap;
+    }
+
+    if (g_log_edit)
+        MoveWindow(g_log_edit, 22, MAIN_LOG_TOP + y_offset,
+            client_width > 38 ? client_width - 38 : 1,
+            MAIN_LOG_HEIGHT, TRUE);
+}
+
+static void scroll_main_controls(HWND window, int command, int track_position)
+{
+    RECT client;
+    int content_height;
+    int page;
+    int maximum_scroll;
+    int new_position = g_scroll_y;
+    GetClientRect(window, &client);
+    page = client.bottom - client.top;
+    content_height = main_content_height();
+    maximum_scroll = content_height > page ? content_height - page : 0;
+    switch (command) {
+    case SB_TOP: new_position = 0; break;
+    case SB_BOTTOM: new_position = maximum_scroll; break;
+    case SB_LINEUP: new_position -= 27; break;
+    case SB_LINEDOWN: new_position += 27; break;
+    case SB_PAGEUP: new_position -= page > 40 ? page - 40 : page; break;
+    case SB_PAGEDOWN: new_position += page > 40 ? page - 40 : page; break;
+    case SB_THUMBPOSITION:
+    case SB_THUMBTRACK: new_position = track_position; break;
+    default: return;
+    }
+    if (new_position < 0) new_position = 0;
+    if (new_position > maximum_scroll) new_position = maximum_scroll;
+    if (new_position == g_scroll_y) return;
+    g_scroll_y = new_position;
+    layout_main_controls(window);
+}
+
+static HWND show_progress_dialog(const char *message)
 {
     RECT owner;
     HWND dialog;
@@ -3515,7 +3659,7 @@ static HWND show_applying_dialog(void)
         EnableWindow(g_window, TRUE);
         return NULL;
     }
-    label = CreateWindowA("STATIC", "Applying change. Please wait...",
+    label = CreateWindowA("STATIC", message,
         WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE,
         12, 8, 276, 46, dialog, NULL, g_instance, NULL);
     if (label)
@@ -3544,7 +3688,7 @@ static void show_error_guidance(const char *message)
     _snprintf(text, sizeof(text),
         "%s\n\nNo personal information is added to the diagnostic log. Use Open log to inspect it, or Save log to choose a location. If you report this on GitHub, include the log contents.",
         message);
-    MessageBoxA(g_window, text, "eXPerience2K64 could not apply every requested change",
+    MessageBoxA(g_window, text, "eXPerience2K could not apply every requested change",
                 MB_OK | MB_ICONERROR);
     set_log_visibility(1);
 }
@@ -3559,7 +3703,7 @@ static void apply_requested_configuration(void)
     }
     if (!g_probe.administrator && needs_administrator_change()) {
         MessageBoxA(g_window,
-            "Some selected changes modify protected system assets and require administrator privileges. No changes were attempted.\n\nClose eXPerience2K64, right-click it, choose Run As, and select an account in the Administrators group. Per-user options are labelled [Current user]; protected options are labelled [Administrator].",
+            "Some selected changes modify protected system assets and require administrator privileges. No changes were attempted.\n\nClose eXPerience2K, right-click it, choose Run As, and select an account in the Administrators group. Per-user options are labelled [Current user]; protected options are labelled [Administrator].",
             "Administrator privileges required", MB_OK | MB_ICONWARNING);
         return;
     }
@@ -3569,7 +3713,7 @@ static void apply_requested_configuration(void)
         return;
     }
     g_apply_in_progress = 1;
-    applying_dialog = show_applying_dialog();
+    applying_dialog = show_progress_dialog("Applying change. Please wait...");
     pump_ui_messages();
     append_log_line("--- Apply started ---");
     success = capture_exact_baseline(g_probe.administrator);
@@ -3590,10 +3734,61 @@ static void apply_requested_configuration(void)
     refresh_states(0);
 }
 
+static void revert_to_initial_setup(void)
+{
+    DWORD configured = 0;
+    DWORD baseline_schema = 0;
+    int success;
+    HWND progress_dialog;
+    int confirmation;
+
+    if (!g_probe.supported) {
+        show_error_guidance("This operating-system profile is not explicitly supported. No changes were attempted.");
+        return;
+    }
+    if (!g_probe.administrator) {
+        MessageBoxA(g_window,
+            "Reverting every managed change requires administrator privileges. No changes were attempted.\n\nClose eXPerience2K, right-click it, choose Run As, and select an account in the Administrators group.",
+            "Administrator privileges required", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    if (!(read_user_dword(CONFIG_KEY, "Configured", &configured) && configured) &&
+        !(read_user_dword(CONFIG_KEY, "BaselineUserSchema", &baseline_schema) &&
+          baseline_schema == 1)) {
+        MessageBoxA(g_window,
+            "No saved pre-Apply setup is available to restore. eXPerience2K has not recorded an original configuration on this account.",
+            "Nothing to revert", MB_OK | MB_ICONINFORMATION);
+        return;
+    }
+
+    confirmation = MessageBoxA(g_window,
+        "This will revert your setup to the original state captured before eXPerience2K first applied any changes. All currently managed eXPerience2K changes will be restored to that baseline.\n\nAre you sure you want to continue?",
+        "Revert all eXPerience2K changes?",
+        MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2);
+    if (confirmation != IDYES) return;
+
+    g_apply_in_progress = 1;
+    progress_dialog = show_progress_dialog("Reverting changes. Please wait...");
+    pump_ui_messages();
+    append_log_line("--- Revert started ---");
+    success = restore_all_managed_features(0);
+    close_applying_dialog(progress_dialog);
+    g_apply_in_progress = 0;
+    if (!success) {
+        show_error_guidance("The original pre-Apply setup could not be fully restored. Recovery data was retained; inspect the log before trying again.");
+    } else {
+        append_log_line("Revert completed successfully.");
+        MessageBoxA(g_window,
+            "Your original pre-Apply setup was restored. A sign-out or reboot may be required for shell and protected-file changes to become visible.",
+            APP_TITLE, MB_OK | MB_ICONINFORMATION);
+    }
+    refresh_states(0);
+}
+
 static void save_log(void)
 {
     OPENFILENAMEA dialog;
-    char path[MAX_PATH] = "eXPerience2K64-log.txt";
+    char path[MAX_PATH] = "eXPerience2K-log.txt";
     HANDLE file;
     DWORD written;
     ZeroMemory(&dialog, sizeof(dialog));
@@ -3621,6 +3816,20 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
     int index;
     (void)lparam;
     switch (message) {
+    case WM_GETMINMAXINFO: {
+        MINMAXINFO *limits = (MINMAXINFO *)lparam;
+        RECT minimum;
+        DWORD style = (DWORD)GetWindowLongA(window, GWL_STYLE);
+        DWORD extended_style = (DWORD)GetWindowLongA(window, GWL_EXSTYLE);
+        minimum.left = 0;
+        minimum.top = 0;
+        minimum.right = MAIN_MIN_CLIENT_WIDTH;
+        minimum.bottom = MAIN_MIN_CLIENT_HEIGHT;
+        AdjustWindowRectEx(&minimum, style, FALSE, extended_style);
+        limits->ptMinTrackSize.x = minimum.right - minimum.left;
+        limits->ptMinTrackSize.y = minimum.bottom - minimum.top;
+        return 0;
+    }
     case WM_CREATE: {
         HFONT font = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
         char status[512];
@@ -3644,7 +3853,8 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
         }
         preset_group = CreateWindowA("BUTTON", "Caption color presets (independent)",
             WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-            22, 390, MAIN_CLIENT_WIDTH - 42, 69, window, NULL, g_instance, NULL);
+            22, 390, MAIN_CLIENT_WIDTH - 42, 69, window,
+            (HMENU)IDC_CAPTION_PRESET_GROUP, g_instance, NULL);
         g_logon_caption_label = CreateWindowA("STATIC", "[Administrator] Logon prompt:",
             WS_CHILD | WS_VISIBLE,
             34, 408, 210, 17, window, (HMENU)IDC_LOGON_CAPTION_LABEL, g_instance, NULL);
@@ -3669,13 +3879,15 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
         SendMessage(g_logon_caption_combo, WM_SETFONT, (WPARAM)font, TRUE);
         SendMessage(g_desktop_caption_combo, WM_SETFONT, (WPARAM)font, TRUE);
         CreateWindowA("BUTTON", "&Apply", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON,
-            22, MAIN_BUTTON_TOP, 110, 30, window, (HMENU)IDC_APPLY, g_instance, NULL);
+            22, MAIN_BUTTON_TOP, 88, 30, window, (HMENU)IDC_APPLY, g_instance, NULL);
+        CreateWindowA("BUTTON", "&Revert", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+            117, MAIN_BUTTON_TOP, 88, 30, window, (HMENU)IDC_REVERT, g_instance, NULL);
         CreateWindowA("BUTTON", "&Open log", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-            144, MAIN_BUTTON_TOP, 110, 30, window, (HMENU)IDC_OPEN_LOG, g_instance, NULL);
+            212, MAIN_BUTTON_TOP, 88, 30, window, (HMENU)IDC_OPEN_LOG, g_instance, NULL);
         CreateWindowA("BUTTON", "&Save log...", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-            266, MAIN_BUTTON_TOP, 110, 30, window, (HMENU)IDC_SAVE_LOG, g_instance, NULL);
+            307, MAIN_BUTTON_TOP, 88, 30, window, (HMENU)IDC_SAVE_LOG, g_instance, NULL);
         CreateWindowA("BUTTON", "&Close", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-            MAIN_CLIENT_WIDTH - 126, MAIN_BUTTON_TOP, 110, 30, window,
+            402, MAIN_BUTTON_TOP, 88, 30, window,
             (HMENU)IDC_CLOSE, g_instance, NULL);
         g_log_edit = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", g_log,
             WS_CHILD | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
@@ -3690,6 +3902,27 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
             g_cross_user ? " (Run As account differs; settings target the interactive desktop user)" : "");
         SetWindowTextA(g_status, status);
         refresh_states(1);
+        layout_main_controls(window);
+        return 0;
+    }
+    case WM_SIZE:
+        layout_main_controls(window);
+        return 0;
+    case WM_VSCROLL: {
+        SCROLLINFO scroll;
+        ZeroMemory(&scroll, sizeof(scroll));
+        scroll.cbSize = sizeof(scroll);
+        scroll.fMask = SIF_TRACKPOS;
+        GetScrollInfo(window, SB_VERT, &scroll);
+        scroll_main_controls(window, LOWORD(wparam), scroll.nTrackPos);
+        return 0;
+    }
+    case WM_MOUSEWHEEL: {
+        int wheel_delta = (short)HIWORD(wparam);
+        if (wheel_delta > 0)
+            scroll_main_controls(window, SB_LINEUP, 0);
+        else if (wheel_delta < 0)
+            scroll_main_controls(window, SB_LINEDOWN, 0);
         return 0;
     }
     case WM_COMMAND:
@@ -3710,6 +3943,9 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
             return 0;
         case IDC_APPLY:
             apply_requested_configuration();
+            return 0;
+        case IDC_REVERT:
+            revert_to_initial_setup();
             return 0;
         case IDC_OPEN_LOG:
             set_log_visibility(!IsWindowVisible(g_log_edit));
@@ -3738,7 +3974,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     INITCOMMONCONTROLSEX controls;
     char executable[MAX_PATH];
     RECT initial_rectangle;
-    DWORD main_style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+    DWORD main_style = WS_OVERLAPPEDWINDOW | WS_VSCROLL;
     (void)previous;
     g_instance = instance;
     controls.dwSize = sizeof(controls);
@@ -3751,11 +3987,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     GetNativeSystemInfo(&system_info);
     if (system_info.wProcessorArchitecture != PROCESSOR_ARCHITECTURE_AMD64) {
         MessageBoxA(NULL,
-            "Windows XP x86 is not currently supported by eXPerience2K64. "
+            "Windows XP x86 is not currently supported by eXPerience2K. "
             "x86 support is in the works and should be available soon. "
-            "Please keep an eye on the eXPerience2K64 GitHub repository for updates.\n\n"
+            "Please keep an eye on the eXPerience2K GitHub repository for updates.\n\n"
             "No files or settings have been changed.",
-            "eXPerience2K64 - Unsupported operating system",
+            "eXPerience2K - Unsupported operating system",
             MB_OK | MB_ICONSTOP);
         return 1;
     }
@@ -3763,7 +3999,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         "eXPerience2KCore-x64.exe");
     discover_interactive_user();
     g_probe.administrator = token_is_administrator();
-    append_log_line("eXPerience2K64 diagnostic log (privacy-safe; no account names, SIDs, profile paths, or product keys)." );
+    append_log_line("eXPerience2K diagnostic log (privacy-safe; no account names, SIDs, profile paths, or product keys)." );
     if (lstrcmpiA(command_line, "/reload-resources") == 0) {
         char reload_command[2 * MAX_PATH + 64];
         DWORD explorer_enabled = 0;
@@ -3824,7 +4060,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         return explorer_ok ? 0 : 1;
     }
     if (lstrcmpiA(command_line, "/restore-all") == 0) {
-        int restore_ok = restore_all_managed_features();
+        int restore_ok = restore_all_managed_features(1);
         save_unattended_log();
         return restore_ok ? 0 : 1;
     }
@@ -3835,7 +4071,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     window_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     window_class.hCursor = LoadCursor(NULL, IDC_ARROW);
     window_class.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
-    window_class.lpszClassName = "eXPerience2K64ConfigWindow";
+    window_class.lpszClassName = "eXPerience2KConfigWindow";
     if (!RegisterClassA(&window_class)) return 1;
 
     ZeroMemory(&applying_class, sizeof(applying_class));
@@ -3850,7 +4086,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     initial_rectangle.top = 0;
     initial_rectangle.right = MAIN_CLIENT_WIDTH;
     initial_rectangle.bottom = MAIN_COMPACT_CLIENT_HEIGHT;
-    AdjustWindowRectEx(&initial_rectangle, main_style, FALSE, 0);
+    /* Size the initial compact window exactly as before. The vertical scroll
+       bar is hidden while all content fits and appears natively after the user
+       makes the client area shorter. */
+    AdjustWindowRectEx(&initial_rectangle, main_style & ~WS_VSCROLL, FALSE, 0);
     g_window = CreateWindowA(window_class.lpszClassName, APP_TITLE,
         main_style, CW_USEDEFAULT, CW_USEDEFAULT,
         initial_rectangle.right - initial_rectangle.left,
@@ -3862,7 +4101,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     SetFocus(GetDlgItem(g_window, IDC_APPLY));
     if (!g_probe.administrator) {
         MessageBoxA(g_window,
-            "eXPerience2K64 is running without administrator privileges. You can inspect the current configuration and use current-user features, but protected system assets and the login window cannot be changed.\n\nAdministrator access is checked only when you click Apply. To use protected features, close the program, right-click it, choose Run As, and select an account in the Administrators group.",
+            "eXPerience2K is running without administrator privileges. You can inspect the current configuration and use current-user features, but protected system assets and the login window cannot be changed.\n\nAdministrator access is checked only when you click Apply. To use protected features, close the program, right-click it, choose Run As, and select an account in the Administrators group.",
             "Limited account guidance", MB_OK | MB_ICONINFORMATION);
     }
     while (GetMessageA(&message, NULL, 0, 0) > 0) {

@@ -30,11 +30,11 @@ omitted.
 Expected outputs:
 
 ```text
-build/eXPerience2K64.exe
+build/eXPerience2K.exe
 build/eXPerience2KCore-x86.exe
 build/eXPerience2KCore-x64.exe
 build/eXPerience2KExplorerBand64.dll
-dist/eXPerience2K64-v2.4.1-Setup.exe
+dist/eXPerience2K-v2.4.1-Setup.exe
 ```
 
 The x86 core is compiled as retained development material, but it is not

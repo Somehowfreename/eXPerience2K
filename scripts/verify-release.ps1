@@ -5,9 +5,9 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $coreX86 = Join-Path $repoRoot 'build\eXPerience2KCore-x86.exe'
 $coreX64 = Join-Path $repoRoot 'build\eXPerience2KCore-x64.exe'
-$configApp = Join-Path $repoRoot 'build\eXPerience2K64.exe'
+$configApp = Join-Path $repoRoot 'build\eXPerience2K.exe'
 $explorerBand = Join-Path $repoRoot 'build\eXPerience2KExplorerBand64.dll'
-$installer = Join-Path $repoRoot 'dist\eXPerience2K64-v2.4.1-Setup.exe'
+$installer = Join-Path $repoRoot 'dist\eXPerience2K-v2.4.1-Setup.exe'
 $nsisSource = Join-Path $repoRoot 'installer\eXPerience2K.nsi'
 $configSource = Join-Path $repoRoot 'src\eXPerience2KConfig.c'
 
@@ -78,15 +78,61 @@ foreach ($feature in $features) {
 
 $nsisText = [System.IO.File]::ReadAllText($nsisSource)
 $configText = [System.IO.File]::ReadAllText($configSource)
-$unsupportedFragment = 'Windows XP x86 is not currently supported by eXPerience2K64'
+$installerUnsupportedFragment = 'Only Windows XP Professional x64 Edition Service Pack 2 is currently supported by eXPerience2K'
+$configUnsupportedFragment = 'Windows XP x86 is not currently supported by eXPerience2K'
 if (-not $nsisText.Contains('Function .onInit') -or
     -not $nsisText.Contains('${IfNot} ${RunningX64}') -or
-    -not $nsisText.Contains($unsupportedFragment)) {
-    throw 'The installer x86 refusal guard is missing.'
+    -not $nsisText.Contains($installerUnsupportedFragment)) {
+    throw 'The strict installer operating-system refusal guard is missing.'
 }
-if (-not $configText.Contains($unsupportedFragment) -or
+foreach ($strictGateContract in @(
+    'ReadEnvStr $0 "PROCESSOR_ARCHITEW6432"',
+    'StrCmp $0 "AMD64" architecture_ok unsupported_os',
+    '"SYSTEM\CurrentControlSet\Control\ProductOptions" "ProductType"',
+    'StrCmp $0 "WinNT" workstation_ok unsupported_os_native_view',
+    '"SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentVersion"',
+    'StrCmp $0 "5.2" version_ok unsupported_os_native_view',
+    '"SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"',
+    'StrCmp $0 "3790" build_ok unsupported_os_native_view',
+    '"SYSTEM\CurrentControlSet\Control\Windows" "CSDVersion"',
+    'IntCmp $0 0x200 supported_os unsupported_os_native_view unsupported_os_native_view',
+    'Windows XP Professional x86 support is planned for the next major update.',
+    'https://github.com/Somehowfreename/eXPerience2K',
+    'No files or settings have been changed.'
+)) {
+    if (-not $nsisText.Contains($strictGateContract)) {
+        throw "The strict XP Professional x64 SP2 gate is missing: $strictGateContract"
+    }
+}
+if (-not $configText.Contains($configUnsupportedFragment) -or
     -not $configText.Contains('PROCESSOR_ARCHITECTURE_AMD64')) {
     throw 'The configuration-application x86 refusal guard is missing.'
+}
+foreach ($revertContract in @(
+    '#define IDC_REVERT 2011',
+    'Revert all eXPerience2K changes?',
+    'MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2',
+    'restore_all_managed_features(0)',
+    'restore_all_managed_features(1)',
+    'Complete Revert restoration succeeded; the immutable baseline was retained.'
+)) {
+    if (-not $configText.Contains($revertContract)) {
+        throw "The Revert-button contract is missing: $revertContract"
+    }
+}
+foreach ($windowContract in @(
+    'WS_OVERLAPPEDWINDOW | WS_VSCROLL',
+    'case WM_GETMINMAXINFO:',
+    'case WM_SIZE:',
+    'case WM_VSCROLL:',
+    'case WM_MOUSEWHEEL:',
+    'ShowScrollBar(window, SB_VERT, g_scrollbar_visible)',
+    'layout_main_controls(window)',
+    'scroll_main_controls(window'
+)) {
+    if (-not $configText.Contains($windowContract)) {
+        throw "The resizable-window contract is missing: $windowContract"
+    }
 }
 if ($nsisText.Contains('File "..\build\eXPerience2KCore-x86.exe"')) {
     throw 'The unsupported x86 core must not be packaged in v2.4.1.'
@@ -129,5 +175,5 @@ foreach ($file in (Get-ChildItem -LiteralPath $repoRoot -Recurse -File -Force | 
 
 $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash
 Write-Host "Verified $operationCount operations, $targetCount targets, $resourceCount resources, and $($features.Count) features."
-Write-Host 'Verified NT 5.1/5.2 PE compatibility, x86 refusal, x64-only packaging, and all asset manifests.'
+Write-Host 'Verified NT 5.1/5.2 PE compatibility, the strict XP Professional x64 SP2 installer gate, x64-only packaging, and all asset manifests.'
 Write-Host "Installer SHA-256: $hash"
