@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=      Backup\srrstr.dll
+SaveAs=   NewFiles\srrstr.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\srrstr\101.ico,  ICONGROUP, 101, 
+
+-addoverwrite Resources\eXPerience2K\srrstr\111.bmp,  BITMAP, 111, 
+-addoverwrite Resources\eXPerience2K\srrstr\112.bmp,  BITMAP, 112, 

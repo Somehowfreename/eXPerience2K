@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\calc.exe
+SaveAs=   NewFiles\calc.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\calc\sc.ico,  ICONGROUP,SC,

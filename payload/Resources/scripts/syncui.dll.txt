@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\syncui.dll
+SaveAs=   NewFiles\syncui.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\syncui\120.ico,  ICONGROUP, 120, 

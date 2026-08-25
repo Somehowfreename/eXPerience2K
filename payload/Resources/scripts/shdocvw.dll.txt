@@ -1,0 +1,19 @@
+[FILENAMES]
+Exe=      Backup\shdocvw.dll
+SaveAs=   NewFiles\shdocvw.dll
+
+[COMMANDS]
+
+
+
+-addoverwrite Resources\eXPerience2K\shdocvw\105.ico,  ICONGROUP, 105, 
+-addoverwrite Resources\eXPerience2K\shdocvw\110.ico,  ICONGROUP, 110, 
+-addoverwrite Resources\eXPerience2K\shdocvw\111.ico,  ICONGROUP, 111, 
+-addoverwrite Resources\eXPerience2K\shdocvw\116.ico,  ICONGROUP, 116, 
+-addoverwrite Resources\eXPerience2K\shdocvw\204.ico,  ICONGROUP, 204, 
+-addoverwrite Resources\eXPerience2K\shdocvw\20786.ico,  ICONGROUP, 20786, 
+
+-addoverwrite Resources\eXPerience2K\shdocvw\4032.bmp,  BITMAP, 4032, 
+-addoverwrite Resources\eXPerience2K\shdocvw\4033.bmp,  BITMAP, 4033, 
+-addoverwrite Resources\eXPerience2K\shdocvw\4038.bmp,  BITMAP, 4038, 
+-addoverwrite Resources\eXPerience2K\shdocvw\4039.bmp,  BITMAP, 4039, 

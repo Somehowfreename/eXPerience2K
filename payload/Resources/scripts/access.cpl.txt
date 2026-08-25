@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\access.cpl
+SaveAs=   NewFiles\access.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\access\110.ico,  ICONGROUP,110,

@@ -1,0 +1,45 @@
+[FILENAMES]
+Exe=      Backup\xpsp2res.dll
+SaveAs=   NewFiles\xpsp2res.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\xpsp2res\4.ico,  ICONGROUP, 4, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\5.ico,  ICONGROUP, 5, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\144.ico,  ICONGROUP, 144, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\300.ico,  ICONGROUP, 300, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1000.ico,  ICONGROUP, 1000, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1001.ico,  ICONGROUP, 1001, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1002.ico,  ICONGROUP, 1002, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1003.ico,  ICONGROUP, 1003, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1004.ico,  ICONGROUP, 1004, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1005.ico,  ICONGROUP, 1005, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1006.ico,  ICONGROUP, 1006, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1007.ico,  ICONGROUP, 1007, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1009.ico,  ICONGROUP, 1009, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1010.ico,  ICONGROUP, 1010, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1021.ico,  ICONGROUP, 1021, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\1022.ico,  ICONGROUP, 1022, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\2000.ico,  ICONGROUP, 2000, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\2001.ico,  ICONGROUP, 2001, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\2021.ico,  ICONGROUP, 2021, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\2024.ico,  ICONGROUP, 2024, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\2030.ico,  ICONGROUP, 2030, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\4001.ico,  ICONGROUP, 4001, 
+
+-addoverwrite Resources\eXPerience2K\xpsp2res\6105.ico,  ICONGROUP, 6105, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\6106.ico,  ICONGROUP, 6106, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\6107.ico,  ICONGROUP, 6107, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\6108.ico,  ICONGROUP, 6108, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\6109.ico,  ICONGROUP, 6109, 
+
+-addoverwrite Resources\eXPerience2K\xpsp2res\10601.ico,  ICONGROUP, 10601, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10602.ico,  ICONGROUP, 10602, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10603.ico,  ICONGROUP, 10603, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10604.ico,  ICONGROUP, 10604, 
+
+-addoverwrite Resources\eXPerience2K\xpsp2res\10701.ico,  ICONGROUP, 10701, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10702.ico,  ICONGROUP, 10702, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10703.ico,  ICONGROUP, 10703, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10704.ico,  ICONGROUP, 10704, 
+-addoverwrite Resources\eXPerience2K\xpsp2res\10800.ico,  ICONGROUP, 10800, 
+

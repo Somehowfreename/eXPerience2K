@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\iexplore.exe
+SaveAs=   NewFiles\iexplore.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\iexplore\32528.ico,  ICONGROUP,32528,
+-addoverwrite Resources\eXPerience2K\iexplore\32529.ico,  ICONGROUP,32529,

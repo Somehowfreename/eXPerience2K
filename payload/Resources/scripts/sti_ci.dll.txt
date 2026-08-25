@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\sti_ci.dll
+SaveAs=   NewFiles\sti_ci.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\sti_ci\1000.ico,  ICONGROUP, 1000, 

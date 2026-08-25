@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\mydocs.dll
+SaveAs=   NewFiles\mydocs.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mydocs\100.ico,  ICONGROUP,100,
+-addoverwrite Resources\eXPerience2K\mydocs\101.ico,  ICONGROUP,101,

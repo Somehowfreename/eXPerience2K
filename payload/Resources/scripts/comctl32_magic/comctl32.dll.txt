@@ -1,0 +1,14 @@
+[FILENAMES]
+Exe=      Backup\comctl32.dll
+SaveAs=   NewFiles\comctl32.dll
+
+[COMMANDS]
+-addoverwrite Resources\res_named\status\dialog-error.ico,  ICONGROUP, 20480, 
+-addoverwrite Resources\res_named\status\dialog-information.ico,  ICONGROUP, 20481, 
+-addoverwrite Resources\res_named\status\dialog-warning.ico,  ICONGROUP, 20482, 
+
+;-addoverwrite Resources\res_tweaked\comctl32.dll\124_8pp.bmp,  BITMAP, 124, 
+;-addoverwrite Resources\res_tweaked\comctl32.dll\125_8pp.bmp,  BITMAP, 125, 
+;-addoverwrite Resources\res_tweaked\comctl32.dll\130_8pp.bmp,  BITMAP, 130, 
+;-addoverwrite Resources\res_tweaked\comctl32.dll\131_8pp.bmp,  BITMAP, 131, 
+;^doesn't like 'em even as 8bpp magic-pink't bmps, skipping

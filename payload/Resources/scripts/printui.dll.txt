@@ -1,0 +1,11 @@
+[FILENAMES]
+Exe=      Backup\printui.dll
+SaveAs=   NewFiles\printui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\printui\132.ico,  ICONGROUP, 132, 
+-addoverwrite Resources\eXPerience2K\printui\420.ico,  ICONGROUP, 420, 
+
+-addoverwrite Resources\eXPerience2K\printui\134.bmp,  BITMAP, 132, 
+
+-addoverwrite Resources\eXPerience2K\printui\128.avi,  AVI, 128, 

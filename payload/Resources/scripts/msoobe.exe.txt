@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\msoobe.exe
+SaveAs=   NewFiles\msoobe.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msoobe\1.ico,  ICONGROUP, 1, 

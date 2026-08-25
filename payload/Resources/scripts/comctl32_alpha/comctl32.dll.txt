@@ -1,0 +1,13 @@
+[FILENAMES]
+Exe=      Backup\comctl32.dll
+SaveAs=   NewFiles\comctl32.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\comctl32\20480.ico,  ICONGROUP, 20480, 
+-addoverwrite Resources\eXPerience2K\comctl32\20481.ico,  ICONGROUP, 20481, 
+-addoverwrite Resources\eXPerience2K\comctl32\20482.ico,  ICONGROUP, 20482, 
+
+-addoverwrite Resources\eXPerience2K\comctl32\124.bmp,  BITMAP, 124, 
+-addoverwrite Resources\eXPerience2K\comctl32\125.bmp,  BITMAP, 125, 
+-addoverwrite Resources\eXPerience2K\comctl32\130.bmp,  BITMAP, 130, 
+-addoverwrite Resources\eXPerience2K\comctl32\131.bmp,  BITMAP, 131, 

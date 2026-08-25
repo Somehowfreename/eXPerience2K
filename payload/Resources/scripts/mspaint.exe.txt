@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\mspaint.exe
+SaveAs=	NewFiles\mspaint.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mspaint\2.ico, ICONGROUP,2,

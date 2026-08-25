@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\storprop.dll
+SaveAs=   NewFiles\storprop.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\storprop\5602.ico,  ICONGROUP, 5602, 

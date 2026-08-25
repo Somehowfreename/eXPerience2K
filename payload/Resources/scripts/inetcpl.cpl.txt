@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\inetcpl.cpl
+SaveAs=   NewFiles\inetcpl.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\inetcpl\4487.ico,  ICONGROUP,4487,

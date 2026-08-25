@@ -1,0 +1,12 @@
+[FILENAMES]
+Exe=	Backup\fontext.dll
+SaveAs=	NewFiles\fontext.dll
+
+[COMMANDS]
+-addoverwrite "Resources\eXPerience2K\fontext\1.ico", ICONGROUP, 1,
+-addoverwrite "Resources\eXPerience2K\fontext\2.ico", ICONGROUP, 2,
+-addoverwrite "Resources\eXPerience2K\fontext\3.ico", ICONGROUP, 3,
+-addoverwrite "Resources\eXPerience2K\fontext\4.ico", ICONGROUP, 4,
+-addoverwrite "Resources\eXPerience2K\fontext\5.ico", ICONGROUP, 5,
+-addoverwrite "Resources\eXPerience2K\fontext\6.ico", ICONGROUP, 6,
+-addoverwrite "Resources\eXPerience2K\fontext\7.ico", ICONGROUP, 7,

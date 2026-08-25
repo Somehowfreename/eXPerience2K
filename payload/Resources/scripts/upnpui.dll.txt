@@ -1,0 +1,10 @@
+[FILENAMES]
+Exe=      Backup\upnpui.dll
+SaveAs=   NewFiles\upnpui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\upnpui\302.ico,  ICONGROUP, 302, 
+-addoverwrite Resources\eXPerience2K\upnpui\303.ico,  ICONGROUP, 303, 
+-addoverwrite Resources\eXPerience2K\upnpui\305.ico,  ICONGROUP, 305, 
+-addoverwrite Resources\eXPerience2K\upnpui\306.ico,  ICONGROUP, 306, 
+-addoverwrite Resources\eXPerience2K\upnpui\307.ico,  ICONGROUP, 307, 

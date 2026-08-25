@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\mobsync.dll
+SaveAs=   NewFiles\mobsync.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mobsync_dll\3129.ico,  ICONGROUP, 3129, 

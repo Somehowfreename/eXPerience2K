@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\sapi.cpl
+SaveAs=   NewFiles\sapi.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\sapi\138.ico,  ICONGROUP,138,

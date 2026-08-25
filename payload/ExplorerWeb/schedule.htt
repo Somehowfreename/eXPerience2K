@@ -1,0 +1,155 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <link rel=stylesheet href="%TEMPLATEDIR%\webview.css" title="Windows">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script language="JavaScript">
+            var L_Intro_Text      = "This folder contains tasks you've scheduled for Windows. Windows automatically performs each task at the scheduled time.<p>For example, you can schedule a time for Windows to clean up your hard disk by deleting unnecessary files.<p>";
+            var L_Prompt_Text     = "Select an item to view its description.";
+            var L_Multiple_Text   = " items selected.";
+            var L_Wizard_Text     = "Add Scheduled Task";
+            var L_Help_Text       = "The Scheduled Task wizard walks you step-by-step through adding tasks. Just follow the instructions on each screen.";
+            var L_Schedule_Text   = "Schedule";
+            var gTimer            = 0;
+            var gDoBlends         = false && (navigator.cpuClass != "Alpha" && screen.colorDepth > 8);
+
+            function Resize() {
+                if (document.body.clientWidth < Panel.style.pixelWidth * 2) {
+                    Panel.style.visibility = "hidden";
+                    FileList.style.pixelLeft = 0;
+                } else {
+                    Panel.style.visibility = "visible";
+                    FileList.style.pixelLeft = Panel.style.pixelWidth; 
+                }
+                FileList.style.pixelWidth = document.body.clientWidth - FileList.style.pixelLeft;
+            }
+
+            function Load() {
+                Info.innerHTML = L_Intro_Text + L_Prompt_Text;
+
+                // fix styles
+                var L_SystemFont1_Text = "MS Sans Serif";
+                var L_SystemFont2_Text = "MS Shell Dlg";
+                var L_SystemFont_Text = "Tahoma, Verdana";
+                var tr = document.body.createTextRange();
+                if (navigator.cpuClass != "Alpha") {
+                    tr.collapse();
+                    var actualFont = tr.queryCommandValue("FontName");
+                    if (actualFont == L_SystemFont1_Text || actualFont == L_SystemFont2_Text)
+                        document.body.style.fontFamily = L_SystemFont_Text;
+                } else
+                    document.body.style.fontFamily = L_SystemFont_Text;
+
+                // call our Resize() function whenever the window gets resized
+                window.onresize = Resize;
+                Resize();
+            }
+
+            function FormatDetail(label, data) {
+                var s;
+                if (label.length + data.length > 32)
+                    s = "<p>" + label + ":<br>" + data;
+                else
+                    s = "<p>" + label + ": " + data;
+                return s;
+            }
+
+            function SanatizeString(data) {
+              var re = /</g;
+              var s = data.replace( re, "&lt;");
+              re = />/g;
+              s = s.replace( re, "&gt;");
+
+              return s;
+            }
+
+            function ShowInfo() {
+                // this script updates the left info panel when you select icons
+                var folder = FileList.Folder;
+                var item;
+                var name;
+                var data;
+                var text;
+                var title;
+                var i;
+
+                if (gDoBlends) {
+                    Panel.filters[0].Stop();
+                    Panel.filters[0].Apply();
+                }
+                data = FileList.SelectedItems().Count;
+                if (data == 0) {
+                    // nothing selected?
+                    text = L_Intro_Text + L_Prompt_Text;
+                } else if (data > 1) {
+                    // more than one item selected?
+                    text = data + L_Multiple_Text + "<br>";
+                    if (data <= 16)
+                        for (i = 0; i < data; i++)
+                            text += "<br>" + SanatizeString(FileList.SelectedItems().Item(i).Name);
+                } else {
+                    item = FileList.SelectedItems().Item(0);
+
+                    // name
+                    name = folder.GetDetailsOf(item, 0);
+                    name = SanatizeString(name);
+                    text = name.bold(name);
+
+                    // details
+                    for (i = 1; i < 7; i++) {
+                        title = folder.GetDetailsOf(null, i);
+                        if (!title)
+                            break;
+                        data = folder.GetDetailsOf(item, i);
+                        if (data)
+                            text += FormatDetail(title, data);
+                    }
+
+                    // tip?
+                    data = folder.GetDetailsOf(item, -1);
+                    if (data != "" && data != item.Name)
+                        text += "<p>" + data;
+
+                    // help
+                    if (folder.GetDetailsOf(item, 0) == L_Wizard_Text)
+                        text += "<p>" + L_Help_Text;
+                }
+                // replace Info with the new text
+                Info.innerHTML = text;
+                if (gDoBlends)
+                    Panel.filters[0].Play();
+            }
+        </script>
+
+        <script language="JavaScript" for="FileList" event="SelectionChanged">
+            window.clearTimeout(gTimer);
+            gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+        </script>
+    </head>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+            <div id=Corner>
+                <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                    <param name="scale" value=100>
+                </object>
+                <br>
+                <div id=FolderName>
+                    %THISDIRNAME%
+                </div>
+            </div>
+            <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+            <div id=Details>
+                <span id=Info>
+                    %THISDIRPATH%
+                </span>
+            </div>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" tabIndex=1>
+        </object>
+    </body>
+</html>
+

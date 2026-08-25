@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\mobsync.exe
+SaveAs=   NewFiles\mobsync.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mobsync_exe\132.ico,  ICONGROUP, 132, 

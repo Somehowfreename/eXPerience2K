@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\rvsezm.exe
+SaveAs=   NewFiles\rvsezm.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\rvsezm\IDI_ICON.ico,  ICONGROUP, IDI_ICON, 

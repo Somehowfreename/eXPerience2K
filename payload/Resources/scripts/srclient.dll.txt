@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\srclient.dll
+SaveAs=   NewFiles\srclient.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\srclient\0.ico,  ICONGROUP, 0, 

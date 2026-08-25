@@ -1,0 +1,10 @@
+[FILENAMES]
+Exe=      Backup\wab32res.dll
+SaveAs=   NewFiles\wab32res.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\wab32res\101.ico,  ICONGROUP, 101, 
+-addoverwrite Resources\eXPerience2K\wab32res\1641.ico,  ICONGROUP, 1641, 
+-addoverwrite Resources\eXPerience2K\wab32res\1912.ico,  ICONGROUP, 1911, 
+-addoverwrite Resources\eXPerience2K\wab32res\1912.ico,  ICONGROUP, 1912, 

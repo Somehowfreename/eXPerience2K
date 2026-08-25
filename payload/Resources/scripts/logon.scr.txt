@@ -1,0 +1,8 @@
+[FILENAMES]
+Exe=      Backup\logon.scr
+SaveAs=   NewFiles\logon.scr
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\logon\1.ico,  ICONGROUP, 1, 
+-addoverwrite Resources\eXPerience2K\logon\201.bmp,  BITMAP, 201, 
+-addoverwrite Resources\eXPerience2K\logon\204.bmp,  BITMAP, 204, 

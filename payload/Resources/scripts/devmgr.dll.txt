@@ -1,0 +1,8 @@
+[FILENAMES]
+Exe=      Backup\devmgr.dll
+SaveAs=   NewFiles\devmgr.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\devmgr\42.ico,  ICONGROUP, 42, 
+
+-addoverwrite Resources\eXPerience2K\devmgr\358.bmp,  BITMAP, 358, 

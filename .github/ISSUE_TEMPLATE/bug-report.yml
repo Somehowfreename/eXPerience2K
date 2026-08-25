@@ -1,0 +1,57 @@
+name: Bug report
+description: Report a reproducible installation, verification, repair, or uninstall problem.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Do not upload Windows system binaries, product keys, or installation media.
+  - type: input
+    id: os
+    attributes:
+      label: Operating-system build
+      description: Include edition, language, service pack, and update level.
+      placeholder: Windows XP Professional x64 Edition SP2, English
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Virtual machine
+        - Bare metal
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include the exact stage, expected result, and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification summary
+      description: Paste the counts and relevant text rows from verification.tsv.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Start from...
+        2. Run...
+        3. Reboot...
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I removed product keys, Windows binaries, and personal information from this report.
+          required: true

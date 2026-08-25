@@ -1,0 +1,15 @@
+[FILENAMES]
+Exe=      Backup\sysdm.cpl
+SaveAs=   NewFiles\sysdm.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\sysdm\1.ico,  ICONGROUP,1,
+-addoverwrite Resources\eXPerience2K\sysdm\2.ico,  ICONGROUP,2,
+-addoverwrite Resources\eXPerience2K\sysdm\6.ico,  ICONGROUP,6,
+-addoverwrite Resources\eXPerience2K\sysdm\9.ico,  ICONGROUP,9,
+
+-addoverwrite Resources\eXPerience2K\sysdm\1.bmp,  BITMAP,1,
+-addoverwrite Resources\eXPerience2K\sysdm\2.bmp,  BITMAP,2,
+-addoverwrite Resources\eXPerience2K\sysdm\180.txt, STRING,180,
+-addoverwrite Resources\eXPerience2K\sysdm\181.txt, STRING,181,
+-addoverwrite Resources\eXPerience2K\sysdm\195.txt, STRING,195,

@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\fldrclnr.dll
+SaveAs=   NewFiles\fldrclnr.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\fldrclnr\100.ico,  ICONGROUP, 100, 
+

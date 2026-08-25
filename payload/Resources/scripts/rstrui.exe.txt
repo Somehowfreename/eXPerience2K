@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\rstrui.exe
+SaveAs=   NewFiles\rstrui.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\rstrui\110.ico,  ICONGROUP,110,

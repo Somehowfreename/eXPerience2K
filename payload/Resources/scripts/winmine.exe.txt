@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\winmine.exe
+SaveAs=   NewFiles\winmine.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\winmine\100.ico,  ICONGROUP, 100, 

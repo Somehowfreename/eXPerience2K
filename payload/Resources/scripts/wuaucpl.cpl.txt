@@ -1,0 +1,10 @@
+[FILENAMES]
+Exe=      Backup\wuaucpl.cpl
+SaveAs=   NewFiles\wuaucpl.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wuaucpl\1.ico,  ICONGROUP, 1, 
+-addoverwrite Resources\eXPerience2K\wuaucpl\2.ico,  ICONGROUP, 2, 
+-addoverwrite Resources\eXPerience2K\wuaucpl\3.ico,  ICONGROUP, 3, 
+-addoverwrite Resources\eXPerience2K\wuaucpl\4.ico,  ICONGROUP, 4, 
+-addoverwrite Resources\eXPerience2K\wuaucpl\5.ico,  ICONGROUP, 5, 

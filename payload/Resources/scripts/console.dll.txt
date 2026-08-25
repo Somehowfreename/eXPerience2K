@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\console.dll
+SaveAs=   NewFiles\console.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\console\1.ico,  ICONGROUP, 1, 

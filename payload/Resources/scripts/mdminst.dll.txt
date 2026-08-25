@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\mdminst.dll
+SaveAs=   NewFiles\mdminst.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mdminst\5100.ico,  ICONGROUP, 5100, 

@@ -1,0 +1,13 @@
+[FILENAMES]
+Exe=      Backup\ws03res.dll
+SaveAs=   NewFiles\ws03res.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\ws03res\4604.txt, STRING,4604,
+-addoverwrite Resources\eXPerience2K\ws03res\4605.txt, STRING,4605,
+-addoverwrite Resources\eXPerience2K\ws03res\4606.txt, STRING,4606,
+-addoverwrite Resources\eXPerience2K\ws03res\13812.txt, STRING,13812,
+-addoverwrite Resources\eXPerience2K\ws03res\13813.txt, STRING,13813,
+-addoverwrite Resources\eXPerience2K\ws03res\13814.txt, STRING,13814,
+-addoverwrite Resources\eXPerience2K\ws03res\13815.txt, STRING,13815,
+-addoverwrite Resources\eXPerience2K\ws03res\13816.txt, STRING,13816,

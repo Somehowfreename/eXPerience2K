@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\chkrzm.exe
+SaveAs=   NewFiles\chkrzm.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\chkrzm\IDI_ICON.ico,  ICONGROUP, IDI_ICON, 

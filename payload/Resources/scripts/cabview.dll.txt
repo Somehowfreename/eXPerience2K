@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\cabview.dll
+SaveAs=   NewFiles\cabview.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\cabview\1.ico,  ICONGROUP, 1, 
+-addoverwrite Resources\eXPerience2K\cabview\105.ico,  ICONGROUP, 105, 

@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\wscui.cpl
+SaveAs=   NewFiles\wscui.cpl
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\wscui\200.ico,  ICONGROUP, 200, 

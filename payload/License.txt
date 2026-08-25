@@ -1,0 +1,23 @@
+eXPerience2K64 End-User Notice
+
+eXPerience2K64 is an unofficial system-resource customization project for
+Windows XP Professional x64 Edition SP2. It is not affiliated with, approved
+by, or supported by Microsoft.
+
+Windows XP x86 is not supported by this release. Windows Server editions are
+untested and unsupported. The installer exits without changing the system
+when it detects 32-bit Windows.
+
+This software modifies protected operating-system files. Back up important
+data and create a recovery path before installation. Use it only on systems
+you own or are authorized to modify. The software is supplied without
+warranty; you accept the risk of data loss, system instability, or the need
+to repair or reinstall Windows.
+
+Repository-authored code and build files are available under the code license
+in the repository. Visual resources, sounds, and third-party utilities remain
+subject to their respective rights and terms. The code license does not grant
+rights to Microsoft software, names, marks, artwork, or sounds.
+
+See README.md, THIRD_PARTY_NOTICES.md, and docs/LEGAL.md in the source
+repository for scope, attribution, and redistribution guidance.

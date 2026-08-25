@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\spider.exe
+SaveAs=   NewFiles\spider.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\spider\103.ico,  ICONGROUP, 103, 

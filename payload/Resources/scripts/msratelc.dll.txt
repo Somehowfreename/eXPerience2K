@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\msratelc.dll
+SaveAs=   NewFiles\msratelc.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msratelc\107.ico,  ICONGROUP, 107, 

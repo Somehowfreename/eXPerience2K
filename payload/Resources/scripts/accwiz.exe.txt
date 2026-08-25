@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\accwiz.exe
+SaveAs=	NewFiles\accwiz.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\accwiz\101.ico, ICONGROUP,101,

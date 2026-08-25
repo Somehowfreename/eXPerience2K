@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\gcdef.dll
+SaveAs=   NewFiles\gcdef.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\gcdef\108.ico,  ICONGROUP, 108, 

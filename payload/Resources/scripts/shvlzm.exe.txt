@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\shvlzm.exe
+SaveAs=   NewFiles\shvlzm.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\shvlzm\IDI_ICON.ico,  ICONGROUP, IDI_ICON, 

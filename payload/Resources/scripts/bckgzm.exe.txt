@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\bckgzm.exe
+SaveAs=   NewFiles\bckgzm.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\bckgzm\IDI_ICON.ico,  ICONGROUP, IDI_ICON, 

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\telephon.cpl
+SaveAs=   NewFiles\telephon.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\telephon\100.ico,  ICONGROUP,100,

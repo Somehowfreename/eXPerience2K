@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\winntbbu.dll
+SaveAs=   NewFiles\winntbbu.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\winntbbu\81.ico,  ICONGROUP, 81, 

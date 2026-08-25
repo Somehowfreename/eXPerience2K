@@ -1,0 +1,207 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <link rel=stylesheet href="%TEMPLATEDIR%\webview.css" title="Windows">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script language="JavaScript">
+            var L_Intro_Text      = "This folder contains network connections for this computer, and a wizard to help you create a new connection.<p>To create a new connection, click <b>Make New Connection</b>.<p>To open a connection, click its icon.<p>To access settings and components of a connection, right-click its icon and then click Properties.<p>";
+            var L_Prompt_Text     = "Select an item to view its description.";
+            var L_Multiple_Text   = " items selected.";
+            var L_Wizard_Text     = "Make New Connection";
+            var L_Help_Text       = "The Network Connection wizard helps you create a new connection so that your computer can have access to other computers and networks.";
+            var L_ConnectNow_Text = "To establish a connection to this computer or network now, click:<p class=Half><button onclick='Connect()'>Connect</button>";
+            var L_Connect_Text    = "C&onnect";
+            var L_Connection_Text = " Connection";
+            var L_NetworkID_Text  = "To identify your computer on the network, click <a href='javascript:onclick=GetNetworkID()' name='WVLink'>Network Identification</a>.";
+            var L_AddNet_Text     = "To add additional networking components, click <a href='javascript:onclick=AddNetworkComps()' name='WVLink'>Add Network Components</a>.";
+            var gTimer            = 0;
+            var gDoBlends         = false && (navigator.cpuClass != "Alpha" && screen.colorDepth > 8);
+
+            function Resize() {
+                if (document.body.clientWidth < Panel.style.pixelWidth * 2) {
+                    Panel.style.visibility = "hidden";
+                    FileList.style.pixelLeft = 0;
+                } else {
+                    Panel.style.visibility = "visible";
+                    FileList.style.pixelLeft = Panel.style.pixelWidth; 
+                }
+                FileList.style.pixelWidth = document.body.clientWidth - FileList.style.pixelLeft;
+            }
+
+            function Connect() {
+                if (FileList.SelectedItems().Count)
+                    FileList.SelectedItems().Item(0).InvokeVerb(L_Connect_Text);
+            }
+
+            function GetNetworkID() {
+                FileList.Folder.Application.ShellExecute("rundll32.exe", "shell32.dll,Control_RunDLL sysdm.cpl,,1");
+                //return false;
+            }
+
+            function AddNetworkComps() {
+                FileList.Folder.Application.ShellExecute("rundll32.exe", "netshell.dll,HrLaunchNetworkOptionalComponents");
+                //return false;
+            }
+
+            function Load() {
+                Info.innerHTML = L_Intro_Text + "<p>" + L_NetworkID_Text + "<p>" + L_AddNet_Text + "<p>" + L_Prompt_Text;
+
+                // fix styles
+                var L_SystemFont1_Text = "MS Sans Serif";
+                var L_SystemFont2_Text = "MS Shell Dlg";
+                var L_SystemFont_Text = "Tahoma, Verdana";
+                var tr = document.body.createTextRange();
+                if (navigator.cpuClass != "Alpha") {
+                    tr.collapse();
+                    var actualFont = tr.queryCommandValue("FontName");
+                    if (actualFont == L_SystemFont1_Text || actualFont == L_SystemFont2_Text)
+                        document.body.style.fontFamily = L_SystemFont_Text;
+                } else
+                    document.body.style.fontFamily = L_SystemFont_Text;
+
+                // call our Resize() function whenever the window gets resized
+                window.onresize = Resize;
+                Resize();
+            }
+
+            function FormatDetail(label, data) {
+                var s;
+                if (label.length + data.length > 32)
+                    s = "<p>" + label + ":<br>" + data;
+                else
+                    s = "<p>" + label + ": " + data;
+                return s;
+            }
+
+            function ShowInfo() {
+                // this script updates the left info panel when you select icons
+                var folder = FileList.Folder;
+                var item;
+                var name;
+                var data;
+                var text;
+                var title;
+                var i;
+
+                if (gDoBlends) {
+                    Panel.filters[0].Stop();
+                    Panel.filters[0].Apply();
+                }
+                data = FileList.SelectedItems().Count;
+                if (data == 0) {
+                    // nothing selected?
+                    text = L_Intro_Text + "<p>" + L_NetworkID_Text + "<p>" + L_AddNet_Text + "<p>" + L_Prompt_Text;
+                } else if (data > 1) {
+                    // more than one item selected?
+                    text = data + L_Multiple_Text + "<p>";
+                    if (data <= 16)
+                        for (i = 0; i < data; i++)
+                            text += FileList.SelectedItems().Item(i).Name + "<br>";
+                } else {
+                    item = FileList.SelectedItems().Item(0);
+
+                    // name
+                    name = FileList.SelectedItems().Item(0).Name;
+                    if (name)
+                        text = name.bold(name);
+
+                    // details
+                    for (i = 1; i < 3; i++) {
+                        title = folder.GetDetailsOf(null, i);
+                        if (!title)
+                            break;
+                        data = folder.GetDetailsOf(item, i);
+                        if (data) {
+                            if (i == 1) // device type
+                                data += L_Connection_Text;
+                            text += FormatDetail(title, data);
+                        }
+                    }
+
+                    // tip?
+                    data = folder.GetDetailsOf(item, -1);
+                    if (data != "" && data != item.Name)
+                        text += "<p>" + data;
+
+                    if (name == L_Wizard_Text)
+                        // help
+                        text += "<p>" + L_Help_Text;
+//                  else
+                        // connect
+//                      text += "<p>" + L_ConnectNow_Text;
+                }
+
+
+                // replace Info with the new text
+                Info.innerHTML = text;
+                if (gDoBlends)
+                    Panel.filters[0].Play();
+            }
+
+            function OnWebviewLinkEnter( aLink )
+            {
+                if( aLink.title )
+                {
+                    window.status = aLink.title;
+                }
+                else
+                {
+                    window.status = "";
+                }
+                return true;
+            }
+
+            function OnWebviewLinkExit()
+            {
+                window.status = "";
+                return false;
+            }
+        </script>
+
+        <script language="JavaScript" for="FileList" event="SelectionChanged">
+            window.clearTimeout(gTimer);
+            gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onmouseover">
+            return OnWebviewLinkEnter( this );
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onfocus">
+            return OnWebviewLinkEnter( this );
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onmouseout">
+            return OnWebviewLinkExit();
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onblur">
+            return OnWebviewLinkExit();
+        </script>
+    </head>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+            <div id=Corner>
+                <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                    <param name="scale" value=100>
+                </object>
+                <br>
+                <div id=FolderName>
+                    %THISDIRNAME%
+                </div>
+            </div>
+            <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+            <div id=Details>
+                <span id=Info>
+                    %THISDIRPATH%
+                </span>
+            </div>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" tabIndex=1>
+        </object>
+    </body>
+</html>

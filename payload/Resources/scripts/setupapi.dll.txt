@@ -1,0 +1,21 @@
+[FILENAMES]
+Exe=      Backup\setupapi.dll
+SaveAs=   NewFiles\setupapi.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\setupapi\1.ico,  ICONGROUP, 1, 
+-addoverwrite Resources\eXPerience2K\setupapi\2.ico,  ICONGROUP, 2, 
+-addoverwrite Resources\eXPerience2K\setupapi\3.ico,  ICONGROUP, 3, 
+-addoverwrite Resources\eXPerience2K\setupapi\4.ico,  ICONGROUP, 4, 
+-addoverwrite Resources\eXPerience2K\setupapi\11.ico,  ICONGROUP, 11, 
+-addoverwrite Resources\eXPerience2K\setupapi\27.ico,  ICONGROUP, 27, 
+-addoverwrite Resources\eXPerience2K\setupapi\43.ico,  ICONGROUP, 43, 
+-addoverwrite Resources\eXPerience2K\setupapi\50.ico,  ICONGROUP, 50, 
+-addoverwrite Resources\eXPerience2K\setupapi\51.ico,  ICONGROUP, 51, 
+-addoverwrite Resources\eXPerience2K\setupapi\52.ico,  ICONGROUP, 52, 
+-addoverwrite Resources\eXPerience2K\setupapi\53.ico,  ICONGROUP, 53, 
+
+-addoverwrite Resources\eXPerience2K\setupapi\30.avi,  AVI, 30, 
+-addoverwrite Resources\eXPerience2K\setupapi\31.avi,  AVI, 31, 
+

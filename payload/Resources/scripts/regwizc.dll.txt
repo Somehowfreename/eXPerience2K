@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\regwizc.dll
+SaveAs=   NewFiles\regwizc.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\regwizc\233.ico,  ICONGROUP, 233, 

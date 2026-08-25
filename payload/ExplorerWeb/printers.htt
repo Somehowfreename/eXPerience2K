@@ -1,0 +1,365 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <link rel=stylesheet href="%TEMPLATEDIR%\webview.css" title="Windows">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script language="JavaScript">
+            var L_Intro_Text    = "This folder contains information about printers that are currently installed, and a wizard to help you install new printers.<p>To get information about a printer that is currently installed, right-click the printer's icon.<p>To install a new printer, click the <b>Add Printer</b> icon.<p>";
+            var L_Prompt_Text   = "Select an item to view its description.";
+            var L_Multiple_Text = " items selected.";
+            var L_Help_Text     = "The Add Printer wizard gives you step-by-step instructions for installing a printer. To install a new printer, double-click the Add Printer icon.";
+            var L_Ready_Text    = "Ready"; // This string must be localized exactly the same way as
+                                           // the "Ready" string displayed in the print ui
+            var L_ETAColon_Text = "Waiting Time:";
+            var L_Moreinfo_Text = "Get More Info";
+            var bCustomUrl      = false;
+            var gTimer          = 0;
+            var gDoBlends       = false && (navigator.cpuClass != "Alpha" && screen.colorDepth > 8);
+
+            function Resize() {
+            if (document.body.clientWidth < Panel.style.pixelWidth * 2) {
+                Panel.style.visibility = "hidden";
+            } else {
+                Panel.style.visibility = "visible";
+            }
+        }
+
+            function htmlEncode (src)
+            {
+                var dst = "";
+                var length = src.length;
+
+                for (i = 0; i < length; i++) {
+                    switch (src.charAt (i)){
+                    case '<':
+                        dst += "&lt;";
+                        break;
+                    case '>':
+                        dst += "&gt;";
+                        break;
+                    case '"':
+                        dst += "&quot;";
+                        break;
+                    case '\'':
+                        dst += "&#39;";
+                        break; 
+                    default:
+                        dst += src.charAt (i);
+                        break;
+                    }
+                }
+                return dst;
+
+            }
+
+
+
+            function Load() {
+                Info.innerHTML = L_Intro_Text + L_Prompt_Text;
+
+                // Check if there is a custom support url
+                var data = htmlEncode(PrinterURLObject.SupportLinkName);
+                var url = htmlEncode(PrinterURLObject.SupportLink);
+                if (data != "" && url != "") {
+                    bCustomUrl = true;
+                    Support.innerHTML = "<a href=\"" + url + "\" >" + data + "</a>";
+                }
+
+                // fix styles
+                var L_SystemFont1_Text = "MS Sans Serif";
+                var L_SystemFont2_Text = "MS Shell Dlg";
+                var L_SystemFont_Text = "Tahoma, Verdana";
+                var tr = document.body.createTextRange();
+                if (navigator.cpuClass != "Alpha") {
+                    tr.collapse();
+                    var actualFont = tr.queryCommandValue("FontName");
+                    if (actualFont == L_SystemFont1_Text || actualFont == L_SystemFont2_Text)
+                        document.body.style.fontFamily = L_SystemFont_Text;
+                } else
+                    document.body.style.fontFamily = L_SystemFont_Text;
+
+
+            // call our Resize() function whenever the window gets resized
+            window.onresize = Resize;
+        Resize();
+            }
+
+            var printerName = "";
+            var addPrinterText = "WinUtils_NewObject";
+
+            setInterval("refreshLeftPaneProperties()", 5000);
+
+            function traperror (msg, url, line)
+            {
+                //alert (msg);
+                return true;
+            }
+
+
+            function FormatDetail(label, data) {
+                var s;
+                if (label.length + data.length > 32)
+                    s = "<p>" + htmlEncode(label) + ":<br>" + htmlEncode (data);
+                else
+                    s = "<p>" + htmlEncode(label) + ": " + htmlEncode (data);
+                return s;
+            }
+
+            function FormatStatusDetail(label, data) {
+                var s;
+
+
+                if (L_Ready_Text == data)
+                    color = "green";
+                else
+                    color = "red";
+
+                if (label.length + data.length > 32)
+                    s = "<p>" + htmlEncode(label) + ":<br><b><font color=" + color + ">" + htmlEncode (data) + "</font></b>";
+                else
+                    s = "<p>" + htmlEncode(label) + ": <b><font color=" + color + ">" + htmlEncode (data) + "</font></b>";
+                return s;
+            }
+
+            function getJobEtaHtml (iMinute)
+            {
+                var text = "";
+                var L_NoETA_Text = "0";
+                var L_LongHour_Text = "longer than 8 hours";
+                var L_About_Text    = "about ";
+                var L_Hour_Text     = " hour(s)";
+                var L_Minute_Text   = " minute(s)";
+                var L_ETA_Text      = "Waiting Time";
+                var L_Pending_Text  = "Pending: ";
+                var strTime;
+
+                if (iMinute == 0)
+                    text += FormatDetail (L_ETA_Text, L_NoETA_Text);
+                else {
+                    if (iMinute > 480)
+                        strTime = L_LongHour_Text;
+                    else if (iMinute > 60)
+                        strTime = L_About_Text + Math.round (iMinute / 60) + L_Hour_Text;
+                    else if (iMinute > 0)
+                        strTime = L_About_Text + iMinute + L_Minute_Text;
+                    else
+                        strTime = L_NoETA_Text;
+
+                    text += FormatDetail (L_ETA_Text, strTime);
+                }
+
+                return text;
+            }
+
+            function getLeftPaneHtml ()
+            {
+                var folder;
+                var item;
+                var data;
+                var text = "";
+                var oemtext = "";
+
+                folder = FileList.Folder;
+                item = FileList.SelectedItems().Item(0);
+
+                text = "<b>" + htmlEncode(item.Name) + "</b>";
+
+                // documents
+                data = folder.GetDetailsOf(item, 1);
+                njob = data;
+                if (data)
+                    text += FormatDetail(folder.GetDetailsOf(null, 1), data);
+
+                // status
+                data = folder.GetDetailsOf(item, 2);
+                if (data)
+                    text += FormatStatusDetail(folder.GetDetailsOf(null, 2), data);
+
+                // comment
+                data = folder.GetDetailsOf(item, 3);
+                if (data)
+                    text += FormatDetail(folder.GetDetailsOf(null, 3), data);
+
+                // location
+                data = folder.GetDetailsOf(item, 4);
+                if (data)
+                    text += FormatDetail(folder.GetDetailsOf(null, 4), data);
+
+                // model
+                data = folder.GetDetailsOf(item, 5);
+                if (data)
+                    text += FormatDetail(folder.GetDetailsOf(null, 5), data);
+
+                JobEta.CalcWaitingTime (printerName);
+
+                return text;
+            }
+
+            function refreshLeftPaneProperties ()
+            {
+
+                // this script updates the left info panel every 20 seconds
+                var folder;
+                var data;
+                var text;
+                var preVisibility;
+
+                if (printerName == "" || printerName == addPrinterText)
+                    return;
+
+                folder = FileList.Folder;
+
+                data = FileList.SelectedItems().Count;
+                if (data == 1) {
+                    Info.innerHTML= getLeftPaneHtml ();
+                }
+
+            }
+
+            function ShowInfo() {
+                // this script updates the left info panel when you select icons
+                var folder = FileList.Folder;
+                var item;
+                var data;
+                var text;
+                var njob = null;
+
+                if (gDoBlends) {
+                    Panel.filters[0].Stop();
+                    Panel.filters[0].Apply();
+                }
+                printerName = "";
+                JobInfo.innerHTML = "";
+                MoreInfo.innerHTML = "";
+                OemUrlInfo.innerHTML = "";
+                data = FileList.SelectedItems().Count;
+                if (data == 0) {
+                    // nothing selected?
+                    text = L_Intro_Text + L_Prompt_Text;
+                } else if (data > 1) {
+                    // more than one item selected?
+                    text = data + L_Multiple_Text + "<br>";
+                    if (data <= 16)
+                        for (i = 0; i < data; i++)
+                            text += "<br>" + htmlEncode(FileList.SelectedItems().Item(i).Name);
+                } else {
+                    item = FileList.SelectedItems().Item(0);
+                    printerName = folder.GetDetailsOf(item, 0);
+
+                    if (printerName == addPrinterText)
+                        text = "<b>" + htmlEncode(item.Name) + "</b><p>" + L_Help_Text;
+                    else {
+                        if (folder.GetDetailsOf(item, 2) == L_Ready_Text) {
+                            JobInfo.innerHTML = "<p>" + L_ETAColon_Text;
+                        }
+                        else {
+                            JobInfo.innerHTML = "<p> ";
+                        }
+                        MoreInfo.innerHTML = "<br>";
+                        OemUrlInfo.innerHTML = "<br>";
+                        text = getLeftPaneHtml();
+                    }
+                }
+                Info.innerHTML = text;
+                if (gDoBlends)
+                    Panel.filters[0].Play();
+            }
+            function fileListLeft(bodyWidth)
+            {
+                return (bodyWidth > 400 ? 200 : 0);
+            }
+        </script>
+
+        <script language="JavaScript" for="FileList" event="SelectionChanged">
+            window.clearTimeout(gTimer);
+            gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+        </script>
+
+        <script language="JavaScript" for="JobEta" event="OnInfoReady">
+
+            if (printerName != "" && printerName != addPrinterText) {
+                var data;
+
+                if ((JobEta.Status & 1) == 1) {
+                    JobInfo.innerHTML = getJobEtaHtml (JobEta.WaitingTime);
+                }
+
+                if ((JobEta.Status & 2) == 2) {
+
+                    data = htmlEncode(JobEta.WebUrl);
+                    if (data != ""){
+                        MoreInfo.innerHTML = "<br> <a href=\"" + data + "\" > <b> " + L_Moreinfo_Text + "</b></a>";
+                    }
+
+                }
+
+                if ((JobEta.Status & 4) == 4) {
+                    JobInfo.innerHTML = "<p>            ";
+                }
+
+                if ((JobEta.Status & 8) == 8) {
+
+                    if (!bCustomUrl) {
+                        // Get OEM URL of the printer
+                        data = htmlEncode(JobEta.OEMUrl);
+                        if (data != "") {
+                            var linkName = htmlEncode(JobEta.Manufacturer);
+                            if (linkName != "")
+                                OemUrlInfo.innerHTML = "<br><a href=\"" + data + "\" >" + linkName + " Support</a>";
+                        }
+                    }
+                }
+            }
+
+        </script>
+
+    </head>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="position: absolute; width: 200px; top: 0; left: 0; height: expression(document.body.clientHeight); overflow: auto; background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+
+            <div id=Corner>
+                <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                    <param name="scale" value=100>
+                </object>
+                <br>
+                <div id=FolderName>
+                    %THISDIRNAME%
+                </div>
+            </div>
+            <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+            <div id=Details>
+                <span id=Info>
+                    %THISDIRPATH%
+                </span>
+                <span id=JobInfo>
+                </span>
+                <br>
+                <span id=MoreInfo>
+                </span>
+                <br>
+                <span id=OemUrlInfo>
+                </span>
+                <br>
+                <span id=Support>
+                    <a href="http://www.microsoft.com/isapi/redir.dll?prd=Win2000&ar=Support&sba=printing">Windows 2000 Support</a>
+                </span>
+            </div>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" tabIndex=1>
+        </object>
+    </body>
+
+    <object id="PrinterURLObject" classid="clsid:92337A8C-E11D-11D0-BE48-00C04FC30DF6" tabIndex=-1
+        style="visibility: hidden; POSITION: absolute; HEIGHT: 0; LEFT: 0; TOP: 0; WIDTH: 0" border="0">
+    </object>
+
+    <object id="JobEta" classid="clsid:C3701884-B39B-11D2-9D68-00C04FC30DF6" tabIndex=-1
+        style="visibility: hidden POSITION: absolute; HEIGHT: 0; LEFT: 0; TOP: 0; WIDTH: 0" border="0">
+    </object>
+
+</html>
+

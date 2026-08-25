@@ -1,0 +1,59 @@
+[FILENAMES]
+Exe=	Backup\netshell.dll
+SaveAs=	NewFiles\netshell.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\netshell\0.ico", ICONGROUP, 0,
+-addoverwrite "Resources\eXPerience2K\netshell\1.ico", ICONGROUP, 1,
+-addoverwrite "Resources\eXPerience2K\netshell\2.ico", ICONGROUP, 2,
+-addoverwrite "Resources\eXPerience2K\netshell\3.ico", ICONGROUP, 3,
+-addoverwrite "Resources\eXPerience2K\netshell\4.ico", ICONGROUP, 4,
+-addoverwrite "Resources\eXPerience2K\netshell\5.ico", ICONGROUP, 5,
+
+-addoverwrite "Resources\eXPerience2K\netshell\190.ico", ICONGROUP, 190,
+-addoverwrite "Resources\eXPerience2K\netshell\191.ico", ICONGROUP, 191,
+-addoverwrite "Resources\eXPerience2K\netshell\192.ico", ICONGROUP, 192,
+-addoverwrite "Resources\eXPerience2K\netshell\193.ico", ICONGROUP, 193,
+
+-addoverwrite "Resources\eXPerience2K\netshell\195.ico", ICONGROUP, 195,
+-addoverwrite "Resources\eXPerience2K\netshell\196.ico", ICONGROUP, 196,
+
+-addoverwrite "Resources\eXPerience2K\netshell\300.ico", ICONGROUP, 300,
+-addoverwrite "Resources\eXPerience2K\netshell\301.ico", ICONGROUP, 301,
+
+-addoverwrite "Resources\eXPerience2K\netshell\1115.ico", ICONGROUP, 1115,
+-addoverwrite "Resources\eXPerience2K\netshell\1116.ico", ICONGROUP, 1116,
+-addoverwrite "Resources\eXPerience2K\netshell\1117.ico", ICONGROUP, 1117,
+
+-addoverwrite "Resources\eXPerience2K\netshell\1601.ico", ICONGROUP, 1601,
+
+-addoverwrite "Resources\eXPerience2K\netshell\1603.ico", ICONGROUP, 1603,
+-addoverwrite "Resources\eXPerience2K\netshell\1604.ico", ICONGROUP, 1604,
+-addoverwrite "Resources\eXPerience2K\netshell\1605.ico", ICONGROUP, 1605,
+-addoverwrite "Resources\eXPerience2K\netshell\1606.ico", ICONGROUP, 1606,
+-addoverwrite "Resources\eXPerience2K\netshell\1607.ico", ICONGROUP, 1607,
+-addoverwrite "Resources\eXPerience2K\netshell\1608.ico", ICONGROUP, 1608,
+-addoverwrite "Resources\eXPerience2K\netshell\1609.ico", ICONGROUP, 1609,
+-addoverwrite "Resources\eXPerience2K\netshell\1610.ico", ICONGROUP, 1610,
+-addoverwrite "Resources\eXPerience2K\netshell\1611.ico", ICONGROUP, 1611,
+-addoverwrite "Resources\eXPerience2K\netshell\1901.ico", ICONGROUP, 1901,
+-addoverwrite "Resources\eXPerience2K\netshell\1902.ico", ICONGROUP, 1902,
+-addoverwrite "Resources\eXPerience2K\netshell\1903.ico", ICONGROUP, 1903,
+-addoverwrite "Resources\eXPerience2K\netshell\1904.ico", ICONGROUP, 1904,
+-addoverwrite "Resources\eXPerience2K\netshell\1905.ico", ICONGROUP, 1905,
+-addoverwrite "Resources\eXPerience2K\netshell\1906.ico", ICONGROUP, 1906,
+-addoverwrite "Resources\eXPerience2K\netshell\1907.ico", ICONGROUP, 1907,
+
+-addoverwrite "Resources\eXPerience2K\netshell\1909.ico", ICONGROUP, 1909,
+-addoverwrite "Resources\eXPerience2K\netshell\1910.ico", ICONGROUP, 1910,
+-addoverwrite "Resources\eXPerience2K\netshell\1911.ico", ICONGROUP, 1911,
+-addoverwrite "Resources\eXPerience2K\netshell\1912.ico", ICONGROUP, 1912,
+-addoverwrite "Resources\eXPerience2K\netshell\1913.ico", ICONGROUP, 1913,
+-addoverwrite "Resources\eXPerience2K\netshell\1914.ico", ICONGROUP, 1914,
+-addoverwrite "Resources\eXPerience2K\netshell\1915.ico", ICONGROUP, 1915,
+-addoverwrite "Resources\eXPerience2K\netshell\1916.ico", ICONGROUP, 1916,
+-addoverwrite "Resources\eXPerience2K\netshell\1917.ico", ICONGROUP, 1917,
+-addoverwrite "Resources\eXPerience2K\netshell\1918.ico", ICONGROUP, 1918,
+-addoverwrite "Resources\eXPerience2K\netshell\1919.ico", ICONGROUP, 1919,
+-addoverwrite "Resources\eXPerience2K\netshell\1920.ico", ICONGROUP, 1920,

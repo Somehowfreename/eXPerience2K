@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\sndrec32.exe
+SaveAs=	NewFiles\sndrec32.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\sndrec32\10.ico, ICONGROUP,10,

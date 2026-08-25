@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=	Backup\netplwiz.dll
+SaveAs=	NewFiles\netplwiz.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\netplwiz\200.ico", ICONGROUP, 200, 
+-addoverwrite "Resources\eXPerience2K\netplwiz\125.ico", ICONGROUP, 125, 
+-addoverwrite "Resources\eXPerience2K\netplwiz\4400.ico", ICONGROUP, 4400, 

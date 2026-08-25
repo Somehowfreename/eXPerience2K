@@ -1,0 +1,8 @@
+[FILENAMES]
+Exe=      Backup\shdoclc.dll
+SaveAs=   NewFiles\shdoclc.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\shdoclc\190.ico,  ICONGROUP, 190, 
+-addoverwrite Resources\eXPerience2K\shdoclc\191.ico,  ICONGROUP, 191, 
+-addoverwrite Resources\eXPerience2K\shdoclc\20782.ico,  ICONGROUP, 20782, 

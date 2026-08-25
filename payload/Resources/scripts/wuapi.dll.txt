@@ -1,0 +1,8 @@
+[FILENAMES]
+Exe=      Backup\wuapi.dll
+SaveAs=   NewFiles\wuapi.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wuapi\1.ico,  ICONGROUP, 1, 
+
+-addoverwrite Resources\eXPerience2K\wuapi\2.bmp,  BITMAP, 2, 

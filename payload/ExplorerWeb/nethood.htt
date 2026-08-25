@@ -1,0 +1,325 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <link rel=stylesheet href="%TEMPLATEDIR%\webview.css" title="Windows">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script language="JavaScript">
+            var L_Intro_Text        = "Use this folder to open files and folders on other computers and to install network printers.<br><br>To set up networking on your computer, click <a href='shell:ConnectionsFolder' title='Connects to other computers, networks, and the Internet' name='WVLink'>Network and Dial-up Connections</a>.<p>";
+            var L_Prompt_Text       = "Select an item to view its description.";
+            var L_Multiple_Text     = " items selected.";
+            var L_SeeAlso_Text      = "See also:";
+            var L_EntireNetwork_Text = "Entire Network";
+            var L_MyDocuments_Text  = "My Documents";
+            var L_MyComputer_Text   = "My Computer";
+            var L_MyDocsDESC_Text   = "My Documents contains your personal documents.";
+            var L_MyCompDESC_Text   = "My Computer contains your various local drives and mapped network drives.";
+            var L_SBIntro1_Text     = "Use the links below to search for things within your corporation.<p>";
+            var L_SBIntro2_Text     = "<p><br>You may also view the <a id=ShowFiles href='' onClick='ShowFiles(); FileList.focus(); return false;' name='WVLink'>entire contents</a> of the network.";
+            var L_SearchPrinter_Text = "<a href='' onClick='FileList.Folder.Application.FindPrinter(); return false;' name='WVLink'>Search for printers</a><br>";
+            var L_SearchComp_Text   = "<a href='' onClick='FileList.Folder.Application.FindComputer(); return false;' name='WVLink'>Search for computers</a><br>";
+            var L_SearchPerson_Text = "<a href='' onClick='PersonSearch(\"\"); return false;' name='WVLink'>Search for people</a><br>";
+            var L_SearchFiles_Text  = "<a href='' onClick='FileSearch(); return false;' name='WVLink'>Search for files or folders</a><br>";
+            var gTimer          = 0;
+            var gDoBlends       = false && (navigator.cpuClass != "Alpha" && screen.colorDepth > 8);
+            var gShowFiles      = false;
+            var gDirService     = false;
+
+            function Resize()
+            {
+                if (document.body.clientWidth < Panel.style.pixelWidth * 2)
+                {
+                    Panel.style.visibility = "hidden";
+                    FileList.style.pixelLeft = 0;
+                }
+                else
+                {
+                    Panel.style.visibility = "visible";
+                    FileList.style.pixelLeft = Panel.style.pixelWidth; 
+                }
+                FileList.style.pixelWidth = document.body.clientWidth - FileList.style.pixelLeft;
+                FileList.style.pixelHeight = document.body.clientHeight;
+            }
+
+            function ResizeBarricade()
+            {
+                if (gShowFiles)
+                {
+                    Resize();
+                }
+                else
+                {
+                    if (document.body.clientWidth < Panel.style.pixelWidth + 314)
+                    {
+                        Brand.style.top = 0;
+                        Brand.style.left = 0;
+                        Brand.style.width = document.body.clientWidth >= 0 ? document.body.clientWidth : 0;
+                        Brand.style.height = document.body.clientHeight >= 0 ? document.body.clientHeight : 0;
+                        Brand.innerHTML = InitSoftBarrierText();
+                    }
+                    else
+                    {
+                        Brand.style.top = 0;
+                        Brand.style.left = Panel.style.pixelWidth; 
+                        Brand.style.width = document.body.clientWidth - Panel.style.pixelWidth;
+                        Brand.style.height = document.body.clientHeight;
+                        Brand.innerHTML = "";
+                        Panel.style.visibility = "visible";
+                    }
+                    Brand.style.display = "";
+                }
+            }
+
+            function InitSoftBarrierText()
+            {
+                var s = L_SBIntro1_Text;
+                s += "<div style=\"margin-left: 12px\">";
+                if (gDirService)
+                {
+                    s += L_SearchPrinter_Text;
+                }
+                s += L_SearchComp_Text;
+                if (gDirService)
+                {
+                    s += L_SearchPerson_Text;
+                }
+                s += L_SearchFiles_Text;
+                s += "</div>";
+                s += L_SBIntro2_Text;
+                return s;
+            }
+            
+            function FixFont()
+            {
+                var L_SystemFont1_Text = "MS Sans Serif";
+                var L_SystemFont2_Text = "MS Shell Dlg";
+                var L_SystemFont_Text = "Tahoma, Verdana";
+                var tr = document.body.createTextRange();
+                if (navigator.cpuClass != "Alpha")
+                {
+                    tr.collapse();
+                    var actualFont = tr.queryCommandValue("FontName");
+                    if (actualFont == L_SystemFont1_Text || actualFont == L_SystemFont2_Text)
+                    {
+                        document.body.style.fontFamily = L_SystemFont_Text;
+                    }
+                }
+                else
+                {
+                    document.body.style.fontFamily = L_SystemFont_Text;
+                }
+            }
+
+            function InitPanelText()
+            {
+                var s = L_Intro_Text + L_Prompt_Text;
+                Info.innerHTML = s;
+                ShowLinks(true);
+            }
+            
+            function Load()
+            {
+                // fix font
+                FixFont();
+
+                // Make gShowFiles flase, if this is the Entire Network folder.
+                gShowFiles = (FileList.Folder.Self.Name == L_EntireNetwork_Text) ? false : true;
+
+                // gDirService init
+                gDirService = FileList.Folder.Application.GetSystemInformation("DirectoryServiceAvailable");
+                
+                if (!gShowFiles)
+                {
+                    // Hide the filelist
+                    FileList.style.display = "none";
+
+                    // Initialize the SoftBarrier text
+                    Info.innerHTML = InitSoftBarrierText();
+                }
+                else
+                {
+                    // Hide the soft barrier
+                    Brand.style.display = "none";
+
+                    InitPanelText();
+                }
+                
+                window.onresize = ResizeBarricade;
+                ResizeBarricade();
+                if (gShowFiles)
+                {
+                    ShowFiles();
+                }
+            }
+
+            function ShowFiles()
+            {
+                gShowFiles = true;
+
+                // Initialize the Panel text
+                InitPanelText();
+
+                // Hide the soft barrier
+                Brand.style.display = "none";
+                // Display the filelist
+                window.setTimeout("Resize()", 0);
+                FileList.style.display = "";
+            }
+
+            function ShowLinks(bShow) {
+                var s = "";
+                if (bShow) {
+                    s = "<p>" + L_SeeAlso_Text;
+                    s += "<p class=Half><a id=MD href='shell:personal' title='" + L_MyDocsDESC_Text + "' name='WVLink'>" + L_MyDocuments_Text + "</a>";
+                    s += "<p class=Half><a id=MC href='shell:DriveFolder' title='" + L_MyCompDESC_Text + "' name='WVLink'>" + L_MyComputer_Text + "</a>";
+                }
+                Links.innerHTML = s;
+            }
+
+            function FileSearch()
+            {
+                SearchAsst = new ActiveXObject("SearchAssistantOC.SearchAssistantOC");
+                SearchAsst.FindFilesOrFolders();
+            }
+
+            function PersonSearch()
+            {
+                SearchAsst = new ActiveXObject("SearchAssistantOC.SearchAssistantOC");
+                SearchAsst.FindPeople();
+            }
+
+            function ShowInfo() {
+                // this script updates the left info panel when you select icons
+                var folder = FileList.Folder;
+                var item;
+                var name;
+                var comment;
+                var data;
+                var text;
+                var i;
+
+                if (gDoBlends) {
+                    Panel.filters[0].Stop();
+                    Panel.filters[0].Apply();
+                }
+
+                data = FileList.SelectedItems().Count;
+                ShowLinks(data == 0);
+                if (data == 0) {
+                    // nothing selected?
+                    text = L_Intro_Text + L_Prompt_Text;
+                } else if (data > 1) {
+                    // more than one item selected?
+                    text = data + L_Multiple_Text + "<br>";
+                    if (data <= 16)
+                        for (i = 0; i < data; i++)
+                            text += "<br>" + FileList.SelectedItems().Item(i).Name;
+                } else {
+                    item = FileList.SelectedItems().Item(0);
+
+                    // name
+                    name = folder.GetDetailsOf(item, 0);
+                    if (name.substring(0, 2) == "\\\\")
+                        name = name.link(name);
+                    text = name.bold(name);
+                        
+                    // comment?
+                    comment = folder.GetDetailsOf(item, 1);
+                    if ( comment != "" )
+                        text += "<p>" + comment;
+                        
+                    // tip?
+                    data = folder.GetDetailsOf(item, -1);
+                    if ( data != ""  ) 
+                    {
+                        if ( (comment == "" || comment != data) && (name != data) ) 
+                        {
+                            text += "<p>";
+                            text += data;
+                        }
+                    }
+                }
+                // replace Info with the new text
+                Info.innerHTML = text;
+                if (gDoBlends)
+                    Panel.filters[0].Play();
+            }
+
+            function OnWebviewLinkEnter( aLink )
+            {
+                if( aLink.title )
+                {
+                    window.status = aLink.title;
+                }
+                else
+                {
+                    window.status = "";
+                }
+                return true;
+            }
+
+            function OnWebviewLinkExit()
+            {
+                window.status = "";
+                return false;
+            }
+        </script>
+
+        <script language="JavaScript" for="FileList" event="SelectionChanged">
+            if (!gShowFiles && (FileList.SelectedItems().Count > 0))
+            {
+                ShowFiles();
+            }
+            if (gShowFiles)
+            {
+                window.clearTimeout(gTimer);
+                gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+            }
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onmouseover">
+            return OnWebviewLinkEnter( this );
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onfocus">
+            return OnWebviewLinkEnter( this );
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onmouseout">
+            return OnWebviewLinkExit();
+        </script>
+
+        <script language="JavaScript" for="WVLink" event="onblur">
+            return OnWebviewLinkExit();
+        </script>
+    </head>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+            <div id=Corner>
+                <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                    <param name="scale" value=100>
+                </object>
+                <br>
+                <div id=FolderName>
+                    %THISDIRNAME%
+                </div>
+            </div>
+            <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+            <div id=Details>
+                <span id=Info>
+                    %THISDIRPATH%
+                </span>
+                <span id=Links>
+                </span>
+            </div>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" style="position:absolute; width:1px; height:1px;" tabIndex=1>
+        </object>
+        <div id=Brand style="background: white URL(file://%TEMPLATEDIR%\wvnet.gif) no-repeat right bottom; display: none">
+        </div>
+    </body>
+</html>
+

@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\wabfind.dll
+SaveAs=   NewFiles\wabfind.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\wabfind\IDI_ICON_FIND.ico,  ICONGROUP, IDI_ICON_FIND, 

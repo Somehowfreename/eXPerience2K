@@ -1,0 +1,253 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <link rel=stylesheet href="%TEMPLATEDIR%\webview.css" title="Windows">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script language="JavaScript">
+            var L_Intro_Text        = "This folder contains files and folders that you have deleted from your computer.<p>";
+            var L_EmptyRestore_Text = "To permanently remove all items and reclaim disk space, click:<p class=Half><button style='width: 128px' accessKey='B' onClick='Empty()'>Empty Recycle Bin</button><p>To move all items back to their original locations, click:<p class=Half><button style='width: 128px' accessKey='R' onClick='RestoreAll()'>Restore All</button><p>";
+            var L_RestoreThis_Text  = "To move this item back to its original location, click: <p class=Half><button accessKey='e' onClick='Restore()'>Restore</button>";
+            var L_RestoreThese_Text = "To move these items back to their original locations, click: <p class=Half><button accessKey='e' onClick='Restore()'>Restore</button>";
+            var L_Recycled_Text     = "Recycled";
+
+            var L_Prompt_Text    = "Select an item to view its description.";
+            var L_NoItems_Text   = "There are no items in the Recycle Bin.";
+            var L_Multiple_Text  = " items selected.";
+            var L_Size_Text      = "Size: ";
+            var L_FileSize_Text  = "Total Size: ";
+            var L_Delimiter_Text = ",";
+            var L_Bytes_Text     = "&nbsp;bytes";
+            var L_Today_Text     = "Today at";
+            var L_Yesterday_Text = "Yesterday at";
+            var gTimer           = 0;
+            var gToday;
+            var gYesterday;
+            var gDoBlends        = false && (navigator.cpuClass != "Alpha" && screen.colorDepth > 8);
+
+            function Resize() {
+                if (document.body.clientWidth < Panel.style.pixelWidth * 2) {
+                    Panel.style.visibility = "hidden";
+                } else {
+                    Panel.style.visibility = "visible";
+                }
+            }
+
+            function FormatNumber(n) {
+                var t = "";
+                var i, j = 0;
+                for (i = n.length - 1; i >= 0; i--) {
+                    t = n.charAt(i) + t;
+                    if (i && ((++j % 3) == 0))
+                        t = L_Delimiter_Text + t;
+                }
+                return t;
+            }
+
+            function Empty() {
+                var folderItems;
+                if ("%THISDIRNAME%" == L_Recycled_Text)
+                    folderItems = FileList.Folder.ParentFolder.ParseName(L_Recycled_Text);
+                else
+                    folderItems = FileList.Folder.ParentFolder.ParseName("::{645FF040-5081-101B-9F08-00AA002F954E}");
+                folderItems.InvokeVerb("empty");
+                ShowInfo();
+            }
+
+            function RestoreAll() {
+                FileList.Folder.Items().InvokeVerbEx("undelete");
+                ShowInfo();
+            }
+
+            function Restore() {
+                FileList.SelectedItems().InvokeVerbEx("undelete");
+                ShowInfo();
+            }
+
+            function Load() {
+                if (FileList.Folder.Items().Count)
+                    Info.innerHTML = L_Intro_Text + L_EmptyRestore_Text + L_Prompt_Text;
+                else
+                    Info.innerHTML = L_Intro_Text + L_NoItems_Text;
+
+                // fix styles
+                var L_SystemFont1_Text = "MS Sans Serif";
+                var L_SystemFont2_Text = "MS Shell Dlg";
+                var L_SystemFont_Text = "Tahoma, Verdana";
+                var tr = document.body.createTextRange();
+                if (navigator.cpuClass != "Alpha") {
+                    tr.collapse();
+                    var actualFont = tr.queryCommandValue("FontName");
+                    if (actualFont == L_SystemFont1_Text || actualFont == L_SystemFont2_Text)
+                        document.body.style.fontFamily = L_SystemFont_Text;
+                } else
+                    document.body.style.fontFamily = L_SystemFont_Text;
+
+                // init relative dates
+                gToday = new Date();
+                gToday = gToday.toLocaleString();
+                gToday = gToday.substring(0, gToday.indexOf(' '));
+                gYesterday = new Date(Date.parse(gToday) - (1000 * 60 * 60 * 24));
+                gYesterday = gYesterday.toLocaleString();
+                gYesterday = gYesterday.substring(0, gYesterday.indexOf(' '));
+
+                // call our Resize() function whenever the window gets resized
+                window.onresize = Resize;
+                Resize();
+            }
+
+            function SanatizeString(data) {
+              var re = /\</g;
+              var s = data.replace( re, "&lt;");
+              re = />/g;
+              s = s.replace( re, "&gt;");
+
+              return s;
+            }
+
+            function ShowInfo() {
+                // this script updates the left info panel when you select icons
+                var folder = FileList.Folder;
+                var item;
+                var name;
+                var data;
+                var text;
+                var size = 0;
+                var i;
+
+                if (gDoBlends) {
+                    Panel.filters[0].Stop();
+                    Panel.filters[0].Apply();
+                }
+                data = FileList.SelectedItems().Count;
+                if (data == 0) {
+                    if (folder.Items().Count)
+                        text = L_Intro_Text + L_EmptyRestore_Text + L_Prompt_Text;
+                    else
+                        text = L_Intro_Text + L_NoItems_Text;
+                } else if (data > 1) {
+                    // more than one item selected?
+                    text = data + L_Multiple_Text + "<p>";
+                    if (data <= 100) {
+                        for (i = 0; i < data; i++)
+                            size += FileList.SelectedItems().Item(i).Size;
+                        if (size)
+                            text += L_FileSize_Text + FormatNumber(size.toString()) + L_Bytes_Text + "<p>";
+                        if (data <= 16)
+                            for (i = 0; i < data; i++)
+                                text += SanatizeString(FileList.SelectedItems().Item(i).Name) + "<br>";
+                    }
+                    // restore these files
+                    if (data <= 16)
+                        text += "<p>";
+                    text += "<p>" + L_RestoreThese_Text;
+
+                } else {
+                    item = FileList.SelectedItems().Item(0);
+
+                    // name
+                    name = folder.GetDetailsOf(item, 0);
+                    text = "<b>" + name + "</b>";
+
+                    // type
+                    data = folder.GetDetailsOf(item, 3);
+                    if (data != "")
+                        text += "<br>" + data;
+
+                    // original location
+                    data = folder.GetDetailsOf(item, 1);
+                    if (data != "")
+                        text += "<p>" + folder.GetDetailsOf(null, 1) + ":<br>" + data.link(data);
+
+                    // date deleted
+                    data = folder.GetDetailsOf(item, 2);
+                    if (data != "")
+                        text += "<p>" + folder.GetDetailsOf(null, 2) + ":<br>" + data;
+
+                    // size?
+                    size = FileList.SelectedItems().Item(0).Size;
+                    if (size)
+                        if (size < 1000)
+                            text += "<p>" + L_Size_Text + size + L_Bytes_Text;
+                        else {
+                            data = folder.GetDetailsOf(item, 4);
+                            if (data)
+                                text += "<p>" + folder.GetDetailsOf(null, 4) + ": " + data;
+                            else
+                                text += "<p>" + L_Size_Text + FormatNumber(size.toString()) + L_Bytes_Text;
+                        }
+
+                    // tip
+                    data = folder.GetDetailsOf(item, -1);
+                    if (data != "" && data != name) {
+                        data = SanatizeString(data);
+                        var start;
+                        var end;
+                        var theLink;
+                        var a;
+
+                        // parse lines for Office files without breaking links below
+                        a = data.split("\n");
+                        data = a.join("<br>\n");
+
+                        // look for embedded links
+                        text += "<p>";
+                        start = data.indexOf("http://");
+                        if (start < 0)
+                            start = data.indexOf("file://");
+                        if (start < 0)
+                            text += data;
+                        else {
+                            end = data.indexOf(" ", start);
+                            if (end < 0)
+                                end = data.length;
+                            if (start > 0)
+                                text += data.substring(0, start - 1);
+                            theLink = data.substring(start, end);
+                            text += theLink.link(theLink);
+                            if (end < data.length)
+                                text += data.substring(end + 1, data.length);
+                        }
+                    }
+
+                    // restore this file
+                    text += "<p>" + L_RestoreThis_Text;
+                }
+                // replace Info with the new text
+                Info.innerHTML = text;
+                if (gDoBlends)
+                    Panel.filters[0].Play();
+            }
+        </script>
+
+        <script language="JavaScript" for="FileList" event="SelectionChanged">
+            window.clearTimeout(gTimer);
+            gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+        </script>
+    </head>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+            <div id=Corner>
+                <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                    <param name="scale" value=100>
+                </object>
+                <br>
+                <div id=FolderName>
+                    %THISDIRNAME%
+                </div>
+            </div>
+            <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+            <div id=Details>
+                <span id=Info>
+                    %THISDIRPATH%
+                </span>
+            </div>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" tabIndex=1>
+        </object>
+    </body>
+</html>
+

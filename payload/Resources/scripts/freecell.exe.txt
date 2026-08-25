@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\freecell.exe
+SaveAs=   NewFiles\freecell.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\freecell\601.ico,  ICONGROUP, 601, 

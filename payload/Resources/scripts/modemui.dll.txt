@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\modemui.dll
+SaveAs=   NewFiles\modemui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\modemui\5100.ico,  ICONGROUP, 5100, 

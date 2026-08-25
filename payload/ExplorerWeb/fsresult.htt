@@ -1,0 +1,467 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <style>
+        body        {margin: 0; font: menu; color: black}
+        table       {margin: 0; font: menu; font-size: 8pt}
+        #Panel      {position: absolute; width: 100%; height: 128px; visibility: hidden; overflow: auto}
+        #Corner     {padding-left: 12px; padding-top: 11px}
+        #FolderIcon {width: 32px; height: 32px}
+        #FolderName {margin-top: 8px; font: 13pt/13pt menu; font-weight: bold}
+        #LogoLine   {width: 100%; height: 2px; margin-top: 4px; vertical-align: top}
+        #Details    {padding-left: 12px; margin-top: 8px}
+        #Locked     {vertical-align: baseline}
+        #Preview    {}
+        .Movie      {width: 120px; height: 136px}
+        .Sound      {width: 120px; height: 46px}
+        #Thumbnail  {width: 120px; height: 120px}
+        .Legend     {margin-left: 8px}
+        #FileList   {position: absolute; left: 0; width: 100%; height: expression(document.body.clientHeight - FileList.style.pixelTop); top: expression((document.body.clientHeight < Panel.style.pixelHeight * 2) ? 0 : Panel.style.pixelHeight)}
+        p           {margin-top: 12px}
+        p.Half      {margin-top: 6px}
+        button      {font: 8pt Tahoma; margin-left: 12px; background: white; color: black}
+    </style>
+
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <base href="%THISDIRPATH%\">
+    </head>
+
+    <script language="JavaScript">
+
+        // THIS SCRIPT IS COMMON FOR ALL CUSTOM WEB VIEWS
+
+        var L_Prompt_Text         = "Select an item to view its description.";
+        var L_Empty_Text          = "";
+        var L_Multiple_Text       = " items selected.";
+        var L_Size_Text           = "Size: ";
+        var L_FileSize_Text       = "Total File Size: ";
+        var L_Delimiter_Text      = ",";
+        var L_Bytes_Text          = "&nbsp;bytes";
+        var L_Today_Text          = "Today at";
+        var L_Yesterday_Text      = "Yesterday at";
+        var L_Preview_Text        = "Generating preview...";
+        var L_TotalSize_Text      = "Capacity: ";
+        var L_UsedSpace_Text      = "Used: ";
+        var L_FreeSpace_Text      = "Free: ";
+        var L_Location_Text       = "Location";
+        var L_Attributes_Text     = "Attributes";
+        var L_Codes_Text          = "RHSaCE"; // suppress the Archive flag
+        var L_ReadOnly_Text       = "Read-only";
+        var L_Hidden_Text         = "Hidden";
+        var L_System_Text         = "System";
+        var L_Archive_Text        = "Archive";
+        var L_Compressed_Text     = "Compressed";
+        var L_Encrypted_Text      = "Encrypted";
+        var L_NoAttributes_Text   = "(normal)";
+        var gAttributeNames       = new Array(L_ReadOnly_Text, L_Hidden_Text, L_System_Text, L_Archive_Text, L_Compressed_Text, L_Encrypted_Text);
+        var gTimer                = 0;
+        var gWantMedia            = true; // cool, but may hinder media file manipulation
+        var gDoBlends             = false && (navigator.cpuClass != "Alpha" && screen.colorDepth > 8);
+        var gToday;
+        var gYesterday;
+        var gFolder;
+        var gFolderPath           = "";
+        var gFoundAuthor          = false;
+
+        function FormatDetail(label, data) {
+            return "<br>" + label + ": " + data;
+        }
+
+        function SanatizeString(data) {
+          var re = /</g;
+          var s = data.replace( re, "&lt;");
+          re = />/g;
+          s = s.replace( re, "&gt;");
+
+          return s;
+        }
+
+        function ShowInfo() {
+            // updates the left info panel when you select icons
+            var item;
+            var name;
+            var data;
+            var text;
+            var title;
+            var size = 0;
+            var i;
+
+            if (gDoBlends) {
+                Panel.filters.blendTrans.Stop();
+                Panel.filters.blendTrans.Apply();
+            }
+
+            // kill any preview
+            Preview.innerHTML = "";
+            Preview.style.display = "none";
+            Thumbnail.style.height = 120;
+            Thumbnail.style.display = "none";
+
+            data = FileList.SelectedItems().Count;
+            if (data == 0)
+                text = NoneSelected();
+            else if (data > 1)
+                text = ManySelected(data);
+            else {
+                item = FileList.SelectedItems().Item(0);
+
+                // name
+                name = FileList.Folder.GetDetailsOf(item, 0);
+                if (!name)
+                    name = item.Name;
+                name = SanatizeString( name );
+                text = name.bold(name);
+                if (false && IsFileLocked(FileList.Folder.GetDetailsOf(item, 4)))
+                    text += "&nbsp;&nbsp;<img id=Locked src='res://webview.dll/Locked.gif'>";
+
+                // in folder
+                data = FileList.Folder.GetDetailsOf(item, 1);
+                if (data) {
+                    title = FileList.Folder.GetDetailsOf(null, 1);
+                    if (title == L_Location_Text)
+                        text += "<br>" + title + ": " + data;
+                    else
+                        text += "<br>" + title + ": " + data.link(data);
+                }
+
+                // size
+                text += HandleSize(item);
+
+                // type
+                data = FileList.Folder.GetDetailsOf(item, 4);
+                if (data) 
+                    text += "<br>" + FileList.Folder.GetDetailsOf(null, 4) + ": " + data;
+
+                // date
+                data = FileList.Folder.GetDetailsOf(item, 5);
+                if (data) 
+                    text += "<br>" + FileList.Folder.GetDetailsOf(null, 5) + ": " + data;
+
+
+                // extra details?
+                gFoundAuthor = false;
+                for (i = 6; i < 10; i++) {
+                    title = FileList.Folder.GetDetailsOf(null, i);
+                    if (!title)
+                        break;
+                    data = FileList.Folder.GetDetailsOf(item, i);
+                    if (title == L_Attributes_Text)
+                        text += "<br>" + title + ": " + FormatAttributes(data);
+                    else if (data) {
+                        var safeData = SanatizeString( data );
+                        if (title == "Author") {
+                            gFoundAuthor = true;
+                            text += "<br>" + title + ": <a href='mailto:" + safeData + "'>" + safeData + "</a>";
+                        } else
+                            text += "<br>" + title + ": " + safeData;
+                    }
+                }
+
+                // try to generate a new thumbnail or media preview
+                if (item.Size)
+                    if (Thumbnail.displayFile(item.Path))
+                        gTimer = window.setTimeout('Preview.innerHTML = "<br>" + L_Preview_Text; Preview.style.display = ""', 1000);
+                    else if (gWantMedia) {
+                        ext = GetFileExtension(item.Path);
+                        if (IsMovieFile(ext))
+                        {
+                            Preview.innerHTML = '<p>' +
+                                '<object ID=MediaPlayer class=Movie classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95">' +
+                                    '<param name="ShowDisplay" value=false>'+
+                                    '<param name="AutoPlay" value="false">' +
+                                '</object>';
+                            MediaPlayer.EnableContextMenu = false;
+                            MediaPlayer.Open(item.Path);
+                        }
+                        else if (IsSoundFile(ext))
+                        {
+                            Preview.innerHTML = '<p>' +
+                                '<object  ID=MediaPlayer class=Sound classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95">' +
+                                    '<param name="ShowDisplay" value="false">'+
+                                    '<param name="AutoPlay" value="false">' +
+                                '</object>';
+                            MediaPlayer.EnableContextMenu = false;
+                            MediaPlayer.Open(item.Path);
+                        }
+
+                        if (Preview.innerHTML != "")
+                            Preview.style.display = "";
+                    }
+            }
+            // replace Info with the new text
+            Info.innerHTML = text;
+            if (gDoBlends)
+                Panel.filters.blendTrans.Play();
+        }
+
+        function FormatNumber(n) {
+            var s = "";
+            var i, j = 0;
+            for (i = n.length - 1; i >= 0; i--) {
+                s = n.charAt(i) + s;
+                if (i && ((++j % 3) == 0))
+                    s = L_Delimiter_Text + s;
+            }
+            return s;
+        }
+
+        function HandleSize(item) {
+            var s = "";
+            var size = item.Size;
+            if (size)
+            {
+                s = "<br>" + L_Size_Text + FormatNumber(size.toString()) + L_Bytes_Text;
+            }
+            return s;
+        }
+
+        function FormatAttributes(data) {
+            var s = "";
+            var code;
+            for (i = 0; i < L_Codes_Text.length; i++) {
+                code = L_Codes_Text.charAt(i);
+                if (data.indexOf(code) > -1) {
+                    if (s)
+                        s += ", ";
+                    s += gAttributeNames[i];
+                }
+            }
+            if (!s)
+                s = L_NoAttributes_Text;
+            return s;
+        }
+
+        function FormatComment(data) {
+            var s = "";
+            if (data) {
+                data = SanatizeString( data );
+                var start;
+                var end;
+                var theLink;
+                var a = data.split("\n");
+                var L_Author_Text = "Author: ";
+
+                // look for a contact
+                for (var i in a) {
+                    start = a[i].indexOf(L_Author_Text);
+                    if (start < 0)
+                        continue;
+                    if (gFoundAuthor) // already in Details column
+                        a[i] = "";
+                    else {
+                        start += L_Author_Text.length;
+                        end = a[i].length;
+                        theLink = data.substring(start, end);
+                        a[i] = L_Author_Text + "<a href='mailto:" + theLink + "'>" + theLink + "</a>";
+                    }
+                }
+
+                // parse lines for Office files without breaking links below
+                data = a.join("<br>\n");
+                // look for embedded links
+                start = data.indexOf("http://");
+                if (start < 0)
+                    start = data.indexOf("file://");
+                if (start < 0)
+                    s += data;
+                else {
+                    end = data.indexOf(" ", start);
+                    if (end < 0)
+                        end = data.length;
+                    if (start > 0)
+                        s += data.substring(0, start - 1);
+                    theLink = data.substring(start, end);
+                    s += theLink.link(theLink);
+                    if (end < data.length)
+                        s += data.substring(end + 1, data.length);
+                }
+            }
+            return s;
+        }
+
+        function GetFileExtension(name) {
+            var ext = name.substring(name.lastIndexOf(".") + 1, name.length);
+            return ext.toLowerCase();        
+        }
+
+        function IsMovieFile(ext) {
+            var types = ",asf,avi,m1v,mov,mp2,mpa,mpe,mpeg,mpg,mpv2,qt,asx,";
+            var temp = ","+ext+",";
+            return types.indexOf(temp) > -1;
+        }
+
+        function IsSoundFile(ext) {
+            var types = ",aif,aiff,au,mid,midi,rmi,snd,wav,mp3,m3u,";
+            var temp = ","+ext+",";
+            return types.indexOf(temp) > -1;
+        }
+
+        function IsFileLocked(name) {
+            return (name.indexOf(L_Codes_Text.charAt(0)) > -1);
+        }
+
+        function NoneSelected() {
+            var s = L_Intro_Text + (FileList.Folder.Items().Count ? L_Prompt_Text : L_Empty_Text);
+            if (false || gFolderPath.length == 4) { // true allows all subfolders to show the pie chart
+                drive = gFolderPath.substring(0, 3);
+                if (Thumbnail.displayFile(drive)) {
+                    if (gFolderPath.length == 4)
+                        s += "<p><br>" + L_TotalSize_Text + Thumbnail.totalSpace + "<p>";
+                    else
+                        s += "<p><br>" + drive.link(drive) + "<p><p>" + L_TotalSize_Text + Thumbnail.totalSpace;
+                    s += "<p><table class=Legend width=12 height=12 border=1 align=left bgcolor=threedface bordercolordark=black bordercolorlight=black><tr><td></td></tr></table>&nbsp;" + L_UsedSpace_Text + Thumbnail.usedSpace;
+                    s += "<p><table class=Legend width=12 height=12 border=1 align=left bgcolor=threedhighlight width=12 height=12 border=1 align=left bordercolordark=black bordercolorlight=black><tr><td></td></tr></table>&nbsp;" + L_FreeSpace_Text + Thumbnail.freeSpace;
+                    Thumbnail.style.height = 60;
+                    Thumbnail.style.display = "";
+                }
+            }
+            return s;
+        }
+
+        function ManySelected(items) {
+            var s = items + L_Multiple_Text + "<p>";
+            var size = 0;
+            if (items <= 100) {
+                for (var i = 0; i < items; i++)
+                    size += FileList.SelectedItems().Item(i).Size;
+                if (size)
+                    s += L_FileSize_Text + FormatNumber(size.toString()) + L_Bytes_Text + "<p>";
+                if (items <= 16)
+                    for (i = 0; i < items; i++)
+                        s += SanatizeString( FileList.SelectedItems().Item(i).Name ) + "<br>";
+            }
+            return s;
+        }
+
+        // EVENTS
+        function Resize() {
+            if (document.body.clientHeight < Panel.style.pixelHeight * 2) {
+                Panel.style.visibility = "hidden";
+            } else {
+                Panel.style.visibility = "visible";
+            }
+        }
+
+        function SelectionChanged() {
+            window.clearTimeout(gTimer);
+            gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+        }
+
+        function ThumbnailReady() {
+            window.clearTimeout(gTimer);
+            Preview.innerHTML = "";
+            Preview.style.display = "none";
+            if (Thumbnail.haveThumbnail())
+                Thumbnail.style.display = "";
+        }
+
+        // INITIALIZATION
+
+        function Initialize() {
+            gFolder = FileList.Folder;
+            gFolderPath = Info.innerHTML;
+            Thumbnail.style.display = "none";
+            Info.innerHTML = NoneSelected();
+
+            // fix styles
+            var L_SystemFont1_Text = "MS Sans Serif";
+            var L_SystemFont2_Text = "MS Shell Dlg";
+            var L_SystemFont_Text = "Tahoma, Verdana";
+            var tr = document.body.createTextRange();
+            if (navigator.cpuClass != "Alpha") {
+                tr.collapse();
+                var actualFont = tr.queryCommandValue("FontName");
+                if (actualFont == L_SystemFont1_Text || actualFont == L_SystemFont2_Text)
+                    document.body.style.fontFamily = L_SystemFont_Text;
+            } else
+                document.body.style.fontFamily = L_SystemFont_Text;
+
+            // init relative dates
+            gToday = new Date();
+            gToday = gToday.toLocaleString();
+            gToday = gToday.substring(0, gToday.indexOf(' '));
+            gYesterday = new Date(Date.parse(gToday) - (1000 * 60 * 60 * 24));
+            gYesterday = gYesterday.toLocaleString();
+            gYesterday = gYesterday.substring(0, gYesterday.indexOf(' '));
+
+            // call our Resize() function whenever the window gets resized
+            window.onresize = Resize;
+        }
+    </script>
+
+    <script language="JavaScript">
+        var L_Intro_Text          = "";
+
+        function Load() {
+            Initialize();
+            Resize();
+        }
+    </script>
+
+    <script language="JavaScript" for="Thumbnail" event="OnThumbnailReady">
+        ThumbnailReady();
+    </script>
+
+    <script language="JavaScript" for="FileList" event="SelectionChanged">
+        SelectionChanged();
+    </script>
+
+    <script language="JavaScript">
+        function OnVerbInvoked()
+        {
+            if (Preview.innerHTML != "")
+            {
+                MediaPlayer.Stop();
+            }
+        }
+    </script>
+
+    <script language="JavaScript" for="FileList" event="VerbInvoked">
+        // If the user immediately double-clicks the file, we would get
+        // a selection changed event immediately followed by the VerbInvoked
+        // event and we would not have had enough time to create the MediaPlayer
+        // in the SelectionChanged event handler. So, we delay handling this
+        // event a little bit
+        window.setTimeout("OnVerbInvoked()", 500);
+    </script>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+            <table cellpadding=0 cellmargin=0 border=0>
+                <tr>
+                    <td valign=top style="width: 160px">
+                        <div id=Corner>
+                            <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                                <param name="scale" value=100>
+                            </object>
+                            <br>
+                            <div id=FolderName>
+                                %THISDIRNAME%
+                            </div>
+                        </div>
+                        <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+                    </td>
+                    <td valign=top style="padding: 12px">
+                        <span id=Info>
+                            %THISDIRPATH%
+                        </span>
+                    </td>
+                    <td valign=top style="width: 128px; padding: 2px">
+                        <div id=Preview style="display: none">
+                        </div>
+                        <object id=Thumbnail classid="clsid:71650000-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                        </object>
+                        <label id=ThumbnailLabel for="Thumbnail" style="display: none">
+                        </label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" tabIndex=1>
+        </object>
+    </body>
+</html>
+

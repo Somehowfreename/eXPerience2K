@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\msmsgs.exe
+SaveAs=   NewFiles\msmsgs.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msmsgs\1.ico,  ICONGROUP, 1, 

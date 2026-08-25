@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=      Backup\ntshrui.dll
+SaveAs=   NewFiles\ntshrui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\ntshrui\116.ico,  ICONGROUP,116,
+-addoverwrite Resources\eXPerience2K\ntshrui\122.ico,  ICONGROUP,122,
+-addoverwrite Resources\eXPerience2K\ntshrui\123.ico,  ICONGROUP,123,
+-addoverwrite Resources\eXPerience2K\ntshrui\127.ico,  ICONGROUP,127,

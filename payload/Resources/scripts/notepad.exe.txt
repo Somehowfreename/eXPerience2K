@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\notepad.exe
+SaveAs=   NewFiles\notepad.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\notepad\2.ico,  ICONGROUP, 2,

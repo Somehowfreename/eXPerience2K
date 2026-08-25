@@ -1,0 +1,26 @@
+[FILENAMES]
+Exe=	Backup\msoeres.dll
+SaveAs=	NewFiles\msoeres.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\msoeres\2.ico", ICONGROUP, 2, 
+-addoverwrite "Resources\eXPerience2K\msoeres\52.ico", ICONGROUP, 52, 
+
+-addoverwrite "Resources\eXPerience2K\msoeres\5.bmp", BITMAP, 5, 
+-addoverwrite "Resources\eXPerience2K\msoeres\6.bmp", BITMAP, 6, 
+-addoverwrite "Resources\eXPerience2K\msoeres\7.bmp", BITMAP, 7, 
+-addoverwrite "Resources\eXPerience2K\msoeres\27.bmp", BITMAP, 27, 
+-addoverwrite "Resources\eXPerience2K\msoeres\28.bmp", BITMAP, 28, 
+-addoverwrite "Resources\eXPerience2K\msoeres\34.bmp", BITMAP, 34, 
+-addoverwrite "Resources\eXPerience2K\msoeres\35.bmp", BITMAP, 35, 
+-addoverwrite "Resources\eXPerience2K\msoeres\37.bmp", BITMAP, 37, 
+-addoverwrite "Resources\eXPerience2K\msoeres\38.bmp", BITMAP, 38, 
+-addoverwrite "Resources\eXPerience2K\msoeres\39.bmp", BITMAP, 39, 
+-addoverwrite "Resources\eXPerience2K\msoeres\40.bmp", BITMAP, 40, 
+-addoverwrite "Resources\eXPerience2K\msoeres\41.bmp", BITMAP, 41, 
+-addoverwrite "Resources\eXPerience2K\msoeres\65.bmp", BITMAP, 65, 
+-addoverwrite "Resources\eXPerience2K\msoeres\72.bmp", BITMAP, 72, 
+-addoverwrite "Resources\eXPerience2K\msoeres\73.bmp", BITMAP, 73, 
+-addoverwrite "Resources\eXPerience2K\msoeres\74.bmp", BITMAP, 74, 
+-addoverwrite "Resources\eXPerience2K\msoeres\75.bmp", BITMAP, 75, 

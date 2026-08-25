@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\winsrv.dll
+SaveAs=   NewFiles\winsrv.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\winsrv\1.ico,  ICONGROUP, 1, 

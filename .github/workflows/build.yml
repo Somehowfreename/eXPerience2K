@@ -1,0 +1,52 @@
+name: Build and verify
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install MinGW-w64 toolchains
+        id: msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: mingw-w64-i686-gcc mingw-w64-x86_64-gcc
+
+      - name: Install NSIS
+        shell: powershell
+        run: choco install nsis --no-progress --yes
+
+      - name: Build
+        shell: powershell
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: |
+          .\scripts\build.ps1 `
+            -GccX86Path "$env:MSYS2_LOCATION\mingw32\bin\gcc.exe" `
+            -GccX64Path "$env:MSYS2_LOCATION\mingw64\bin\gcc.exe" `
+            -MakeNsisPath "C:\Program Files (x86)\NSIS\makensis.exe"
+
+      - name: Verify
+        shell: powershell
+        run: .\scripts\verify-release.ps1
+
+      - name: Upload CI installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: eXPerience2K64-v2.4.1-unsigned
+          path: dist/eXPerience2K64-v2.4.1-Setup.exe
+          if-no-files-found: error

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\dataclen.dll
+SaveAs=   NewFiles\dataclen.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\dataclen\100.ico,  ICONGROUP, 100, 

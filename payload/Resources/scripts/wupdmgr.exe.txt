@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wupdmgr.exe
+SaveAs=   NewFiles\wupdmgr.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wupdmgr\APPICON.ico,  ICONGROUP, APPICON, 

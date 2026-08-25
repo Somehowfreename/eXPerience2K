@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\wab32.dll
+SaveAs=   NewFiles\wab32.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\wab32\IDI_ICON_ABOOK.ico,  ICONGROUP, IDI_ICON_ABOOK, 

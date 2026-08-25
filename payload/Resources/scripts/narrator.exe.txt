@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\narrator.exe
+SaveAs=	NewFiles\narrator.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\narrator\102.ico, ICONGROUP,102,

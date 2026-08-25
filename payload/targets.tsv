@@ -1,0 +1,149 @@
+id	script	target
+001	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.0.0_x-ww_1382d70a\comctl32.dll
+002	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.10.0_x-ww_f7fb5805\comctl32.dll
+003	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.2180_x-ww_a84f1ff9\comctl32.dll
+004	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.1331_x-ww_7abf6d02\comctl32.dll
+005	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.2649_x-ww_aac16c8b\comctl32.dll
+006	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.2982_x-ww_ac3f9c03\comctl32.dll
+007	comctl32.dll.txt	$WINDIR\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.5512_x-ww_35d4ce83\comctl32.dll
+008	comctl32.dll.txt	$WINDIR\winsxs\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.100.0_x-ww_8417450B\comctl32.dll
+009	comctl32.dll.txt	$WINDIR\winsxs\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.3790.1830_x-ww_7AE38CCF\comctl32.dll
+010	comctl32.dll.txt	$WINDIR\winsxs\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.3790.2778_x-ww_A8F04F11\comctl32.dll
+011	comctl32.dll.txt	$WINDIR\winsxs\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.3790.3959_x-ww_D8713E55\comctl32.dll
+012	appwiz.cpl.txt	$SYSDIR\appwiz.cpl
+013	calc.exe.txt	$SYSDIR\calc.exe
+014	charmap.exe.txt	$SYSDIR\charmap.exe
+015	cmd.exe.txt	$SYSDIR\cmd.exe
+016	desk.cpl.txt	$SYSDIR\desk.cpl
+017	hdwwiz.cpl.txt	$SYSDIR\hdwwiz.cpl
+018	hotplug.dll.txt	$SYSDIR\hotplug.dll
+019	intl.cpl.txt	$SYSDIR\intl.cpl
+020	joy.cpl.txt	$SYSDIR\joy.cpl
+021	main.cpl.txt	$SYSDIR\main.cpl
+022	msgina.dll.txt	$SYSDIR\msgina.dll
+023	mstask.dll.txt	$SYSDIR\mstask.dll
+024	mydocs.dll.txt	$SYSDIR\mydocs.dll
+025	powercfg.cpl.txt	$SYSDIR\powercfg.cpl
+026	shell32.dll.txt	$SYSDIR\shell32.dll
+027	sysdm.cpl.txt	$SYSDIR\sysdm.cpl
+028	telephon.cpl.txt	$SYSDIR\telephon.cpl
+029	timedate.cpl.txt	$SYSDIR\timedate.cpl
+030	user32.dll.txt	$SYSDIR\user32.dll
+031	wuaucpl.cpl.txt	$SYSDIR\wuaucpl.cpl
+032	netshell.dll.txt	$SYSDIR\netshell.dll
+033	hnetwiz.dll.txt	$SYSDIR\hnetwiz.dll
+034	stobject.dll.txt	$SYSDIR\stobject.dll
+035	sndvol32.exe.txt	$SYSDIR\sndvol32.exe
+036	rasdlg.dll.txt	$SYSDIR\rasdlg.dll
+037	ncpa.cpl.txt	$SYSDIR\ncpa.cpl
+038	fontext.dll.txt	$SYSDIR\fontext.dll
+039	ntshrui.dll.txt	$SYSDIR\ntshrui.dll
+040	access.cpl.txt	$SYSDIR\access.cpl
+041	cleanmgr.exe.txt	$SYSDIR\cleanmgr.exe
+042	mspaint.exe.txt	$SYSDIR\mspaint.exe
+043	sndrec32.exe.txt	$SYSDIR\sndrec32.exe
+044	mmsys.cpl.txt	$SYSDIR\mmsys.cpl
+045	netid.dll.txt	$SYSDIR\netid.dll
+046	xpsp1res.dll.txt	$SYSDIR\xpsp1res.dll
+047	xpsp2res.dll.txt	$SYSDIR\xpsp2res.dll
+048	magnify.exe.txt	$SYSDIR\magnify.exe
+049	narrator.exe.txt	$SYSDIR\narrator.exe
+050	osk.exe.txt	$SYSDIR\osk.exe
+051	utilman.exe.txt	$SYSDIR\utilman.exe
+052	accwiz.exe.txt	$SYSDIR\accwiz.exe
+053	wiadefui.dll.txt	$SYSDIR\wiadefui.dll
+054	wiashext.dll.txt	$SYSDIR\wiashext.dll
+055	nusrmgr.cpl.txt	$SYSDIR\nusrmgr.cpl
+056	inetcpl.cpl.txt	$SYSDIR\inetcpl.cpl
+057	ntbackup.exe.txt	$SYSDIR\ntbackup.exe
+058	mobsync.exe.txt	$SYSDIR\mobsync.exe
+059	mobsync.dll.txt	$SYSDIR\mobsync.dll
+060	wupdmgr.exe.txt	$SYSDIR\wupdmgr.exe
+061	freecell.exe.txt	$SYSDIR\freecell.exe
+062	mshearts.exe.txt	$SYSDIR\mshearts.exe
+063	winmine.exe.txt	$SYSDIR\winmine.exe
+064	sol.exe.txt	$SYSDIR\sol.exe
+065	spider.exe.txt	$SYSDIR\spider.exe
+066	sendmail.dll.txt	$SYSDIR\sendmail.dll
+067	mstsc.exe.txt	$SYSDIR\mstsc.exe
+068	keymgr.dll.txt	$SYSDIR\keymgr.dll
+069	console.dll.txt	$SYSDIR\console.dll
+070	winsrv.dll.txt	$SYSDIR\winsrv.dll
+071	logon.scr.txt	$SYSDIR\logon.scr
+072	newdev.dll.txt	$SYSDIR\newdev.dll
+073	url.dll.txt	$SYSDIR\url.dll
+074	credui.dll.txt	$SYSDIR\credui.dll
+075	setupapi.dll.txt	$SYSDIR\setupapi.dll
+076	wuauclt.exe.txt	$SYSDIR\wuauclt.exe
+077	wuauclt1.exe.txt	$SYSDIR\wuauclt1.exe
+078	wucltui.dll.txt	$SYSDIR\wucltui.dll
+079	wuapi.dll.txt	$SYSDIR\wuapi.dll
+080	wuaueng1.dll.txt	$SYSDIR\wuaueng1.dll
+081	wuweb.dll.txt	$SYSDIR\wuweb.dll
+082	srclient.dll.txt	$SYSDIR\srclient.dll
+083	srrstr.dll.txt	$SYSDIR\srrstr.dll
+084	shdoclc.dll.txt	$SYSDIR\shdoclc.dll
+085	wpabaln.exe.txt	$SYSDIR\wpabaln.exe
+086	fldrclnr.dll.txt	$SYSDIR\fldrclnr.dll
+087	devmgr.dll.txt	$SYSDIR\devmgr.dll
+088	mstscax.dll.txt	$SYSDIR\mstscax.dll
+089	comdlg32.dll.txt	$SYSDIR\comdlg32.dll
+090	compatui.dll.txt	$SYSDIR\compatui.dll
+091	rcimlby.exe.txt	$SYSDIR\rcimlby.exe
+092	moricons.dll.txt	$SYSDIR\moricons.dll
+093	dfrgres.dll.txt	$SYSDIR\dfrgres.dll
+094	shdocvw.dll.txt	$SYSDIR\shdocvw.dll
+095	netplwiz.dll.txt	$SYSDIR\netplwiz.dll
+096	cscui.dll.txt	$SYSDIR\cscui.dll
+097	gcdef.dll.txt	$SYSDIR\gcdef.dll
+098	hnetcfg.dll.txt	$SYSDIR\hnetcfg.dll
+099	idecoi.dll.txt	$SYSDIR\idecoi.dll
+100	mdminst.dll.txt	$SYSDIR\mdminst.dll
+101	modemui.dll.txt	$SYSDIR\modemui.dll
+102	tapiui.dll.txt	$SYSDIR\tapiui.dll
+103	ratelc.dll.txt	$SYSDIR\ratelc.dll
+104	photowiz.dll.txt	$SYSDIR\photowiz.dll
+105	remotepg.dll.txt	$SYSDIR\remotepg.dll
+106	printui.dll.txt	$SYSDIR\printui.dll
+107	regwizc.dll.txt	$SYSDIR\regwizc.dll
+108	cabview.dll.txt	$SYSDIR\cabview.dll
+109	syncui.dll.txt	$SYSDIR\syncui.dll
+110	wscui.cpl.txt	$SYSDIR\wscui.cpl
+111	dataclen.dll.txt	$SYSDIR\dataclen.dll
+112	dfshim.dll.txt	$SYSDIR\dfshim.dll
+113	msratelc.dll.txt	$SYSDIR\msratelc.dll
+114	sti_ci.dll.txt	$SYSDIR\sti_ci.dll
+115	storprop.dll.txt	$SYSDIR\storprop.dll
+116	syssetup.dll.txt	$SYSDIR\syssetup.dll
+117	upnpui.dll.txt	$SYSDIR\upnpui.dll
+118	winntbbu.dll.txt	$SYSDIR\winntbbu.dll
+119	msoobe.exe.txt	$SYSDIR\oobe\msoobe.exe
+120	oobebaln.exe.txt	$SYSDIR\oobe\oobebaln.exe
+121	msobmain.dll.txt	$SYSDIR\oobe\msobmain.dll
+122	rstrui.exe.txt	$SYSDIR\Restore\rstrui.exe
+123	explorer.exe.txt	$WINDIR\explorer.exe
+124	sapi.cpl.txt	$PROGRAM_FILES\Common Files\Microsoft Shared\Speech\sapi.cpl
+125	msinfo32.exe.txt	$PROGRAM_FILES\Common Files\Microsoft Shared\MSInfo\msinfo32.exe
+126	wab32.dll.txt	$PROGRAM_FILES\Common Files\System\wab32.dll
+127	wab32res.dll.txt	$PROGRAM_FILES\Common Files\System\wab32res.dll
+128	iexplore.exe.txt	$PROGRAM_FILES\Internet Explorer\iexplore.exe
+129	msmsgs.exe.txt	$PROGRAM_FILES\Messenger\msmsgs.exe
+130	moviemk.exe.txt	$PROGRAM_FILES\Movie Maker\moviemk.exe
+131	bckgzm.exe.txt	$PROGRAM_FILES\MSN Gaming Zone\Windows\bckgzm.exe
+132	chkrzm.exe.txt	$PROGRAM_FILES\MSN Gaming Zone\Windows\chkrzm.exe
+133	hrtzzm.exe.txt	$PROGRAM_FILES\MSN Gaming Zone\Windows\hrtzzm.exe
+134	rvsezm.exe.txt	$PROGRAM_FILES\MSN Gaming Zone\Windows\rvsezm.exe
+135	shvlzm.exe.txt	$PROGRAM_FILES\MSN Gaming Zone\Windows\shvlzm.exe
+136	msimn.exe.txt	$PROGRAM_FILES\Outlook Express\msimn.exe
+137	wab.exe.txt	$PROGRAM_FILES\Outlook Express\wab.exe
+138	wabfind.dll.txt	$PROGRAM_FILES\Outlook Express\wabfind.dll
+139	msoeres.dll.txt	$PROGRAM_FILES\Outlook Express\msoeres.dll
+140	hypertrm.exe.txt	$PROGRAM_FILES\Windows NT\hypertrm.exe
+141	wordpad.exe.txt	$PROGRAM_FILES\Windows NT\Accessories\wordpad.exe
+142	pinball.exe.txt	$PROGRAM_FILES\Windows NT\Pinball\pinball.exe
+143	notepad.exe.txt	$SYSDIR\notepad.exe
+144	notepad.exe.txt	$WINDIR\notepad.exe
+145	NvMixer.exe.txt	$PROGRAM_FILES\NVIDIA Corporation\NvMixer\NvMixer.exe
+146	NvMixerTray.exe.txt	$PROGRAM_FILES\NVIDIA Corporation\NvMixer\NvMixerTray.exe
+
+147	ws03res.dll.txt	$SYSDIR\ws03res.dll

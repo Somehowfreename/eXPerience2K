@@ -1,0 +1,8 @@
+[FILENAMES]
+Exe=      Backup\desk.cpl
+SaveAs=   NewFiles\desk.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\desk\40.ico,  ICONGROUP,40,
+-addoverwrite Resources\eXPerience2K\desk\100.ico,  ICONGROUP,100,
+-addoverwrite Resources\eXPerience2K\desk\120.bmp,  BITMAP,120,

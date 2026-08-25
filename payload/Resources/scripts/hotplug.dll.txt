@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\hotplug.dll
+SaveAs=   NewFiles\hotplug.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\hotplug\100.ico,  ICONGROUP, 100, 
+-addoverwrite Resources\eXPerience2K\hotplug\102.ico,  ICONGROUP, 102, 

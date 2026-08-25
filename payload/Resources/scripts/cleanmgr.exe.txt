@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\cleanmgr.exe
+SaveAs=	NewFiles\cleanmgr.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\cleanmgr\104.ico, ICONGROUP,104,

@@ -1,0 +1,10 @@
+[FILENAMES]
+Exe=	Backup\rasdlg.dll
+SaveAs=	NewFiles\rasdlg.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\rasdlg\563.ico", ICONGROUP, 562,
+-addoverwrite "Resources\eXPerience2K\rasdlg\563.ico", ICONGROUP, 563,
+-addoverwrite "Resources\eXPerience2K\rasdlg\1678.bmp", BITMAP, 1678,
+

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\remotepg.dll
+SaveAs=   NewFiles\remotepg.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\remotepg\500.ico,  ICONGROUP, 500, 

@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=	Backup\NvMixerTray.exe
+SaveAs=	NewFiles\NvMixerTray.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\NvMixerTray.exe\100.ico, ICONGROUP, 100, 
+-addoverwrite Resources\eXPerience2K\NvMixerTray.exe\200.ico, ICONGROUP, 200, 
+
+

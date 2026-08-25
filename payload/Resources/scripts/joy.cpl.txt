@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\joy.cpl
+SaveAs=   NewFiles\joy.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\joy\102.ico,  ICONGROUP,102,

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\sendmail.dll
+SaveAs=   NewFiles\sendmail.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\sendmail\2001.ico,  ICONGROUP, 2001, 

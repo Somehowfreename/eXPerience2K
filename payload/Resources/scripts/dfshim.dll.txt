@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\dfshim.dll
+SaveAs=   NewFiles\dfshim.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\dfshim\101.ico,  ICONGROUP, 101, 

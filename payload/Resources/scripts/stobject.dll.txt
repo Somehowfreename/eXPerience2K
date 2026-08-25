@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=	Backup\stobject.dll
+SaveAs=	NewFiles\stobject.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\stobject\210.ico", ICONGROUP, 210,
+-addoverwrite "Resources\eXPerience2K\stobject\230.ico", ICONGROUP, 230,
+-addoverwrite "Resources\eXPerience2K\stobject\231.ico", ICONGROUP, 231,

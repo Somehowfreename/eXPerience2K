@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\rcimlby.exe
+SaveAs=   NewFiles\rcimlby.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\rcimlby\201.ico,  ICONGROUP, 201, 

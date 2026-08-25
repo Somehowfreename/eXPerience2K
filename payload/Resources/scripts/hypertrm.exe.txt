@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\hypertrm.exe
+SaveAs=	NewFiles\hypertrm.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\hypertrm\100.ico, ICONGROUP,100,

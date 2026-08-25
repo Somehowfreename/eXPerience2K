@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\intl.cpl
+SaveAs=   NewFiles\intl.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\intl\200.ico,  ICONGROUP,200,

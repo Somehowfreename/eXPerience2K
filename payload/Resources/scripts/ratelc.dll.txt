@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\ratelc.dll
+SaveAs=   NewFiles\ratelc.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\ratelc\107.ico,  ICONGROUP, 107, 

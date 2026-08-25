@@ -1,0 +1,20 @@
+[FILENAMES]
+Exe=	Backup\wiashext.dll
+SaveAs=	NewFiles\wiashext.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\wiashext\100.ico", ICONGROUP, 100, 
+-addoverwrite "Resources\eXPerience2K\wiashext\101.ico", ICONGROUP, 101, 
+-addoverwrite "Resources\eXPerience2K\wiashext\102.ico", ICONGROUP, 102, 
+-addoverwrite "Resources\eXPerience2K\wiashext\103.ico", ICONGROUP, 103, 
+-addoverwrite "Resources\eXPerience2K\wiashext\104.ico", ICONGROUP, 104, 
+-addoverwrite "Resources\eXPerience2K\wiashext\105.ico", ICONGROUP, 105, 
+-addoverwrite "Resources\eXPerience2K\wiashext\106.ico", ICONGROUP, 106, 
+-addoverwrite "Resources\eXPerience2K\wiashext\107.ico", ICONGROUP, 107, 
+-addoverwrite "Resources\eXPerience2K\wiashext\112.ico", ICONGROUP, 112, 
+-addoverwrite "Resources\eXPerience2K\wiashext\113.ico", ICONGROUP, 113, 
+-addoverwrite "Resources\eXPerience2K\wiashext\114.ico", ICONGROUP, 114, 
+
+-addoverwrite "Resources\eXPerience2K\wiashext\CAMERA_CONNECT_AVI.avi", AVI, CAMERA_CONNECT_AVI, 
+-addoverwrite "Resources\eXPerience2K\wiashext\SCANNER_CONNECT_AVI.avi", AVI, SCANNER_CONNECT_AVI, 

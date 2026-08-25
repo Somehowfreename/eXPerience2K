@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\hnetcfg.dll
+SaveAs=   NewFiles\hnetcfg.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\hnetcfg\62.ico,  ICONGROUP, 62, 

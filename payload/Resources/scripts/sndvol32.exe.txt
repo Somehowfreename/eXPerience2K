@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=	Backup\sndvol32.exe
+SaveAs=	NewFiles\sndvol32.exe
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\sndvol32\300.ico", ICONGROUP, 300,
+-addoverwrite "Resources\eXPerience2K\sndvol32\303.ico", ICONGROUP, 303,
+-addoverwrite "Resources\eXPerience2K\sndvol32\304.ico", ICONGROUP, 304,

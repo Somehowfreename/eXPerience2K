@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\ntbackup.exe
+SaveAs=   NewFiles\ntbackup.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\ntbackup\101.ico,  ICONGROUP, 101, 

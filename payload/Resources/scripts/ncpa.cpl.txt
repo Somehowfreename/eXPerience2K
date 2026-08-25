@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=	Backup\ncpa.cpl
+SaveAs=	NewFiles\ncpa.cpl
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\ncpa\1001.ico", ICONGROUP, 1001,

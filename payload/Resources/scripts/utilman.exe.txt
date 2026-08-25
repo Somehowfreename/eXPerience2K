@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\utilman.exe
+SaveAs=	NewFiles\utilman.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\utilman\102.ico, ICONGROUP,102,

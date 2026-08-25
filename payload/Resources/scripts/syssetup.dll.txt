@@ -1,0 +1,11 @@
+[FILENAMES]
+Exe=      Backup\syssetup.dll
+SaveAs=   NewFiles\syssetup.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\syssetup\81.ico,  ICONGROUP, 81, 
+-addoverwrite Resources\eXPerience2K\syssetup\84.ico,  ICONGROUP, 84, 
+-addoverwrite Resources\eXPerience2K\syssetup\90.ico,  ICONGROUP, 90, 
+-addoverwrite Resources\eXPerience2K\syssetup\101.ico,  ICONGROUP, 101, 
+-addoverwrite Resources\eXPerience2K\syssetup\102.ico,  ICONGROUP, 102, 
+-addoverwrite Resources\eXPerience2K\syssetup\126.ico,  ICONGROUP, 126, 

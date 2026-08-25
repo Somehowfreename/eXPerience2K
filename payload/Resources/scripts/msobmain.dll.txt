@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\msobmain.dll
+SaveAs=   NewFiles\msobmain.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msobmain\200.ico,  ICONGROUP,200,
+-addoverwrite Resources\eXPerience2K\msobmain\202.ico,  ICONGROUP,202,

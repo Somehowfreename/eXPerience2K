@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wuweb.dll
+SaveAs=   NewFiles\wuweb.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wuweb\IDI_MUICON.ico,  ICONGROUP, IDI_MUICON, 

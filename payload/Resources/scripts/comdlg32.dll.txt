@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\comdlg32.dll
+SaveAs=   NewFiles\comdlg32.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\comdlg32\540.ico,  ICONGROUP, 540, 

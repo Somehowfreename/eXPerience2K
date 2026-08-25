@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\photowiz.dll
+SaveAs=   NewFiles\photowiz.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\photowiz\200.ico,  ICONGROUP, 200, 

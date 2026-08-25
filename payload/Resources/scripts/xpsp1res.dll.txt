@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=      Backup\xpsp1res.dll
+SaveAs=   NewFiles\xpsp1res.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\xpsp1res\100.ico,  ICONGROUP,100,
+-addoverwrite Resources\eXPerience2K\xpsp1res\100.bmp,  BITMAP,100,
+-addoverwrite Resources\eXPerience2K\xpsp1res\200.bmp,  BITMAP,200,
+-addoverwrite Resources\eXPerience2K\xpsp1res\1678.bmp,  BITMAP,1678,

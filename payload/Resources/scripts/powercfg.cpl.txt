@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\powercfg.cpl
+SaveAs=   NewFiles\powercfg.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\powercfg\202.ico,  ICONGROUP,202,

@@ -1,0 +1,45 @@
+[FILENAMES]
+Exe=      Backup\explorer.exe
+SaveAs=   NewFiles\explorer.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\explorer\100.ico,  ICONGROUP, 100, 
+-addoverwrite Resources\eXPerience2K\explorer\101.ico,  ICONGROUP, 101, 
+-addoverwrite Resources\eXPerience2K\explorer\103.ico,  ICONGROUP, 103, 
+-addoverwrite Resources\eXPerience2K\explorer\107.ico,  ICONGROUP, 107, 
+-addoverwrite Resources\eXPerience2K\explorer\108.ico,  ICONGROUP, 108, 
+-addoverwrite Resources\eXPerience2K\explorer\109.ico,  ICONGROUP, 109, 
+-addoverwrite Resources\eXPerience2K\explorer\110.ico,  ICONGROUP, 110, 
+-addoverwrite Resources\eXPerience2K\explorer\111.ico,  ICONGROUP, 111, 
+-addoverwrite Resources\eXPerience2K\explorer\252.ico,  ICONGROUP, 252, 
+-addoverwrite Resources\eXPerience2K\explorer\253.ico,  ICONGROUP, 253, 
+-addoverwrite Resources\eXPerience2K\explorer\254.ico,  ICONGROUP, 254, 
+
+;-addoverwrite Resources\eXPerience2K\explorer\143.bmp,  BITMAP, 143, 
+-addoverwrite Resources\eXPerience2K\explorer\145.bmp,  BITMAP, 145, 
+-addoverwrite Resources\eXPerience2K\explorer\146.bmp,  BITMAP, 146, 
+-addoverwrite Resources\eXPerience2K\explorer\147.bmp,  BITMAP, 147, 
+-addoverwrite Resources\eXPerience2K\explorer\148.bmp,  BITMAP, 148, 
+-addoverwrite Resources\eXPerience2K\explorer\149.bmp,  BITMAP, 149, 
+-addoverwrite Resources\eXPerience2K\explorer\150.bmp,  BITMAP, 150, 
+-addoverwrite Resources\eXPerience2K\explorer\151.bmp,  BITMAP, 151, 
+-addoverwrite Resources\eXPerience2K\explorer\152.bmp,  BITMAP, 152, 
+-addoverwrite Resources\eXPerience2K\explorer\153.bmp,  BITMAP, 153, 
+-addoverwrite Resources\eXPerience2K\explorer\158.bmp,  BITMAP, 158,
+-addoverwrite Resources\eXPerience2K\explorer\163.bmp,  BITMAP, 163,
+-addoverwrite Resources\eXPerience2K\explorer\164.bmp,  BITMAP, 164,
+-addoverwrite Resources\eXPerience2K\explorer\166.bmp,  BITMAP, 166, 
+-addoverwrite Resources\eXPerience2K\explorer\167.bmp,  BITMAP, 167, 
+-addoverwrite Resources\eXPerience2K\explorer\170.bmp,  BITMAP, 170, 
+-addoverwrite Resources\eXPerience2K\explorer\171.bmp,  BITMAP, 171, 
+-addoverwrite Resources\eXPerience2K\explorer\176.bmp,  BITMAP, 176, 
+-addoverwrite Resources\eXPerience2K\explorer\178.bmp,  BITMAP, 178, 
+-addoverwrite Resources\eXPerience2K\explorer\179.bmp,  BITMAP, 179, 
+-addoverwrite Resources\eXPerience2K\explorer\180.bmp,  BITMAP, 180, 
+-addoverwrite Resources\eXPerience2K\explorer\181.bmp,  BITMAP, 181, 
+-addoverwrite Resources\eXPerience2K\explorer\182.bmp,  BITMAP, 182, 
+-addoverwrite Resources\eXPerience2K\explorer\183.bmp,  BITMAP, 183, 
+-addoverwrite Resources\eXPerience2K\explorer\7010.bmp,  BITMAP, 7010, 
+-addoverwrite Resources\eXPerience2K\explorer\7011.bmp,  BITMAP, 7011, 
+
+

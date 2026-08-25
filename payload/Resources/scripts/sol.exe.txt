@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\sol.exe
+SaveAs=   NewFiles\sol.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\sol\500.ico,  ICONGROUP, 500, 

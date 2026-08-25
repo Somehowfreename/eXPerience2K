@@ -1,0 +1,13 @@
+* text=auto
+*.c text eol=crlf
+*.nsi text eol=crlf
+*.ps1 text eol=crlf
+*.tsv text eol=crlf
+*.txt text eol=crlf
+*.md text eol=lf
+*.bmp binary
+*.ico binary
+*.avi binary
+*.exe binary
+*.png binary
+*.zip binary

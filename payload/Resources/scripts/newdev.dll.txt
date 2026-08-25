@@ -1,0 +1,12 @@
+[FILENAMES]
+Exe=      Backup\newdev.dll
+SaveAs=   NewFiles\newdev.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\newdev\200.ico,  ICONGROUP, 200, 
+-addoverwrite Resources\eXPerience2K\newdev\201.ico,  ICONGROUP, 201, 
+-addoverwrite Resources\eXPerience2K\newdev\204.ico,  ICONGROUP, 204, 
+-addoverwrite Resources\eXPerience2K\newdev\208.ico,  ICONGROUP, 208, 
+
+-addoverwrite Resources\eXPerience2K\newdev\300.avi,  AVI, 300, 
+-addoverwrite Resources\eXPerience2K\newdev\301.avi,  AVI, 301, 

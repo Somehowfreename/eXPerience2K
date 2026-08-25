@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\url.dll
+SaveAs=   NewFiles\url.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\url\102.ico,  ICONGROUP, 102, 

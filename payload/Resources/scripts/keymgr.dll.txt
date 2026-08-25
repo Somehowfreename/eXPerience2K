@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\keymgr.dll
+SaveAs=   NewFiles\keymgr.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\keymgr\100.ico,  ICONGROUP, 100, 

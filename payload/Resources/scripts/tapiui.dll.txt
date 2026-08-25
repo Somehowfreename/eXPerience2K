@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\tapiui.dll
+SaveAs=   NewFiles\tapiui.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\tapiui\201.ico,  ICONGROUP, 201, 

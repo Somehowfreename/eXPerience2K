@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wucltui.dll
+SaveAs=   NewFiles\wucltui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wucltui\1.ico,  ICONGROUP, 1, 

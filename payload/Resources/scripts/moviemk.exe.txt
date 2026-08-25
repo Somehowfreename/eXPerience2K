@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\moviemk.exe
+SaveAs=   NewFiles\moviemk.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\moviemk\128.ico,  ICONGROUP, 128, 

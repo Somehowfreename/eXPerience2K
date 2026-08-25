@@ -1,0 +1,98 @@
+<!--
+ * Copyright 1999 Microsoft Corporation.  All rights reserved.
+ -->
+
+<html>
+    <link rel=stylesheet href="%TEMPLATEDIR%\webview.css" title="Windows">
+
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <base href="%THISDIRPATH%\">
+    </head>
+
+    <script language="JavaScript" src="%TEMPLATEDIR%\WebView.js">
+    </script>
+
+    <script language="JavaScript">
+        var L_MBName_Text    = "My Briefcase";
+        var L_MBIntro_Text   = "This folder contains files that you use on more than one computer.<br><br>When you want to work on your files on another computer, drag the files to My Briefcase, and then copy My Briefcase to your laptop computer or to a floppy disk. When you are ready to synchronize the files, insert the floppy disk or connect your laptop, and then click:<p class=Half><button onClick='UpdateAll()'> Update All</button>";
+        var L_TIFName_Text   = "Temporary Internet Files";
+        var L_TIFIntro_Text  = "This folder contains all the Web sites you have visited recently. The addresses are copied to this folder, which is also known as a <i>cache</i>. If you visit the sites again, they load faster.<br><br>To increase disk space, in the Internet control panel, on the <b>General</b> tab, click <b>Delete Files</b> to empty the folder. To adjust the amount of space the Temporary Internet Files folder uses on your hard disk, click <b>Settings</b>.";
+        var L_DPFName_Text   = "Downloaded Program Files";
+        var L_DPFIntro_Text  = "This folder contains the files needed to display Web pages that you have already opened.<br><br>Most of these files help run animations on a Web page.<br><br>The files are placed in this folder when you visit a Web page so that if you open that page again, the page will be displayed more quickly.";
+        var L_HName_Text     = "History";
+        var L_HIntro_Text    = "This folder contains links to Web sites you have recently visited. To return to a Web page in this list, click the day that you visited the Web page, and then click the link for the appropriate page.<br><br>If you want to change the number of days shown in History, in the Internet control panel, on the <b>General</b> tab, click the <b>Days to keep pages in history</b> box, and change the number. To increase disk space, click <b>Clear History</b> to empty the folder.";
+        var L_SName_Text     = "Subscriptions";
+        var L_SIntro_Text    = "This folder contains links to all your subscription Web sites. To open a site, select it.<br><br>To subscribe to a Web site, on the <b>Favorites</b> menu, click <b>Add to Favorites</b>, and then follow the instructions on the screen. You are automatically notified when the Web site has been updated.";
+
+        function GetIntroText() {
+            var s = "";
+            var name = "%THISDIRNAME%";
+
+            if (name == L_MBName_Text)
+                s = L_MBIntro_Text;
+            else if (name == L_TIFName_Text)
+                s = L_TIFIntro_Text;
+            else if (name == L_DPFName_Text)
+                s = L_DPFIntro_Text;
+            else if (name == L_HName_Text)
+                s = L_HIntro_Text;
+            else if (name == L_SName_Text)
+                s = L_SIntro_Text;
+            if (s.length)
+                s += "<p>";
+            return s;
+        }
+
+        function UpdateAll() {
+            if (FileList.Folder.Items().Count) {
+                var folderItems = FileList.Folder.ParentFolder.ParseName("%THISDIRNAME%");
+                folderItems.InvokeVerb("update all");
+            }
+        }
+
+        function Load() {
+            Initialize(GetIntroText());
+            Resize();
+        }
+    </script>
+
+    <script language="JavaScript" for="Thumbnail" event="OnThumbnailReady">
+        ThumbnailReady();
+    </script>
+
+    <script language="JavaScript" for="FileList" event="SelectionChanged">
+        window.clearTimeout(gTimer);
+        gTimer = window.setTimeout("ShowInfo()", gDoBlends ? 500 : 0); // need actual double-click time
+    </script>
+
+    <body scroll=no onload=Load()>
+        <div id=Panel style="background: white URL(file://%TEMPLATEDIR%/wvleft.bmp) no-repeat">
+            <div id=Corner>
+                <object id=FolderIcon classid="clsid:844F4806-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                    <param name="scale" value=100>
+                </object>
+                <br>
+                <div id=FolderName>
+                    %THISDIRNAME%
+                </div>
+            </div>
+            <img id=LogoLine src="%TEMPLATEDIR%\wvline.gif">
+            <div id=Details>
+                <span id=Info>
+                    %THISDIRPATH%
+                </span>
+                <div id=Preview style="display: none">
+                </div>
+                <br>
+                <object id=Thumbnail classid="clsid:71650000-E8A8-11d2-9652-00C04FC30871" tabIndex=-1>
+                </object>
+                <label id=ThumbnailLabel for="Thumbnail" style="display: none">
+                </label>
+           </div>
+        </div>
+        <object id=FileList classid="clsid:1820FED0-473E-11D0-A96C-00C04FD705A2" tabIndex=1>
+        </object>
+    </body>
+</html>
+

@@ -1,0 +1,28 @@
+[FILENAMES]
+Exe=      Backup\mmsys.cpl
+SaveAs=   NewFiles\mmsys.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mmsys\3004.ico,  ICONGROUP,3004,
+-addoverwrite Resources\eXPerience2K\mmsys\4354.ico,  ICONGROUP,4354,
+-addoverwrite Resources\eXPerience2K\mmsys\4363.ico,  ICONGROUP,4363,
+-addoverwrite Resources\eXPerience2K\mmsys\4367.ico,  ICONGROUP,4367,
+-addoverwrite Resources\eXPerience2K\mmsys\4368.ico,  ICONGROUP,4368,
+-addoverwrite Resources\eXPerience2K\mmsys\4379.ico,  ICONGROUP,4379,
+-addoverwrite Resources\eXPerience2K\mmsys\4393.ico,  ICONGROUP,4393,
+
+-addoverwrite Resources\eXPerience2K\mmsys\4612.bmp,  BITMAP, 4612, 
+-addoverwrite Resources\eXPerience2K\mmsys\4613.bmp,  BITMAP,4613,
+-addoverwrite Resources\eXPerience2K\mmsys\4614.bmp,  BITMAP,4614,
+-addoverwrite Resources\eXPerience2K\mmsys\4615.bmp,  BITMAP,4615,
+-addoverwrite Resources\eXPerience2K\mmsys\4616.bmp,  BITMAP,4616,
+-addoverwrite Resources\eXPerience2K\mmsys\4617.bmp,  BITMAP,4617,
+-addoverwrite Resources\eXPerience2K\mmsys\4618.bmp,  BITMAP,4618,
+-addoverwrite Resources\eXPerience2K\mmsys\4619.bmp,  BITMAP,4619,
+-addoverwrite Resources\eXPerience2K\mmsys\4620.bmp,  BITMAP,4620,
+-addoverwrite Resources\eXPerience2K\mmsys\4621.bmp,  BITMAP,4621,
+-addoverwrite Resources\eXPerience2K\mmsys\4622.bmp,  BITMAP,4622,
+-addoverwrite Resources\eXPerience2K\mmsys\4624.bmp,  BITMAP,4624,
+-addoverwrite Resources\eXPerience2K\mmsys\4626.bmp,  BITMAP,4626,
+-addoverwrite Resources\eXPerience2K\mmsys\4627.bmp,  BITMAP,4627,
+-addoverwrite Resources\eXPerience2K\mmsys\4628.bmp,  BITMAP,4628,

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=	Backup\magnify.exe
+SaveAs=	NewFiles\magnify.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\magnify\128.ico, ICONGROUP,128,

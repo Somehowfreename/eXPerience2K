@@ -1,0 +1,12 @@
+[FILENAMES]
+Exe=	Backup\wiadefui.dll
+SaveAs=	NewFiles\wiadefui.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\wiadefui\104.ico", ICONGROUP, 104, 
+-addoverwrite "Resources\eXPerience2K\wiadefui\105.ico", ICONGROUP, 105, 
+-addoverwrite "Resources\eXPerience2K\wiadefui\108.ico", ICONGROUP, 108, 
+-addoverwrite "Resources\eXPerience2K\wiadefui\109.ico", ICONGROUP, 109, 
+-addoverwrite "Resources\eXPerience2K\wiadefui\1000.avi", AVI, 1000, 
+-addoverwrite "Resources\eXPerience2K\wiadefui\1001.avi", AVI, 1001, 

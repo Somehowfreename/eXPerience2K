@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\cscui.dll
+SaveAs=   NewFiles\cscui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\cscui\1208.ico,  ICONGROUP, 1208, 

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wuauclt.exe
+SaveAs=   NewFiles\wuauclt.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wuauclt\1.ico,  ICONGROUP,1,

@@ -1,0 +1,14 @@
+[FILENAMES]
+Exe=      Backup\idecoi.dll
+SaveAs=   NewFiles\idecoi.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\idecoi\101.ico,  ICONGROUP, 101, 
+-addoverwrite Resources\eXPerience2K\idecoi\102.ico,  ICONGROUP, 102, 
+-addoverwrite Resources\eXPerience2K\idecoi\103.ico,  ICONGROUP, 103, 
+-addoverwrite Resources\eXPerience2K\idecoi\104.ico,  ICONGROUP, 104, 
+-addoverwrite Resources\eXPerience2K\idecoi\105.ico,  ICONGROUP, 105, 
+-addoverwrite Resources\eXPerience2K\idecoi\106.ico,  ICONGROUP, 106, 
+-addoverwrite Resources\eXPerience2K\idecoi\107.ico,  ICONGROUP, 107, 
+-addoverwrite Resources\eXPerience2K\idecoi\150.ico,  ICONGROUP, 150, 
+-addoverwrite Resources\eXPerience2K\idecoi\166.ico,  ICONGROUP, 166, 

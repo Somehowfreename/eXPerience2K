@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\msinfo32.exe
+SaveAs=   NewFiles\msinfo32.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msinfo32\128.ico,  ICONGROUP, 128, 

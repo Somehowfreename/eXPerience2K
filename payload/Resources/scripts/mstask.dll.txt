@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\mstask.dll
+SaveAs=   NewFiles\mstask.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mstask\100.ico,  ICONGROUP,100,
+-addoverwrite Resources\eXPerience2K\mstask\274.ico,  ICONGROUP,274,

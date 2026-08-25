@@ -1,0 +1,248 @@
+# eXPerience2K64
+
+eXPerience2K64 is an open-source Windows 2000-style conversion for **Windows
+XP Professional x64 Edition SP2**. It preserves XP x64's NT 5.2 system and
+application compatibility while replacing supported shell artwork and
+automating the native Windows settings needed for a cohesive Windows 2000
+experience.
+
+> [!IMPORTANT]
+> Windows XP Professional x64 Edition SP2 is the only operating system
+> currently supported and tested. Windows Server editions are untested and
+> unsupported. Windows XP x86 is not supported by this release. Some x86 code
+> paths remain in the source from development, but their presence is not a
+> compatibility promise. The installer detects 32-bit Windows, explains the
+> support status, and exits before installing files or changing settings.
+
+The current release is **eXPerience2K64 2.4.1**. Download
+`eXPerience2K64-v2.4.1-Setup.exe` from the repository's **Latest** release.
+
+## Why I made it
+
+I always loved InexperiencePatcher and the way it transformed Windows XP into
+something that felt like Windows 2000. What always bugged me was that it
+explicitly did not support 64-bit Windows and never gained Windows XP x64
+support. I decided to build that missing x64 implementation myself, preserve
+the spirit and artwork of the original, and make the result maintainable and
+open source.
+
+Windows XP x86 support is planned for a future release, but it is not the
+priority for 2.4.1 because the original project already serves x86 users.
+eXPerience2K64 first focuses on the platform that was left unsupported.
+
+## What eXPerience2K64 adds
+
+The original patcher already provided the Windows 2000-style resource set,
+protected-file backups, a startup reloader, verification, and uninstall
+restoration. eXPerience2K64 retains that foundation and adds:
+
+- native Windows XP Professional x64 resource discovery and patching across
+  64-bit system files, WoW64 files, WinSxS common controls, and Windows File
+  Protection caches;
+- a reopenable configuration application whose selections reflect the
+  machine's current state;
+- an immutable first-Apply baseline that restores the exact original registry
+  data, type, value absence, shell state, sounds, fonts, metrics, theme,
+  Explorer state, and logon settings when features are later cleared;
+- individually reversible Classic theme, Classic Start menu/taskbar, Classic
+  Control Panel, classic logon, wallpaper, sound, animation, and Explorer
+  options;
+- independent Solid Navy and Blue Gradient caption presets for the secure
+  logon desktop and the signed-in desktop;
+- mutually exclusive sliding and fading Start-menu animation choices;
+- the exact Windows 2000 system sounds, with a separately controllable folder
+  double-click/navigation sound;
+- five optional Windows 2000-style wallpapers installed to the interactive
+  user's My Pictures folder without overwriting existing files;
+- an experimental native x64 Windows 2000-style Explorer folder interface
+  that keeps XP's original `explorer.exe` and shell functionality;
+- correct interactive-user targeting when XP's **Run As** command uses a
+  different administrator account;
+- privacy-safe in-memory diagnostics with user-controlled Open and Save
+  actions; and
+- fail-closed restoration: the uninstaller keeps recovery data in place if a
+  complete restore cannot be verified.
+
+## Complete feature list
+
+The configuration application exposes eleven options:
+
+1. **Windows 2000 visual resource conversion** — applies the supported Windows
+   2000-style icons, bitmaps, shell animations, strings, and branding artwork.
+2. **Automatically change the Windows theme to Classic** — applies the
+   Windows Classic visual style, Tahoma 8 interface fonts, 18-pixel captions,
+   and the selected signed-in caption preset.
+3. **Enable the Classic Start menu and taskbar layout** — selects XP's native
+   Classic Start Menu and matching taskbar layout.
+4. **Use Classic Control Panel view by default** — opens Control Panel in its
+   classic icon view.
+5. **Use sliding Start menu and submenu animations** — enables menu animation
+   without fading. This is the first-launch default.
+6. **Use fading Start menu and submenu animations** — enables the alternative
+   fade transition. Sliding and fading are mutually exclusive.
+7. **Windows 2000 style login window** — disables the XP Welcome screen and
+   uses XP's native classic GINA logon with Windows 2000-style artwork and
+   background.
+8. **Install Windows 2000 style wallpapers to My Pictures** — installs five
+   curated JPEG wallpapers named `Windows_2000_1.jpg` through
+   `Windows_2000_4.jpg`, plus `Windows_9x.jpg`.
+9. **Windows 2000 Explorer folder interface (experimental)** — adds a native
+   64-bit Windows 2000-style information pane and Windows 2000 WebView assets
+   to XP x64 folder windows without replacing `explorer.exe`.
+10. **Replace all Windows XP sounds with Windows 2000 equivalents** — maps the
+    XP event set to eight exact Windows 2000 WAV files; XP-only events with no
+    Windows 2000 counterpart are intentionally silent.
+11. **Enable the Windows 2000 folder double-click sound** — independently maps
+    Explorer's navigation event to the exact Windows 2000 folder sound.
+
+Default-on choices are defaults only on the first launch. After the first
+Apply, reopening the program shows the current configuration and never
+silently re-enables a choice the user cleared.
+
+### Caption presets
+
+The secure logon prompt and signed-in Windows each have their own independent
+choice:
+
+- **Solid Navy:** `RGB(0, 0, 128)` / `#000080`
+- **Blue Gradient:** `RGB(10, 36, 106)` / `#0A246A` to
+  `RGB(166, 202, 240)` / `#A6CAF0`
+
+The logon prompt defaults to Solid Navy. The signed-in desktop defaults to the
+Blue Gradient. On a basic or low-color VGA driver, Windows may render a chosen
+gradient as a solid caption until a suitable display driver is installed.
+
+## Exact-state restoration in 2.4.1
+
+Before the first Apply transaction changes anything, 2.4.1 captures one
+immutable baseline of every setting managed by every checkbox. That baseline
+is stored separately from the current configuration and is never overwritten
+by later Apply operations.
+
+Clearing a feature and clicking Apply therefore restores what was actually on
+that installation—not an assumed XP default. This includes the complete
+Start-menu/taskbar `ShellState`, Control Panel values, every managed sound
+event, theme colors, caption-gradient state, fonts and window metrics,
+Explorer settings, Winlogon selection, and values that originally did not
+exist.
+
+## Installation and use
+
+1. Use Windows XP Professional x64 Edition SP2 and log on with an
+   administrator account, or use XP's **Run As** command with an administrator
+   account.
+2. Keep installation media or a complete system image available. Modifying
+   protected operating-system resources always carries risk.
+3. Run `eXPerience2K64-v2.4.1-Setup.exe`.
+4. Open eXPerience2K64, review the selections and caption presets, then click
+   **Apply**.
+5. Restart when prompted. Allow the startup reloader to finish.
+6. Reopen eXPerience2K64 whenever you want to inspect, enable, or restore
+   individual features.
+
+Machine-level choices require administrator rights. User-level choices target
+the interactive desktop account even when the administrator supplied through
+**Run As** is a different account. If a requested transaction needs rights the
+process does not have, Apply stops before making partial changes and explains
+what is required.
+
+## Diagnostics, persistence, and uninstall
+
+Diagnostics stay in memory unless the user chooses **Save log...** and a
+destination. Logs do not contain account names, profile paths, SIDs, product
+keys, or installation-media keys.
+
+The patch engine validates staged PE files, preserves original-file backups,
+records original and patched CRC-32 values, covers protected caches, and
+schedules locked replacements safely. Its verifier classifies each target as
+patched, original, changed, or missing. The startup reloader reapplies managed
+resources if Windows File Protection or an update restores them. The tested
+2.4.1 conversion remained applied through the complete post-install update
+sequence on a clean retail XP x64 system.
+
+Uninstall performs a restoration transaction before removing the program. If
+restoration cannot be completed and verified, uninstall stops and retains the
+application and backup data rather than destroying the recovery path.
+
+## Scope and deliberate limits
+
+- Supported: English Windows XP Professional x64 Edition SP2.
+- Unsupported in 2.4.1: all Windows XP x86 editions.
+- Untested and unsupported: Windows Server 2003 and Server 2003 R2 editions.
+- Not changed: the kernel and boot screen.
+- Not replaced: `explorer.exe`.
+- Not included: Internet Explorer executable/icon experiments.
+- No .NET dependency and no network code.
+
+See the [support matrix](docs/SUPPORT-MATRIX.md) for the exact boundary.
+
+## Release integrity
+
+The sole binary asset attached to release 2.4.1 is:
+
+```text
+eXPerience2K64-v2.4.1-Setup.exe
+SHA-256: 5A5E86B179BEDF6F948140A9265C2BAE2D315BC2A6B06DE6530031E859C232AD
+Size:    4,328,258 bytes
+```
+
+The executable is unsigned. Security products may warn because the requested
+operation modifies protected Windows files and uses an XP-era Windows File
+Protection suspension technique. See [SECURITY.md](SECURITY.md) for the exact
+behavior and threat boundary.
+
+## Building from source
+
+The project uses native Win32 C/C++, MinGW-w64, NSIS 3, and Windows PowerShell.
+It does not require .NET:
+
+```powershell
+.\scripts\build.ps1 `
+  -GccX86Path C:\path\to\mingw32\bin\gcc.exe `
+  -GccX64Path C:\path\to\mingw64\bin\gcc.exe `
+  -MakeNsisPath "C:\Program Files (x86)\NSIS\makensis.exe"
+
+.\scripts\verify-release.ps1
+```
+
+The expected installer is `dist\eXPerience2K64-v2.4.1-Setup.exe`. See
+[BUILDING.md](docs/BUILDING.md) and
+[REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for prerequisites and the exact
+published-source attestation.
+
+## Repository layout
+
+```text
+src/                    native configuration app, patch engines, Explorer module
+installer/              NSIS installer and fail-closed uninstaller
+payload/                manifests, feature definitions, artwork, sounds and state
+reference-assets/       source-reference material and asset provenance inputs
+scripts/                build and verification tooling
+tools/resource-hacker/  documented resource-patching fallback
+docs/                   architecture, support, testing and release documentation
+```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Support matrix](docs/SUPPORT-MATRIX.md)
+- [Building from source](docs/BUILDING.md)
+- [Reproducibility and source attestation](docs/REPRODUCIBILITY.md)
+- [Feature and lifecycle testing](docs/TESTING.md)
+- [Validation record](docs/VALIDATION.md)
+- [Experimental Explorer implementation](docs/EXPLORER-EXPERIMENT.md)
+- [Release notes](docs/RELEASE-NOTES-2.4.1.md)
+- [Security behavior](SECURITY.md)
+- [Legal and redistribution notes](docs/LEGAL.md)
+- [Contributing](CONTRIBUTING.md)
+
+## License and attribution
+
+Repository-authored code and documentation are available under
+[`LICENSE-CODE`](LICENSE-CODE). That license does not grant rights to
+third-party tools, Microsoft software, names, marks, visual resources, or
+sounds. Read [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
+[`docs/LEGAL.md`](docs/LEGAL.md) before redistribution.
+
+This is an independent community project and is not affiliated with,
+approved by, or supported by Microsoft.

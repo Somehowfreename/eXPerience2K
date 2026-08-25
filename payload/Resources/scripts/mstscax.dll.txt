@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\mstscax.dll
+SaveAs=   NewFiles\mstscax.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mstscax\100.ico,  ICONGROUP, 100, 

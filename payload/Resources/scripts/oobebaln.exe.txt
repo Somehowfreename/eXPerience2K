@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\oobebaln.exe
+SaveAs=   NewFiles\oobebaln.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\oobebaln\200.ico,  ICONGROUP, 200, 

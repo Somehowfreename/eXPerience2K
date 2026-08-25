@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\charmap.exe
+SaveAs=   NewFiles\charmap.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\charmap\111.ico,  ICONGROUP,111,

@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest a scoped enhancement to the XP x64 conversion.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Problem or missing behavior
+      description: Describe the user-visible gap and where it appears.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Include target modules and resource IDs if known.
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope confirmation
+      options:
+        - label: This request does not require bundling Windows binaries, keys, or installation media.
+          required: true

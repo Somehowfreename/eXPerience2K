@@ -1,0 +1,11 @@
+[FILENAMES]
+Exe=      Backup\mstsc.exe
+SaveAs=   NewFiles\mstsc.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mstsc\101.ico,  ICONGROUP,101,
+
+-addoverwrite Resources\eXPerience2K\mstsc\619.bmp,  BITMAP,619,
+-addoverwrite Resources\eXPerience2K\mstsc\624.bmp,  BITMAP,624,
+-addoverwrite Resources\eXPerience2K\mstsc\625.bmp,  BITMAP,625,
+-addoverwrite Resources\eXPerience2K\mstsc\626.bmp,  BITMAP,626,

@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\dfrgres.dll
+SaveAs=   NewFiles\dfrgres.dll
+
+[COMMANDS]
+
+-addoverwrite Resources\eXPerience2K\dfrgres\106.ico,  ICONGROUP, 106, 

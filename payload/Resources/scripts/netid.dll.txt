@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=	Backup\netid.dll
+SaveAs=	NewFiles\netid.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\netid\101.ico", ICONGROUP, 101,

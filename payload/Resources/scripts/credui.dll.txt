@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\credui.dll
+SaveAs=   NewFiles\credui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\credui\1101.bmp,  BITMAP, 1101, 

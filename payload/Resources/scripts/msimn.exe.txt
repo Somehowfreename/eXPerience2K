@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\msimn.exe
+SaveAs=   NewFiles\msimn.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msimn\2.ico,  ICONGROUP, 2, 

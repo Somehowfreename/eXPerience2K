@@ -1,0 +1,11 @@
+[FILENAMES]
+Exe=      Backup\appwiz.cpl
+SaveAs=   NewFiles\appwiz.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\appwiz\1500.ico,  ICONGROUP,1500,
+-addoverwrite Resources\eXPerience2K\appwiz\1500.ico,  ICONGROUP,1504,
+-addoverwrite Resources\eXPerience2K\appwiz\101.bmp,  BITMAP,101,
+-addoverwrite Resources\eXPerience2K\appwiz\102.bmp,  BITMAP,102,
+-addoverwrite Resources\eXPerience2K\appwiz\103.bmp,  BITMAP,103,
+-addoverwrite Resources\eXPerience2K\appwiz\104.bmp,  BITMAP,104,

@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=      Backup\main.cpl
+SaveAs=   NewFiles\main.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\main\100.ico,  ICONGROUP,100,
+-addoverwrite Resources\eXPerience2K\main\200.ico,  ICONGROUP,200,
+-addoverwrite Resources\eXPerience2K\main\400.ico,  ICONGROUP,400,
+-addoverwrite Resources\eXPerience2K\main\500.ico,  ICONGROUP,500,

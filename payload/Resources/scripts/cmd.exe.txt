@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\cmd.exe
+SaveAs=   NewFiles\cmd.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\cmd\idi_appicon.ico,  ICONGROUP,idi_appicon,

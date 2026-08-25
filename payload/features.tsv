@@ -1,0 +1,12 @@
+feature_id	label	first_launch_default	scope	administrator_required	phase
+resource_conversion	Windows 2000 visual resource conversion	on	machine	yes	core
+classic_theme	Automatically change the Windows theme to Classic	on	interactive-user	no	core
+classic_start_menu	Enable the Classic Start menu and taskbar layout	on	interactive-user	no	core
+classic_control_panel	Use Classic Control Panel view by default	on	interactive-user	no	core
+start_menu_slide	Use sliding Start menu and submenu animations	on	interactive-user	no	core
+start_menu_fade	Use fading Start menu and submenu animations	off	interactive-user	no	core
+classic_logon	Windows 2000 style login window	on	machine	yes	core
+install_wallpapers	Install Windows 2000 style wallpapers to My Pictures	on	interactive-user	no	core
+classic_explorer	Windows 2000 Explorer folder interface (experimental)	on	interactive-user-and-machine	yes	experimental
+windows_2000_sounds	Replace all Windows XP sounds with Windows 2000 equivalents	on	interactive-user	no	core
+windows_2000_double_click_sound	Enable the Windows 2000 folder double-click sound	on	interactive-user	no	core

@@ -1,0 +1,11 @@
+[FILENAMES]
+Exe=      Backup\nusrmgr.cpl
+SaveAs=   NewFiles\nusrmgr.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\nusrmgr\200.ico,  ICONGROUP,200,
+-addoverwrite Resources\eXPerience2K\nusrmgr\205.ico,  ICONGROUP,205,
+-addoverwrite Resources\eXPerience2K\nusrmgr\201.bmp,  BITMAP,201,
+-addoverwrite Resources\eXPerience2K\nusrmgr\202.bmp,  BITMAP,202,
+-addoverwrite Resources\eXPerience2K\nusrmgr\203.bmp,  BITMAP,203,
+-addoverwrite Resources\eXPerience2K\nusrmgr\204.bmp,  BITMAP,204,

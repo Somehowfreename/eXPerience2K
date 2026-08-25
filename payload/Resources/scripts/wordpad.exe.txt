@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wordpad.exe
+SaveAs=   NewFiles\wordpad.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wordpad\128.ico,  ICONGROUP, 128, 

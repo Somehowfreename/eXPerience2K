@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\hrtzzm.exe
+SaveAs=   NewFiles\hrtzzm.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\hrtzzm\IDI_ICON.ico,  ICONGROUP, IDI_ICON, 

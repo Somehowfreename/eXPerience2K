@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\hdwwiz.cpl
+SaveAs=   NewFiles\hdwwiz.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\hdwwiz\100.ico,  ICONGROUP,100,

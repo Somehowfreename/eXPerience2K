@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\timedate.cpl
+SaveAs=   NewFiles\timedate.cpl
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\timedate\200.ico,  ICONGROUP,200,

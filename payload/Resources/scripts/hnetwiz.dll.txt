@@ -1,0 +1,10 @@
+[FILENAMES]
+Exe=	Backup\hnetwiz.dll
+SaveAs=	NewFiles\hnetwiz.dll
+
+[COMMANDS]
+
+-addoverwrite "Resources\eXPerience2K\hnetwiz\10000.ico", ICONGROUP, 10000,
+-addoverwrite "Resources\eXPerience2K\hnetwiz\10001.ico", ICONGROUP, 10001,
+-addoverwrite "Resources\eXPerience2K\hnetwiz\10002.ico", ICONGROUP, 10002,
+-addoverwrite "Resources\eXPerience2K\hnetwiz\10003.ico", ICONGROUP, 10003,

@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\compatui.dll
+SaveAs=   NewFiles\compatui.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\compatui\210.ico,  ICONGROUP, 210, 

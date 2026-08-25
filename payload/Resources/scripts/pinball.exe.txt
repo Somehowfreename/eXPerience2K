@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\pinball.exe
+SaveAs=   NewFiles\pinball.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\pinball\ICON_1.ico,  ICONGROUP, ICON_1, 

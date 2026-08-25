@@ -1,0 +1,11 @@
+[FILENAMES]
+Exe=      Backup\user32.dll
+SaveAs=   NewFiles\user32.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\user32\100.ico,  ICONGROUP,100,
+-addoverwrite Resources\eXPerience2K\user32\101.ico,  ICONGROUP,101,
+-addoverwrite Resources\eXPerience2K\user32\102.ico,  ICONGROUP,102,
+-addoverwrite Resources\eXPerience2K\user32\103.ico,  ICONGROUP,103,
+-addoverwrite Resources\eXPerience2K\user32\104.ico,  ICONGROUP,104,
+-addoverwrite Resources\eXPerience2K\user32\105.ico,  ICONGROUP,105,

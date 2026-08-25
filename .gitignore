@@ -1,0 +1,14 @@
+/build/
+/dist/
+/release/
+/analysis/
+/deferred-work/
+/test-evidence/
+/eXPerience2K-source-*.zip
+*.log
+*.tsv.tmp
+.vs/
+.vscode/
+Thumbs.db
+Desktop.ini
+/tools/resource-hacker/ResourceHacker.ini

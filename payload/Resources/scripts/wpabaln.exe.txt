@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wpabaln.exe
+SaveAs=   NewFiles\wpabaln.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wpabaln\1.ico,  ICONGROUP, 1, 

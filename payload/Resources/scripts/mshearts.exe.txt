@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\mshearts.exe
+SaveAs=   NewFiles\mshearts.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\mshearts\31234.ico,  ICONGROUP, 31234, 

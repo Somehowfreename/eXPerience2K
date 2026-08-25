@@ -1,0 +1,7 @@
+[FILENAMES]
+Exe=      Backup\moricons.dll
+SaveAs=   NewFiles\moricons.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\moricons\108.ico,  ICONGROUP, 108, 
+-addoverwrite Resources\eXPerience2K\moricons\114.ico,  ICONGROUP, 114, 

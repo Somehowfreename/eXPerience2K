@@ -1,0 +1,6 @@
+[FILENAMES]
+Exe=      Backup\wuaueng1.dll
+SaveAs=   NewFiles\wuaueng1.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\wuaueng1\500.ico,  ICONGROUP, 500, 

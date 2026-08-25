@@ -1,0 +1,9 @@
+[FILENAMES]
+Exe=	Backup\osk.exe
+SaveAs=	NewFiles\osk.exe
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\osk\app_osk.ico, ICONGROUP,app_osk,
+-addoverwrite Resources\eXPerience2K\osk\I_WINLOGO.ico, ICONGROUP,I_WINLOGO,
+-addoverwrite Resources\eXPerience2K\osk\WINLOGODN.ico, ICONGROUP,WINLOGODN,
+-addoverwrite Resources\eXPerience2K\osk\WINLOGOUP.ico, ICONGROUP,WINLOGOUP,

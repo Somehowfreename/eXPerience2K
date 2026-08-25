@@ -1,0 +1,30 @@
+[FILENAMES]
+Exe=      Backup\msgina.dll
+SaveAs=   NewFiles\msgina.dll
+
+[COMMANDS]
+-addoverwrite Resources\eXPerience2K\msgina\109.ico, ICONGROUP,109,
+-addoverwrite Resources\eXPerience2K\msgina\IDI_TURNOFF_ICONRESOURCE.ico, ICONGROUP, IDI_TURNOFF_ICONRESOURCE,
+
+
+-addoverwrite Resources\eXPerience2K\msgina\101.bmp,  BITMAP,101,
+-addoverwrite Resources\eXPerience2K\msgina\103.bmp,  BITMAP,103,
+-addoverwrite Resources\eXPerience2K\msgina\107.bmp,  BITMAP,107,
+-addoverwrite Resources\eXPerience2K\msgina\111.bmp,  BITMAP,111,
+-addoverwrite Resources\eXPerience2K\msgina\112.bmp,  BITMAP,112,
+-addoverwrite Resources\eXPerience2K\msgina\113.bmp,  BITMAP,113,
+-addoverwrite Resources\eXPerience2K\msgina\114.bmp,  BITMAP,114,
+-addoverwrite Resources\eXPerience2K\msgina\118.bmp,  BITMAP,118,
+-addoverwrite Resources\eXPerience2K\msgina\119.bmp,  BITMAP,119,
+-addoverwrite Resources\eXPerience2K\msgina\121.bmp,  BITMAP,121,
+-addoverwrite Resources\eXPerience2K\msgina\122.bmp,  BITMAP,122,
+-addoverwrite Resources\eXPerience2K\msgina\125.bmp,  BITMAP,125,
+-addoverwrite Resources\eXPerience2K\msgina\126.bmp,  BITMAP,126,
+-addoverwrite Resources\eXPerience2K\msgina\128.bmp,  BITMAP,128,
+-addoverwrite Resources\eXPerience2K\msgina\129.bmp,  BITMAP,129,
+-addoverwrite Resources\eXPerience2K\msgina\130.bmp,  BITMAP,130,
+-addoverwrite Resources\eXPerience2K\msgina\131.bmp,  BITMAP,131,
+-addoverwrite Resources\eXPerience2K\msgina\132.bmp,  BITMAP,132,
+-addoverwrite Resources\eXPerience2K\msgina\133.bmp,  BITMAP,133,
+-addoverwrite Resources\eXPerience2K\msgina\134.bmp,  BITMAP,134,
+-addoverwrite Resources\eXPerience2K\msgina\135.bmp,  BITMAP,135,
