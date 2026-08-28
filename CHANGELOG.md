@@ -1,5 +1,30 @@
 # Changelog
 
+## 3.1.0
+
+- Adds a logon-background selector under the classic login-window option:
+  current blue (`#3A6EA5`), Windows 95 teal (`#008080`), or a custom image.
+- Converts PNG, JPG/JPEG, and BMP images locally into an opaque, uncompressed
+  24-bit BMP that XP's secure logon desktop can display without Active Desktop.
+- Fits custom images to the display without distorting their proportions;
+  unused space and transparency use the current blue background. JPEG camera
+  orientation is respected.
+- Keeps the original image untouched and stores a converted copy in the
+  application's Windows installation folder, available before sign-in.
+- Remembers the selection and retains the converted image across launches and
+  in-place upgrades. The original source file is not needed after Apply.
+- Restores the original logon wallpaper, tiling, style, pattern and background
+  color when classic logon is cleared, Revert is used, or the app is uninstalled.
+  Existing 3.0.0 first-Apply baselines are reused rather than overwritten.
+- Keeps logon-background choices independent of both caption presets and the
+  signed-in desktop wallpaper. The current blue remains the default.
+- Rejects unreadable or unsupported images before changing settings and keeps
+  image/profile paths out of diagnostic logs.
+- Fits the initial configuration window inside the desktop work area, using
+  its native scrollbar on smaller displays.
+- Retains all eleven 3.0.0 options, original branding, and XP Professional x86
+  SP3 / x64 SP2 support; no boot-screen or additional OS-edition changes.
+
 ## 3.0.0
 
 Windows XP Professional x86 SP3 is now fully supported alongside Windows XP

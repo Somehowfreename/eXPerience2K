@@ -8,7 +8,7 @@ $coreX64 = Join-Path $repoRoot 'build\eXPerience2KCore-x64.exe'
 $configApp = Join-Path $repoRoot 'build\eXPerience2K.exe'
 $explorerBandX86 = Join-Path $repoRoot 'build\eXPerience2KExplorerBand32.dll'
 $explorerBandX64 = Join-Path $repoRoot 'build\eXPerience2KExplorerBand64.dll'
-$installer = Join-Path $repoRoot 'dist\eXPerience2K-v3.0.0-Setup.exe'
+$installer = Join-Path $repoRoot 'dist\eXPerience2K-v3.1.0-Setup.exe'
 $nsisSource = Join-Path $repoRoot 'installer\eXPerience2K.nsi'
 $configSource = Join-Path $repoRoot 'src\eXPerience2KConfig.c'
 $coreSource = Join-Path $repoRoot 'src\eXPerience2KCore.c'
@@ -83,6 +83,22 @@ foreach ($feature in $features) {
 
 $nsisText = [System.IO.File]::ReadAllText($nsisSource)
 $configText = [System.IO.File]::ReadAllText($configSource)
+$imageText = [System.IO.File]::ReadAllText((Join-Path $repoRoot 'src\eXPerience2KImage.cpp'))
+foreach ($contract in @('Current blue (#3A6EA5)', 'Windows 95 teal (#008080)',
+    'Custom image', 'GetOpenFileNameW', 'LogonBackgroundPreset',
+    'Assets\\custom-logon-background.bmp', 'prepare_logon_background()',
+    'e2k_convert_logon_image', 'MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH')) {
+    if (-not $configText.Contains($contract)) { throw "Missing logon-background contract: $contract" }
+}
+foreach ($contract in @('ImageFormatPNG', 'ImageFormatJPEG', 'ImageFormatBMP',
+    'PixelFormat24bppRGB', 'GdiplusStartup', 'RotateFlip', '32000000', '64 * 1024 * 1024')) {
+    if (-not $imageText.Contains($contract)) { throw "Missing image-conversion contract: $contract" }
+}
+foreach ($runtimeFile in @('custom-logon-background.bmp','teal-logon-background.bmp')) {
+    if (Test-Path -LiteralPath (Join-Path $repoRoot "payload\Assets\$runtimeFile")) {
+        throw "Runtime user background must not be shipped or overwritten by updates: $runtimeFile"
+    }
+}
 $coreText = [System.IO.File]::ReadAllText($coreSource)
 $profilesText = [System.IO.File]::ReadAllText($profilesSource)
 $buildText = [System.IO.File]::ReadAllText($buildSource)
@@ -214,10 +230,10 @@ foreach ($obsoleteBrandingContract in @(
     -RepositoryRoot $repoRoot
 
 $version = (Get-Item -LiteralPath $installer).VersionInfo
-if ($version.ProductVersion -ne '3.0.0.0' -or
-    $version.FileVersion -ne '3.0.0.0' -or
+if ($version.ProductVersion -ne '3.1.0.0' -or
+    $version.FileVersion -ne '3.1.0.0' -or
     $version.FileDescription -ne 'Windows 2000-style conversion for Windows XP Professional') {
-    throw 'Installer version metadata does not match the dual-platform 3.0.0 release contract.'
+    throw 'Installer version metadata does not match the dual-platform 3.1.0 release contract.'
 }
 
 $legacyMarker = -join (105,110,101,120,112,101,114,105,101,110,99,101 | ForEach-Object { [char]$_ })

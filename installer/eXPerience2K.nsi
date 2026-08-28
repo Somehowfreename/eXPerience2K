@@ -9,15 +9,15 @@ SetCompressorDictSize 32
 !include "Sections.nsh"
 
 !define PRODUCT_NAME "eXPerience2K"
-!define PRODUCT_VERSION "3.0.0.0"
-!define PRODUCT_DISPLAY_VERSION "3.0.0"
+!define PRODUCT_VERSION "3.1.0.0"
+!define PRODUCT_DISPLAY_VERSION "3.1.0"
 !define PRODUCT_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\eXPerience2K"
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN "$INSTDIR\eXPerience2K.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Open eXPerience2K configuration"
 
 Name "${PRODUCT_NAME}"
-OutFile "..\dist\eXPerience2K-v3.0.0-Setup.exe"
+OutFile "..\dist\eXPerience2K-v3.1.0-Setup.exe"
 InstallDir "$WINDIR\eXPerience2K"
 ShowInstDetails show
 ShowUninstDetails show
@@ -122,7 +122,7 @@ Function .onInit
   SetRegView 32
   unsupported_os:
   MessageBox MB_OK|MB_ICONSTOP \
-    "eXPerience2K 3.0.0 supports only Windows XP Professional x86 Service Pack 3 and Windows XP Professional x64 Edition Service Pack 2.$\r$\n$\r$\nWindows XP Home, Starter, Media Center, Tablet PC, Embedded, IA-64, and every Windows Server edition are not supported.$\r$\n$\r$\nhttps://github.com/Somehowfreename/eXPerience2K$\r$\n$\r$\nNo files or settings have been changed."
+    "eXPerience2K 3.1.0 supports only Windows XP Professional x86 Service Pack 3 and Windows XP Professional x64 Edition Service Pack 2.$\r$\n$\r$\nWindows XP Home, Starter, Media Center, Tablet PC, Embedded, IA-64, and every Windows Server edition are not supported.$\r$\n$\r$\nhttps://github.com/Somehowfreename/eXPerience2K$\r$\n$\r$\nNo files or settings have been changed."
   Abort
 FunctionEnd
 
@@ -150,6 +150,8 @@ Section "eXPerience2K application" SecFiles
   SetOutPath "$INSTDIR\Source"
   File "..\src\eXPerience2KCore.c"
   File "..\src\eXPerience2KConfig.c"
+  File "..\src\eXPerience2KImage.cpp"
+  File "..\src\eXPerience2KImage.h"
   File "..\src\eXPerience2KExplorerBand.cpp"
   SetOutPath "$INSTDIR"
 

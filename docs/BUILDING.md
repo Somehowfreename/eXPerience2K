@@ -35,7 +35,7 @@ build/eXPerience2KCore-x86.exe
 build/eXPerience2KCore-x64.exe
 build/eXPerience2KExplorerBand32.dll
 build/eXPerience2KExplorerBand64.dll
-dist/eXPerience2K-v3.0.0-Setup.exe
+dist/eXPerience2K-v3.1.0-Setup.exe
 ```
 
 Both native cores and both Explorer modules are included. The installer and
@@ -46,18 +46,23 @@ support boundary.
 
 ```powershell
 .\scripts\verify-release.ps1
+.\scripts\test-logon-background.ps1 -GccX86Path C:\msys64\mingw32\bin\gcc.exe
 ```
 
 Verification checks the expected output names, PE architecture/NT-version
 fields, payload counts, branding, icon, wallpaper, sound and Explorer hashes,
 feature defaults, strict dual-profile gates, undecorated x86 COM exports, and
-the installer version metadata.
+the installer version metadata. The logon tests exercise the image converter
+and the real logon-state functions against temporary process-isolated registry
+roots, not the host's actual appearance settings. These tests do not replace
+XP virtual-machine visual checks. The converter links to XP's built-in
+`gdiplus.dll`; no extra runtime is distributed.
 
 ## GitHub Actions
 
 `.github/workflows/build.yml` runs the same build and verification sequence on
 Windows. Workflow artifacts are continuous-integration outputs, not official
-releases. The official 3.0.0 release asset is the single installer attached to
+releases. The official 3.1.0 release asset is the single installer attached to
 the GitHub release.
 
 ## Reproducibility note

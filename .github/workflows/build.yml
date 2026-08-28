@@ -44,9 +44,15 @@ jobs:
         shell: powershell
         run: .\scripts\verify-release.ps1
 
+      - name: Test image conversion and isolated logon state
+        shell: powershell
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: .\scripts\test-logon-background.ps1 -GccX86Path "$env:MSYS2_LOCATION\mingw32\bin\gcc.exe"
+
       - name: Upload CI installer
         uses: actions/upload-artifact@v4
         with:
-          name: eXPerience2K-v3.0.0-unsigned
-          path: dist/eXPerience2K-v3.0.0-Setup.exe
+          name: eXPerience2K-v3.1.0-unsigned
+          path: dist/eXPerience2K-v3.1.0-Setup.exe
           if-no-files-found: error

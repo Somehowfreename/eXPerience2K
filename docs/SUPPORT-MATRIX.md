@@ -13,6 +13,10 @@ persistence, full Revert, repeat Apply, and uninstall restoration. The x64
 release was validated against English Windows XP Professional x64 Edition SP2,
 NT 5.2 build 3790, on clean retail and volume-license installations.
 
+Version 3.1.0 retains this exact support boundary. Its logon-image conversion
+and restoration tests also run on both supported architectures; see the
+[validation record](VALIDATION.md) for the release-specific coverage.
+
 ## Explicitly unsupported or untested
 
 | Family | Status | Release behavior |

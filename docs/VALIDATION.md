@@ -1,5 +1,42 @@
 # Validation record
 
+## Version 3.1.0 logon-background validation
+
+The release installer SHA-256 is
+`68314B8A8AF8F47772E4C4B239708784D6B8E95B6CC03ADA327B30ECB73FC9F8`.
+The same installer was installed in isolated XP Professional x86 SP3 and
+XP Professional x64 SP2 validation clones. Original VMs and the preserved
+3.0.0 source/installer were not changed.
+
+The release-specific checks covered:
+
+- actual blue (`#3A6EA5`), teal (`#008080`) and custom-PNG logon backgrounds
+  visually inspected after reboot on both architectures;
+- custom images remaining usable after their original files were moved;
+- proportional fitting with blue letterboxing and unchanged logon artwork;
+- the saved custom selection and managed-image status after reopening;
+- actual configuration UI selection, native image chooser, Apply and Revert;
+- successful full restoration on x86 through the Revert button and on x64
+  through the same complete restore path used by uninstall, including return
+  to the original `(None)` logon wallpaper value;
+- native XP PNG/JPG/JPEG/BMP conversion on both architectures, including JPEG
+  camera orientation;
+- host regression checks for 24-bit uncompressed BMP output, exact teal color,
+  transparent PNG flattening, Unicode paths, unchanged input hashes, invalid
+  input rejection and excessive-dimension rejection;
+- the production state functions tested on both XP architectures with
+  process-local registry redirection, covering exact type/data/absence
+  restoration, repeated Apply/Revert, a pre-existing baseline in the 3.0.0
+  schema, and independence from caption choices and the signed-in wallpaper;
+- the initial window fitting the desktop work area, including scrolling to
+  all controls and buttons at 800x600; and
+- the complete release asset, PE, packaging, version and OS-gate verifier.
+
+The resource engine, Explorer module and all payload/reference assets are
+unchanged from 3.0.0. Historical full-feature lifecycle results below belong
+to their stated versions; this update's focused tests do not claim exhaustive
+testing of every possible image, display configuration or third-party tool.
+
 ## Confirmed source lineage
 
 The x86 port is based on the final 2.4.1 exact-state-restore checkpoint. That

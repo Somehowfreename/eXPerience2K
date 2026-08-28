@@ -86,6 +86,36 @@ before the installer UI and must remain unchanged.
 - Limited-account Apply must stop cleanly before machine changes when an
   administrator-only feature is requested.
 
+## Logon-background tests (3.1.0)
+
+Use both supported XP architectures. Run the image/state harness after the
+build as described in BUILDING.md; its registry roots are process-locally
+redirected into a temporary test tree and must not change host appearance.
+
+1. Enable classic logon and select the existing blue. Apply and restart;
+   inspect the background behind the logon prompt (`#3A6EA5`).
+2. Select Windows 95 teal, Apply and restart. Confirm `#008080`, unchanged
+   logon branding/caption selection, and unchanged signed-in wallpaper.
+3. Select Custom image and use the native file chooser for PNG, JPG, JPEG and
+   BMP files. Confirm conversion, original-file hashes, proportional fit,
+   blue letterboxing, transparency flattening and JPEG orientation.
+4. Apply a custom PNG, restart and inspect the actual logon screen. Move the
+   source file, reopen the app and Apply again: the saved BMP must still work.
+5. Reopen the app and confirm the selector reflects the applied choice.
+   Replace the custom image; confirm the new one persists after restart.
+6. Cancel the file chooser or select an invalid file. No current settings or
+   original image may be changed. Applying Custom without a saved image must
+   stop before any feature changes are applied.
+7. Clear classic logon and Apply, then separately test full Revert and
+   uninstall. Compare wallpaper bytes/type/absence, tiling, style, pattern and
+   background against the original baseline, not assumed XP defaults.
+8. Upgrade an already applied installation. Keep its first-Apply baseline
+   unchanged and confirm later restoration still uses that baseline.
+9. Inspect the new controls at 800x600 and larger sizes; scroll to every
+   control and button. Test both caption presets independently of background.
+10. Check diagnostics: image filenames, source/profile paths and image data
+    must not be included. No network operation is part of this feature.
+
 ## Strict operating-system refusal tests
 
 Test an unsupported XP x86 edition or service pack, Server 2003 x86, Server

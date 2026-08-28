@@ -7,13 +7,13 @@ replacing supported shell artwork and automating the native Windows settings
 needed for a cohesive Windows 2000 experience.
 
 > [!IMPORTANT]
-> Version 3.0.0 accepts only English Windows XP Professional
+> Version 3.1.0 supports only English Windows XP Professional
 > x86 SP3 and Windows XP Professional x64 Edition SP2. Home, Starter, Media
 > Center, Tablet PC, Embedded, IA-64, Server editions, and other service-pack
 > levels are rejected before any files or settings are changed.
 
-The current release is **eXPerience2K 3.0.0**. Download
-`eXPerience2K-v3.0.0-Setup.exe` from the repository's **Latest** release.
+The current release is **eXPerience2K 3.1.0**. Download
+`eXPerience2K-v3.1.0-Setup.exe` from the repository's **Latest** release.
 
 ## Why I made it
 
@@ -50,6 +50,8 @@ restoration. eXPerience2K retains that foundation and adds:
   options;
 - independent Solid Navy and Blue Gradient caption presets for the secure
   logon desktop and the signed-in desktop;
+- a separate logon-background choice: current blue, Windows 95 teal, or a
+  custom PNG/JPG/JPEG/BMP image automatically converted for XP;
 - mutually exclusive sliding and fading Start-menu animation choices;
 - the exact Windows 2000 system sounds, with a separately controllable folder
   double-click/navigation sound;
@@ -83,7 +85,7 @@ The configuration application exposes eleven options:
    fade transition. Sliding and fading are mutually exclusive.
 7. **Windows 2000 style login window** — disables the XP Welcome screen and
    uses XP's native classic GINA logon with Windows 2000-style artwork and
-   background.
+   background, with a choice of current blue, Windows 95 teal or a custom image.
 8. **Install Windows 2000 style wallpapers to My Pictures** — installs five
    curated JPEG wallpapers named `Windows_2000_1.jpg` through
    `Windows_2000_4.jpg`, plus `Windows_9x.jpg`.
@@ -126,6 +128,36 @@ The logon prompt defaults to Solid Navy. The signed-in desktop defaults to the
 Blue Gradient. On a basic or low-color VGA driver, Windows may render a chosen
 gradient as a solid caption until a suitable display driver is installed.
 
+### Logon background (new in 3.1.0)
+
+With **Windows 2000 style login window** enabled, the **Logon background**
+selector offers:
+
+- **Current blue:** `RGB(58, 110, 165)` / `#3A6EA5` (the unchanged default).
+- **Windows 95 teal:** `RGB(0, 128, 128)` / `#008080`.
+- **Custom image:** select this, click **Choose image...**, and choose a PNG,
+  JPG/JPEG, or BMP file. Click **Apply**, then restart Windows.
+
+The app automatically decodes the image with XP's built-in GDI+ and creates an
+uncompressed 24-bit BMP. It preserves the image's proportions and fits it to
+the current display dimensions; transparent areas and unused space are blue.
+JPEG orientation metadata is respected. The original file is never changed.
+No downloads, .NET, or additional image converter are required.
+
+The converted copy is stored in
+`%WINDIR%\eXPerience2K\Assets\custom-logon-background.bmp`, so it remains
+available before sign-in and after the original image is moved or deleted.
+Your custom image is not included in diagnostic logs or uploaded anywhere.
+Use images up to 64 MB, 32 megapixels and 16,384 pixels per dimension. Invalid
+or unsupported files are rejected before any settings are changed. After
+changing display resolution, choose the source image again to refit it.
+
+This affects only the background behind the classic logon prompt, not the
+signed-in wallpaper, the branding, or either caption preset. The selection
+persists across reopening and in-place updates. Clearing the classic login
+option, using **Revert**, or uninstalling restores the original logon settings;
+the saved custom BMP stays available until the application is uninstalled.
+
 ## Exact-state restoration
 
 Before the first Apply transaction changes anything, eXPerience2K captures one
@@ -148,7 +180,7 @@ exist.
    account.
 2. Keep installation media or a complete system image available. Modifying
    protected operating-system resources always carries risk.
-3. Run `eXPerience2K-v3.0.0-Setup.exe`.
+3. Run `eXPerience2K-v3.1.0-Setup.exe`.
 4. Open eXPerience2K, review the selections and caption presets, then click
    **Apply**.
 5. Restart when prompted. Allow the startup reloader to finish.
@@ -186,7 +218,7 @@ uninstalling the application or deleting the immutable baseline.
 
 ## Scope and deliberate limits
 
-- Supported by version 3.0.0: English Windows XP Professional x86 SP3 and
+- Supported by version 3.1.0: English Windows XP Professional x86 SP3 and
   Windows XP Professional x64 Edition SP2.
 - Rejected: every other XP edition/service-pack combination and every Windows
   Server edition.
@@ -199,12 +231,12 @@ See the [support matrix](docs/SUPPORT-MATRIX.md) for the exact boundary.
 
 ## Release integrity
 
-The sole binary asset attached to release 3.0.0 is:
+The sole binary asset attached to release 3.1.0 is:
 
 ```text
-eXPerience2K-v3.0.0-Setup.exe
-SHA-256: 5160B4B101528F1AF544BD9B00C7AEC99968391F98FEE4A65553123CD868958D
-Size:    4,334,250 bytes
+eXPerience2K-v3.1.0-Setup.exe
+SHA-256: 68314B8A8AF8F47772E4C4B239708784D6B8E95B6CC03ADA327B30ECB73FC9F8
+Size:    4342170 bytes
 ```
 
 The executable is unsigned. Security products may warn because the requested
@@ -226,7 +258,7 @@ It does not require .NET:
 .\scripts\verify-release.ps1
 ```
 
-The expected installer is `dist\eXPerience2K-v3.0.0-Setup.exe`. See
+The expected installer is `dist\eXPerience2K-v3.1.0-Setup.exe`. See
 [BUILDING.md](docs/BUILDING.md) and
 [REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for prerequisites and the exact
 published-source attestation.
@@ -239,6 +271,7 @@ installer/              NSIS installer and fail-closed uninstaller
 payload/                manifests, feature definitions, artwork, sounds and state
 reference-assets/       source-reference material and asset provenance inputs
 scripts/                build and verification tooling
+tests/                  isolated logon-state and image-conversion tests
 tools/resource-hacker/  documented resource-patching fallback
 docs/                   architecture, support, testing and release documentation
 ```
@@ -252,7 +285,7 @@ docs/                   architecture, support, testing and release documentation
 - [Feature and lifecycle testing](docs/TESTING.md)
 - [Validation record](docs/VALIDATION.md)
 - [Experimental Explorer implementation](docs/EXPLORER-EXPERIMENT.md)
-- [Release notes](docs/RELEASE-NOTES-3.0.0.md)
+- [Release notes](docs/RELEASE-NOTES-3.1.0.md)
 - [Security behavior](SECURITY.md)
 - [Legal and redistribution notes](docs/LEGAL.md)
 - [Contributing](CONTRIBUTING.md)

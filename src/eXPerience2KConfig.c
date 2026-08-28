@@ -12,6 +12,7 @@
 #include <sddl.h>
 #include <stdio.h>
 #include <string.h>
+#include "eXPerience2KImage.h"
 
 #define APP_TITLE "eXPerience2K"
 #define CONFIG_KEY "Software\\eXPerience2K\\Config"
@@ -31,13 +32,17 @@
 #define IDC_DESKTOP_CAPTION_LABEL 2010
 #define IDC_REVERT 2011
 #define IDC_CAPTION_PRESET_GROUP 2012
+#define IDC_LOGON_BACKGROUND_GROUP 2013
+#define IDC_LOGON_BACKGROUND 2014
+#define IDC_LOGON_BACKGROUND_BROWSE 2015
+#define IDC_LOGON_BACKGROUND_STATUS 2016
 #define MAIN_CLIENT_WIDTH 514
 #define MAIN_MIN_CLIENT_WIDTH 460
 #define MAIN_MIN_CLIENT_HEIGHT 180
-#define MAIN_COMPACT_CLIENT_HEIGHT 519
-#define MAIN_EXPANDED_CLIENT_HEIGHT 657
-#define MAIN_BUTTON_TOP 473
-#define MAIN_LOG_TOP 515
+#define MAIN_COMPACT_CLIENT_HEIGHT 620
+#define MAIN_EXPANDED_CLIENT_HEIGHT 758
+#define MAIN_BUTTON_TOP 574
+#define MAIN_LOG_TOP 616
 #define MAIN_LOG_HEIGHT 126
 #define APPLYING_WINDOW_CLASS "eXPerience2KApplyingWindow"
 
@@ -81,6 +86,12 @@ enum {
     CAPTION_PRESET_BLUE_GRADIENT = 1
 };
 
+enum {
+    LOGON_BACKGROUND_BLUE = 0,
+    LOGON_BACKGROUND_TEAL = 1,
+    LOGON_BACKGROUND_CUSTOM = 2
+};
+
 typedef struct {
     int supported;
     int resource_ready;
@@ -101,6 +112,10 @@ static HWND g_logon_caption_combo;
 static HWND g_desktop_caption_combo;
 static HWND g_logon_caption_label;
 static HWND g_desktop_caption_label;
+static HWND g_logon_background_combo;
+static HWND g_logon_background_browse;
+static HWND g_logon_background_status;
+static WCHAR g_pending_logon_image[MAX_PATH];
 static int g_apply_in_progress;
 static int g_scroll_y;
 static int g_scrollbar_visible = 1;
@@ -1593,6 +1608,159 @@ static int selected_desktop_caption_preset(void)
                                    CAPTION_PRESET_BLUE_GRADIENT);
 }
 
+static int selected_logon_background(void)
+{
+    LRESULT selected = g_logon_background_combo
+        ? SendMessageA(g_logon_background_combo, CB_GETCURSEL, 0, 0) : CB_ERR;
+    return selected >= LOGON_BACKGROUND_BLUE && selected <= LOGON_BACKGROUND_CUSTOM
+        ? (int)selected : LOGON_BACKGROUND_BLUE;
+}
+
+static int logon_background_path(int preset, char *path, size_t size)
+{
+    const char *name = preset == LOGON_BACKGROUND_CUSTOM
+        ? "Assets\\custom-logon-background.bmp"
+        : preset == LOGON_BACKGROUND_TEAL ? "Assets\\teal-logon-background.bmp"
+                                          : "Assets\\logon-background.bmp";
+    return join_path(path, size, g_install_root, name);
+}
+
+static int detected_logon_background(void)
+{
+    char wallpaper[MAX_PATH], expected[MAX_PATH];
+    DWORD size = sizeof(wallpaper), type = 0, saved = LOGON_BACKGROUND_BLUE;
+    int preset;
+    ZeroMemory(wallpaper, sizeof(wallpaper));
+    if (read_default_user_value("Control Panel\\Desktop", "Wallpaper", &type,
+                               (BYTE *)wallpaper, &size) && type == REG_SZ &&
+        size > 0 && size <= sizeof(wallpaper) && wallpaper[size - 1] == 0) {
+        for (preset = LOGON_BACKGROUND_BLUE; preset <= LOGON_BACKGROUND_CUSTOM; ++preset)
+            if (logon_background_path(preset, expected, sizeof(expected)) &&
+                lstrcmpiA(wallpaper, expected) == 0) return preset;
+    }
+    if (read_user_dword(CONFIG_KEY, "LogonBackgroundPreset", &saved) &&
+        saved <= LOGON_BACKGROUND_CUSTOM) return (int)saved;
+    return LOGON_BACKGROUND_BLUE;
+}
+
+static void update_logon_background_controls(void)
+{
+    int enabled = Button_GetCheck(g_features[FEATURE_CLASSIC_LOGON].checkbox) == BST_CHECKED;
+    int custom = selected_logon_background() == LOGON_BACKGROUND_CUSTOM;
+    char custom_path[MAX_PATH];
+    const char *status = "Only the logon background changes; the signed-in wallpaper is unchanged.";
+    if (custom) {
+        status = g_pending_logon_image[0] ? "Custom image converted and ready to apply."
+            : logon_background_path(LOGON_BACKGROUND_CUSTOM, custom_path, sizeof(custom_path)) &&
+              file_exists(custom_path) ? "Saved custom image. Choose image... to replace it."
+                                      : "Choose a PNG, JPG/JPEG, or BMP image before applying.";
+    }
+    if (g_logon_background_combo) EnableWindow(g_logon_background_combo, enabled);
+    if (g_logon_background_browse) EnableWindow(g_logon_background_browse, enabled && custom);
+    if (g_logon_background_status) SetWindowTextA(g_logon_background_status, status);
+}
+
+static void choose_logon_background_image(void)
+{
+    OPENFILENAMEW dialog;
+    WCHAR source[MAX_PATH] = {0}, directory[MAX_PATH], temporary[MAX_PATH];
+    UINT width = (UINT)GetSystemMetrics(SM_CXSCREEN);
+    UINT height = (UINT)GetSystemMetrics(SM_CYSCREEN);
+    HCURSOR previous;
+    ZeroMemory(&dialog, sizeof(dialog));
+    dialog.lStructSize = sizeof(dialog);
+    dialog.hwndOwner = g_window;
+    dialog.lpstrFilter = L"Wallpaper images (PNG, JPG, JPEG, BMP)\0*.png;*.jpg;*.jpeg;*.bmp\0All files\0*.*\0\0";
+    dialog.lpstrFile = source;
+    dialog.nMaxFile = MAX_PATH;
+    dialog.lpstrTitle = L"Choose a logon background image";
+    dialog.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_NOCHANGEDIR;
+    if (!GetOpenFileNameW(&dialog)) return;
+    if (!GetTempPathW(MAX_PATH, directory) ||
+        !GetTempFileNameW(directory, L"e2k", 0, temporary)) {
+        MessageBoxA(g_window, "The image could not be prepared because a temporary file could not be created. No settings were changed.",
+                    APP_TITLE, MB_OK | MB_ICONERROR);
+        return;
+    }
+    previous = SetCursor(LoadCursor(NULL, IDC_WAIT));
+    if (!e2k_convert_logon_image(source, temporary, width, height)) {
+        SetCursor(previous);
+        DeleteFileW(temporary);
+        MessageBoxA(g_window,
+            "This file could not be converted into an XP-compatible wallpaper. Choose a valid PNG, JPG/JPEG, or BMP image (up to 64 MB and 32 megapixels). The original image and your settings have not been changed.",
+            APP_TITLE, MB_OK | MB_ICONERROR);
+        return;
+    }
+    SetCursor(previous);
+    if (g_pending_logon_image[0]) DeleteFileW(g_pending_logon_image);
+    lstrcpynW(g_pending_logon_image, temporary, MAX_PATH);
+    append_log_line("Custom logon image decoded and converted to an opaque 24-bit BMP; original file unchanged.");
+    update_logon_background_controls();
+}
+
+/* Prepare a persistent SYSTEM-readable copy before any setting is changed.
+   The installed copy is deliberately outside the user's profile and is not
+   a packaged payload file, so later in-place upgrades do not overwrite it. */
+static int prepare_logon_background(void)
+{
+    int preset = selected_logon_background();
+    char destination[MAX_PATH], assets[MAX_PATH];
+    WCHAR destination_w[MAX_PATH], assets_w[MAX_PATH], stage[MAX_PATH];
+    int ok;
+    if (Button_GetCheck(g_features[FEATURE_CLASSIC_LOGON].checkbox) != BST_CHECKED) return 1;
+    if (!logon_background_path(preset, destination, sizeof(destination))) return 0;
+    if (preset == LOGON_BACKGROUND_BLUE ||
+        (preset == LOGON_BACKGROUND_CUSTOM && !g_pending_logon_image[0])) {
+        if (file_exists(destination)) return 1;
+        append_log_line("ERROR: select a valid logon image before applying; no settings were changed.");
+        return 0;
+    }
+    if (!join_path(assets, sizeof(assets), g_install_root, "Assets") ||
+        !MultiByteToWideChar(CP_ACP, 0, assets, -1, assets_w, MAX_PATH) ||
+        !MultiByteToWideChar(CP_ACP, 0, destination, -1, destination_w, MAX_PATH) ||
+        !GetTempFileNameW(assets_w, L"e2k", 0, stage)) return 0;
+    ok = preset == LOGON_BACKGROUND_TEAL
+        ? e2k_write_solid_background(stage, 0, 128, 128)
+        : CopyFileW(g_pending_logon_image, stage, FALSE) != 0;
+    if (ok) ok = MoveFileExW(stage, destination_w,
+                           MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+    if (!ok) {
+        DeleteFileW(stage);
+        append_log_line("ERROR: the prepared logon background could not be saved; no settings were changed.");
+        return 0;
+    }
+    if (preset == LOGON_BACKGROUND_CUSTOM && g_pending_logon_image[0]) {
+        DeleteFileW(g_pending_logon_image);
+        g_pending_logon_image[0] = 0;
+    }
+    return 1;
+}
+
+static int apply_logon_background(void)
+{
+    char path[MAX_PATH];
+    int preset = selected_logon_background(), ok = 1;
+    const char *background = preset == LOGON_BACKGROUND_TEAL ? "0 128 128" : "58 110 165";
+    const char *tile = preset == LOGON_BACKGROUND_CUSTOM ? "0" : "1";
+    if (!logon_background_path(preset, path, sizeof(path)) || !file_exists(path)) return 0;
+    ok &= write_default_user_value("Control Panel\\Desktop", "Wallpaper", REG_SZ,
+                                  (const BYTE *)path, (DWORD)strlen(path) + 1);
+    ok &= write_default_user_value("Control Panel\\Desktop", "TileWallpaper", REG_SZ,
+                                  (const BYTE *)tile, 2);
+    /* Custom BMP already fits the display with its aspect ratio preserved.
+       Center it, instead of XP stretching the image out of proportion. */
+    ok &= write_default_user_value("Control Panel\\Desktop", "WallpaperStyle", REG_SZ,
+                                  (const BYTE *)"0", 2);
+    ok &= write_default_user_value("Control Panel\\Desktop", "Pattern", REG_SZ,
+                                  (const BYTE *)"(None)", sizeof("(None)"));
+    ok &= write_default_user_value("Control Panel\\Colors", "Background", REG_SZ,
+                                  (const BYTE *)background, (DWORD)strlen(background) + 1);
+    if (ok) ok &= write_user_dword(CONFIG_KEY, "LogonBackgroundPreset", (DWORD)preset);
+    append_log_line(ok ? "Selected logon background applied; restart Windows to see it."
+                       : "ERROR: the logon background settings could not be saved.");
+    return ok;
+}
+
 static const char *caption_preset_name(int preset)
 {
     return preset == CAPTION_PRESET_SOLID_NAVY ? "Solid Navy" : "Blue Gradient";
@@ -2398,7 +2566,6 @@ static int apply_default_w2k_appearance(int enabled, int caption_preset)
     int ok = 1;
     size_t index;
     LOGFONTW font;
-    char logon_background[MAX_PATH];
     static const BYTE w2k_preferences_gradient[] = {0x9e, 0x3e, 0x00, 0x80};
     static const BYTE w2k_preferences_solid[] = {0x8e, 0x3e, 0x00, 0x80};
     const BYTE *w2k_preferences = caption_preset == CAPTION_PRESET_SOLID_NAVY
@@ -2457,24 +2624,9 @@ static int apply_default_w2k_appearance(int enabled, int caption_preset)
                 REG_SZ, (const BYTE *)logon_color,
                 (DWORD)strlen(logon_color) + 1);
         }
-        /* XP's classic GINA paints an empty secure desktop black even when
-           .DEFAULT's COLOR_BACKGROUND is the Windows 2000 value.  Tile the
-           bundled one-color 58,110,165 bitmap to reproduce the Windows 2000
-           secure desktop exactly while keeping the change reversible. */
-        if (join_path(logon_background, sizeof(logon_background), g_install_root,
-                      "Assets\\logon-background.bmp") && file_exists(logon_background)) {
-            ok &= write_default_user_value("Control Panel\\Desktop", "Wallpaper", REG_SZ,
-                (const BYTE *)logon_background, (DWORD)strlen(logon_background) + 1);
-        } else {
-            append_log_line("ERROR: the Windows 2000 login-background asset is missing.");
-            ok = 0;
-        }
-        ok &= write_default_user_value("Control Panel\\Desktop", "TileWallpaper", REG_SZ,
-            (const BYTE *)"1", sizeof("1"));
-        ok &= write_default_user_value("Control Panel\\Desktop", "WallpaperStyle", REG_SZ,
-            (const BYTE *)"0", sizeof("0"));
-        ok &= write_default_user_value("Control Panel\\Desktop", "Pattern", REG_SZ,
-            (const BYTE *)"(None)", sizeof("(None)"));
+        /* Keep the bitmap workaround for the secure desktop; a bare color
+           value alone can leave classic GINA's background black. */
+        ok &= apply_logon_background();
         for (index = 0; index < sizeof(g_w2k_metrics) / sizeof(g_w2k_metrics[0]); ++index)
             ok &= write_default_user_value("Control Panel\\Desktop\\WindowMetrics",
                 g_w2k_metrics[index].name, REG_SZ, (const BYTE *)g_w2k_metrics[index].text,
@@ -3398,6 +3550,8 @@ static int needs_administrator_change(void)
         if (desired != g_features[index].detected) return 1;
     }
     if (Button_GetCheck(g_features[FEATURE_CLASSIC_LOGON].checkbox) == BST_CHECKED) {
+        if (g_pending_logon_image[0] ||
+            selected_logon_background() != detected_logon_background()) return 1;
         if (!read_user_dword(CONFIG_KEY, "DefaultW2KAppearanceEnabled", &default_appearance) ||
             !default_appearance) return 1;
         if (!read_user_dword(CONFIG_KEY, "LogonCaptionPreset", &saved_logon_preset) ||
@@ -3439,7 +3593,8 @@ static int apply_all_defaults_unattended(void)
             g_features[index].default_on ? BST_CHECKED : BST_UNCHECKED);
     }
     append_log_line("Applying all first-launch defaults through the normal feature transaction...");
-    ok = capture_exact_baseline(1);
+    ok = prepare_logon_background();
+    if (ok) ok = capture_exact_baseline(1);
     if (ok) {
         ok = apply_user_features();
         ok &= apply_machine_features();
@@ -3455,6 +3610,7 @@ static int apply_all_defaults_unattended(void)
 
 static void update_caption_preset_controls(void)
 {
+    update_logon_background_controls();
     if (g_logon_caption_combo)
         EnableWindow(g_logon_caption_combo,
             g_features[FEATURE_CLASSIC_LOGON].implemented &&
@@ -3484,6 +3640,9 @@ static void refresh_caption_presets(int use_first_launch_defaults)
         SendMessageA(g_logon_caption_combo, CB_SETCURSEL, logon_preset, 0);
     if (g_desktop_caption_combo)
         SendMessageA(g_desktop_caption_combo, CB_SETCURSEL, desktop_preset, 0);
+    if (g_logon_background_combo)
+        SendMessageA(g_logon_background_combo, CB_SETCURSEL,
+                     detected_logon_background(), 0);
     update_caption_preset_controls();
 }
 
@@ -3609,6 +3768,15 @@ static void layout_main_controls(HWND window)
     MoveWindow(g_desktop_caption_combo, right_combo_x, 425 + y_offset,
         right_combo_width, 100, TRUE);
 
+    MoveWindow(GetDlgItem(window, IDC_LOGON_BACKGROUND_GROUP), 22, 468 + y_offset,
+               client_width - 42, 94, TRUE);
+    MoveWindow(g_logon_background_combo, 34, 490 + y_offset,
+               client_width - 202, 110, TRUE);
+    MoveWindow(g_logon_background_browse, client_width - 155, 489 + y_offset,
+               121, 25, TRUE);
+    MoveWindow(g_logon_background_status, 34, 520 + y_offset,
+               client_width - 68, 34, TRUE);
+
     button_width = (client_width - 44 - button_gap * 4) / 5;
     if (button_width < 64) button_width = 64;
     button_x = 22;
@@ -3726,6 +3894,11 @@ static void apply_requested_configuration(void)
     if (Button_GetCheck(g_features[FEATURE_RESOURCE_CONVERSION].checkbox) == BST_CHECKED &&
         !g_probe.resource_ready) {
         show_error_guidance("This OS is recognized, but its exact resource payload has not passed validation. The system-file conversion was not attempted.");
+        return;
+    }
+    if (g_probe.administrator && !prepare_logon_background()) {
+        MessageBoxA(g_window, "The logon background could not be prepared. Choose a valid image, then try Apply again. No settings were changed.",
+                    APP_TITLE, MB_OK | MB_ICONERROR);
         return;
     }
     g_apply_in_progress = 1;
@@ -3894,6 +4067,26 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
         SendMessage(g_desktop_caption_label, WM_SETFONT, (WPARAM)font, TRUE);
         SendMessage(g_logon_caption_combo, WM_SETFONT, (WPARAM)font, TRUE);
         SendMessage(g_desktop_caption_combo, WM_SETFONT, (WPARAM)font, TRUE);
+        preset_group = CreateWindowA("BUTTON", "[Administrator] Logon background",
+            WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 22, 468, MAIN_CLIENT_WIDTH - 42, 94,
+            window, (HMENU)IDC_LOGON_BACKGROUND_GROUP, g_instance, NULL);
+        g_logon_background_combo = CreateWindowA("COMBOBOX", "",
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST,
+            34, 490, MAIN_CLIENT_WIDTH - 202, 110, window,
+            (HMENU)IDC_LOGON_BACKGROUND, g_instance, NULL);
+        g_logon_background_browse = CreateWindowA("BUTTON", "Choose image...",
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP, MAIN_CLIENT_WIDTH - 155, 489, 121, 25,
+            window, (HMENU)IDC_LOGON_BACKGROUND_BROWSE, g_instance, NULL);
+        g_logon_background_status = CreateWindowA("STATIC", "",
+            WS_CHILD | WS_VISIBLE, 34, 520, MAIN_CLIENT_WIDTH - 68, 34,
+            window, (HMENU)IDC_LOGON_BACKGROUND_STATUS, g_instance, NULL);
+        SendMessageA(g_logon_background_combo, CB_ADDSTRING, 0, (LPARAM)"Current blue (#3A6EA5)");
+        SendMessageA(g_logon_background_combo, CB_ADDSTRING, 0, (LPARAM)"Windows 95 teal (#008080)");
+        SendMessageA(g_logon_background_combo, CB_ADDSTRING, 0, (LPARAM)"Custom image");
+        SendMessage(preset_group, WM_SETFONT, (WPARAM)font, TRUE);
+        SendMessage(g_logon_background_combo, WM_SETFONT, (WPARAM)font, TRUE);
+        SendMessage(g_logon_background_browse, WM_SETFONT, (WPARAM)font, TRUE);
+        SendMessage(g_logon_background_status, WM_SETFONT, (WPARAM)font, TRUE);
         CreateWindowA("BUTTON", "&Apply", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON,
             22, MAIN_BUTTON_TOP, 88, 30, window, (HMENU)IDC_APPLY, g_instance, NULL);
         CreateWindowA("BUTTON", "&Revert", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
@@ -3943,6 +4136,12 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
     }
     case WM_COMMAND:
         switch (LOWORD(wparam)) {
+        case IDC_LOGON_BACKGROUND:
+            if (HIWORD(wparam) == CBN_SELCHANGE) update_logon_background_controls();
+            return 0;
+        case IDC_LOGON_BACKGROUND_BROWSE:
+            choose_logon_background_image();
+            return 0;
         case IDC_FEATURE_BASE + FEATURE_MENU_SLIDE:
             if (HIWORD(wparam) == BN_CLICKED &&
                 Button_GetCheck(g_features[FEATURE_MENU_SLIDE].checkbox) == BST_CHECKED)
@@ -3975,6 +4174,7 @@ static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wparam, LP
         }
         break;
     case WM_DESTROY:
+        if (g_pending_logon_image[0]) DeleteFileW(g_pending_logon_image);
         PostQuitMessage(0);
         return 0;
     }
@@ -3990,6 +4190,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     INITCOMMONCONTROLSEX controls;
     char executable[MAX_PATH];
     RECT initial_rectangle;
+    int initial_x = CW_USEDEFAULT, initial_y = CW_USEDEFAULT;
     DWORD main_style = WS_OVERLAPPEDWINDOW | WS_VSCROLL;
     (void)previous;
     g_instance = instance;
@@ -4006,7 +4207,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         MessageBoxA(NULL,
             "Only Windows XP Professional x86 Service Pack 3 and Windows XP "
             "Professional x64 Edition Service Pack 2 are supported by "
-            "eXPerience2K 3.0.0.\n\n"
+            "eXPerience2K 3.1.0.\n\n"
             "No files or settings have been changed.",
             "eXPerience2K - Unsupported operating system",
             MB_OK | MB_ICONSTOP);
@@ -4109,8 +4310,21 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
        bar is hidden while all content fits and appears natively after the user
        makes the client area shorter. */
     AdjustWindowRectEx(&initial_rectangle, main_style & ~WS_VSCROLL, FALSE, 0);
+    {
+        RECT work_area;
+        if (SystemParametersInfoA(SPI_GETWORKAREA, 0, &work_area, 0)) {
+            int available_height = work_area.bottom - work_area.top - 20;
+            if (available_height > MAIN_MIN_CLIENT_HEIGHT &&
+                initial_rectangle.bottom - initial_rectangle.top > available_height)
+                initial_rectangle.bottom = initial_rectangle.top + available_height;
+            initial_x = work_area.left + ((work_area.right - work_area.left) -
+                (initial_rectangle.right - initial_rectangle.left)) / 2;
+            initial_y = work_area.top + ((work_area.bottom - work_area.top) -
+                (initial_rectangle.bottom - initial_rectangle.top)) / 2;
+        }
+    }
     g_window = CreateWindowA(window_class.lpszClassName, APP_TITLE,
-        main_style, CW_USEDEFAULT, CW_USEDEFAULT,
+        main_style, initial_x, initial_y,
         initial_rectangle.right - initial_rectangle.left,
         initial_rectangle.bottom - initial_rectangle.top,
         NULL, NULL, instance, NULL);

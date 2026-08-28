@@ -24,6 +24,27 @@ XP x64's WoW64 subsystem without .NET. It:
 - keeps privacy-safe diagnostics in memory; and
 - provides unattended maintenance entry points used by reload and uninstall.
 
+### Logon-image conversion
+
+`src/eXPerience2KImage.cpp` is linked into the shared 32-bit configuration
+application. It uses XP's built-in GDI+ to decode PNG, JPEG and BMP images,
+respect JPEG orientation, fit the image without distortion, flatten it onto
+the existing blue background, and encode an uncompressed 24-bit BMP. It does
+not require a separate runtime or converter.
+
+Conversion is performed immediately after the native file chooser returns.
+Apply stages the converted file atomically inside the installation's `Assets`
+directory before changing settings. The managed BMP is accessible before
+sign-in and is never loaded from the interactive user's original image path.
+Blue and teal use small tiled solid-color bitmaps; custom images use a
+display-sized centered bitmap. These files and `LogonBackgroundPreset` are
+current configuration, not replacement restoration baselines.
+
+The existing immutable machine baseline already captures the `.DEFAULT`
+wallpaper, tiling, style, pattern and background color. Version 3.1.0 reuses
+that baseline without a schema reset. Custom/teal runtime files are not part
+of the packaged asset tree, so in-place installation does not overwrite them.
+
 ### Resource engine
 
 `src/eXPerience2KCore.c` builds as native PE32/NT 5.1 and PE32+/NT 5.2
@@ -71,7 +92,7 @@ remain available for repair.
 - `payload/features.tsv` defines the eleven user-facing features and their
   first-launch defaults, scope, privilege requirements, and maturity.
 - `payload/profiles.tsv` defines the exact XP Professional x86 SP3 and x64 SP2
-  profiles accepted by version 3.0.0.
+  profiles accepted by version 3.1.0.
 - `payload/targets.tsv` describes 147 logical protected-file targets.
 - `payload/operations.tsv` describes 672 resource operations.
 - `payload/Resources/` contains the icon, bitmap, animation, string, and

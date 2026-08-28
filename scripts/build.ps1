@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $buildDir = Join-Path $repoRoot 'build'
 $distDir = Join-Path $repoRoot 'dist'
-$releaseDir = Join-Path $repoRoot 'release\v3.0.0'
+$releaseDir = Join-Path $repoRoot 'release\v3.1.0'
 
 Write-Host 'Restoring the exact original Windows 2002 branding artwork...'
 & (Join-Path $PSScriptRoot 'use-original-2002-branding.ps1') `
@@ -113,6 +113,16 @@ Build-Core -Compiler $gccX64 -Architecture 'x64' -MinimumNtVersion '0x0502' `
     -OutputName 'eXPerience2KCore-x64.exe'
 
 $configOutput = Join-Path $buildDir 'eXPerience2K.exe'
+$imageObject = Join-Path $buildDir 'eXPerience2KImage.o'
+$savedPath = $env:PATH
+try {
+    $env:PATH = "$(Split-Path -Parent $gppX86);$env:PATH"
+    & $gppX86 '-std=gnu++11' '-Os' '-Wall' '-Wextra' '-Werror' `
+        '-D_WIN32_WINNT=0x0501' '-fno-exceptions' '-fno-rtti' `
+        '-c' (Join-Path $repoRoot 'src\eXPerience2KImage.cpp') '-o' $imageObject
+    if ($LASTEXITCODE -ne 0) { throw 'XP-compatible image converter compilation failed.' }
+}
+finally { $env:PATH = $savedPath }
 $configArguments = @(
     '-std=c99'
     '-Os'
@@ -127,6 +137,10 @@ $configArguments = @(
     '-o'
     $configOutput
     (Join-Path $repoRoot 'src\eXPerience2KConfig.c')
+    $imageObject
+    '-lstdc++'
+    '-lgdiplus'
+    '-lole32'
     '-ladvapi32'
     '-lcomctl32'
     '-lcomdlg32'
@@ -240,7 +254,7 @@ finally {
     Pop-Location
 }
 
-$installer = Join-Path $distDir 'eXPerience2K-v3.0.0-Setup.exe'
+$installer = Join-Path $distDir 'eXPerience2K-v3.1.0-Setup.exe'
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
     throw "Expected installer was not produced: $installer"
 }
