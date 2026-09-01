@@ -28,6 +28,8 @@ The x86 port brings the later eXPerience2K configuration, restoration, sound,
 wallpaper, Explorer, and quality-of-life work back to the platform supported
 by the original patcher, rather than merely wrapping the older x86 conversion.
 
+Disclosure: eXPerience2K was created with the assistance of Codex, however please know I directed this project and manually tested each version on virtual machines and real hardware. I do not release anything without extensive prior testing.
+
 ## What eXPerience2K adds
 
 The original patcher already provided the Windows 2000-style resource set,
