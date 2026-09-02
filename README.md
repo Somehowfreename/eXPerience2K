@@ -7,13 +7,20 @@ replacing supported shell artwork and automating the native Windows settings
 needed for a cohesive Windows 2000 experience.
 
 > [!IMPORTANT]
-> Version 3.1.0 supports only English Windows XP Professional
+> Version 3.1.1 supports only English Windows XP Professional
 > x86 SP3 and Windows XP Professional x64 Edition SP2. Home, Starter, Media
 > Center, Tablet PC, Embedded, IA-64, Server editions, and other service-pack
 > levels are rejected before any files or settings are changed.
 
-The current release is **eXPerience2K 3.1.0**. Download
-`eXPerience2K-v3.1.0-Setup.exe` from the repository's **Latest** release.
+The current release is **eXPerience2K 3.1.1**. Download
+[`eXPerience2K-v3.1.1-Setup.exe`](https://github.com/Somehowfreename/eXPerience2K/releases/latest)
+from the repository's **Latest** release.
+
+Version 3.1.1 fixes the Explorer information pane's Network Places link,
+restores image thumbnails and Windows 2000-style media preview controls,
+selects native Small toolbar icons, and keeps XP's Start-menu choice visible.
+It also improves upgrade and exact-state restoration behavior. See the
+[changelog](CHANGELOG.md) for details.
 
 ## Why I made it
 
@@ -94,6 +101,9 @@ The configuration application exposes eleven options:
 9. **Windows 2000 Explorer folder interface (experimental)** — adds a native
    architecture-matched Windows 2000-style information pane and Windows 2000
    WebView assets to XP folder windows without replacing `explorer.exe`.
+   The pane provides native Network Places navigation, proportional image
+   previews, and legacy Media Player controls for supported media files.
+   The toolbar initially uses Small icons; later user preferences are retained.
 10. **Replace all Windows XP sounds with Windows 2000 equivalents** — maps the
     XP event set to eight exact Windows 2000 WAV files; XP-only events with no
     Windows 2000 counterpart are intentionally silent.
@@ -182,7 +192,7 @@ exist.
    account.
 2. Keep installation media or a complete system image available. Modifying
    protected operating-system resources always carries risk.
-3. Run `eXPerience2K-v3.1.0-Setup.exe`.
+3. Run `eXPerience2K-v3.1.1-Setup.exe`.
 4. Open eXPerience2K, review the selections and caption presets, then click
    **Apply**.
 5. Restart when prompted. Allow the startup reloader to finish.
@@ -194,6 +204,19 @@ the interactive desktop account even when the administrator supplied through
 **Run As** is a different account. If a requested transaction needs rights the
 process does not have, Apply stops before making partial changes and explains
 what is required.
+
+### Updating an existing installation
+
+Close the configuration application and run the new installer. Restart if
+setup requests it: Explorer can hold a previous version's module open until
+then. After restarting, reopen eXPerience2K and click **Apply** with your
+desired options. Keep the existing program and restoration backup data in
+place; the update preserves the original first-Apply baseline.
+
+Media previews use XP's installed legacy Media Player control and codecs.
+A small 32-bit helper hosts that control on both systems; Explorer itself
+remains native x86 or x64. Selecting a file does not start playback. Playback
+stops when its preview is dismissed or its folder window closes.
 
 ## Diagnostics, persistence, and uninstall
 
@@ -220,7 +243,7 @@ uninstalling the application or deleting the immutable baseline.
 
 ## Scope and deliberate limits
 
-- Supported by version 3.1.0: English Windows XP Professional x86 SP3 and
+- Supported by version 3.1.1: English Windows XP Professional x86 SP3 and
   Windows XP Professional x64 Edition SP2.
 - Rejected: every other XP edition/service-pack combination and every Windows
   Server edition.
@@ -233,12 +256,12 @@ See the [support matrix](docs/SUPPORT-MATRIX.md) for the exact boundary.
 
 ## Release integrity
 
-The sole binary asset attached to release 3.1.0 is:
+The sole binary asset attached to release 3.1.1 is:
 
 ```text
-eXPerience2K-v3.1.0-Setup.exe
-SHA-256: 68314B8A8AF8F47772E4C4B239708784D6B8E95B6CC03ADA327B30ECB73FC9F8
-Size:    4342170 bytes
+eXPerience2K-v3.1.1-Setup.exe
+SHA-256: D9B4027A3F73104937035381F4E911DCEC75A59C2D23C5DDEBF49ADE2AF4CE7F
+Size:    4356311 bytes
 ```
 
 The executable is unsigned. Security products may warn because the requested
@@ -260,7 +283,7 @@ It does not require .NET:
 .\scripts\verify-release.ps1
 ```
 
-The expected installer is `dist\eXPerience2K-v3.1.0-Setup.exe`. See
+The expected installer is `dist\eXPerience2K-v3.1.1-Setup.exe`. See
 [BUILDING.md](docs/BUILDING.md) and
 [REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for prerequisites and the exact
 published-source attestation.
@@ -287,7 +310,7 @@ docs/                   architecture, support, testing and release documentation
 - [Feature and lifecycle testing](docs/TESTING.md)
 - [Validation record](docs/VALIDATION.md)
 - [Experimental Explorer implementation](docs/EXPLORER-EXPERIMENT.md)
-- [Release notes](docs/RELEASE-NOTES-3.1.0.md)
+- [Release notes](docs/RELEASE-NOTES-3.1.1.md)
 - [Security behavior](SECURITY.md)
 - [Legal and redistribution notes](docs/LEGAL.md)
 - [Contributing](CONTRIBUTING.md)
