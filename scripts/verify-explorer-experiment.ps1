@@ -120,6 +120,10 @@ foreach ($requiredText in @(
     'ExplorerAllFoldersIconMode',
     'NoSimpleStartMenu',
     'ClassicStartPolicyManaged',
+    'restore_original_user_value("NoSimpleStartMenu"',
+    '"ExplorerSmallIcons"',
+    'SHGetSetSettings(&live_state, SSF_STARTPANELON, TRUE)',
+    'restore_start_menu_state()',
     '{"ActiveTitle", "10 36 106"',
     '{"GradientActiveTitle", "166 202 240"',
     'ExplorerExperimentBackup',
@@ -130,6 +134,9 @@ foreach ($requiredText in @(
     if (-not $source.Contains($requiredText)) {
         throw "Explorer experiment implementation marker is missing: $requiredText"
     }
+}
+if ($source.Contains('"NoSimpleStartMenu", 1')) {
+    throw 'Classic Start-menu selection must not hide XP''s alternate Start-menu choice by policy.'
 }
 
 $band = [System.IO.File]::ReadAllText($bandSource)
@@ -142,11 +149,24 @@ foreach ($requiredText in @(
     'A BHO inserts a 200-pixel information pane',
     'initialize_shell_view_mode',
     'SetCurrentViewMode(FVM_ICON)',
+    'shell:NetworkFolder',
+    'IExtractImage',
+    'eXPerience2KMediaPreview.exe',
+    'CreateProcessW(executable',
     'wvleft.bmp'
 )) {
     if (-not $band.Contains($requiredText)) {
         throw "Native Explorer pane implementation marker is missing: $requiredText"
     }
+}
+if ($band.Contains('address = L"shell:NetworkPlacesFolder"')) {
+    throw 'The Network Places link still uses an invalid XP shell target.'
+}
+
+$preview = [IO.File]::ReadAllText((Join-Path $RepositoryRoot 'src\eXPerience2KMediaPreview.cpp'))
+foreach ($requiredText in @('MediaPlayer.MediaPlayer.1', 'AtlAxWinInit', 'ShowDisplay',
+    'AutoStart', 'EnableContextMenu', 'OpenEventW', 'MsgWaitForMultipleObjects', 'stop_media()')) {
+    if (-not $preview.Contains($requiredText)) { throw "Media preview host marker missing: $requiredText" }
 }
 
 $referenceRoot = Join-Path $RepositoryRoot 'analysis\w2k-2011-explorer-reference\web-folder'
@@ -165,4 +185,4 @@ if (Test-Path -LiteralPath $referenceRoot -PathType Container) {
     }
 }
 
-Write-Host "Verified $($manifest.Count) exact Windows 2000 Web files, $($expectedState.Count) exact Explorer-state assets, the one-bit XP inline-pane ShellState delta, and the native x86/x64 architecture selection boundary."
+Write-Host "Verified $($manifest.Count) exact Windows 2000 Web files, $($expectedState.Count) exact Explorer-state assets, native Small-toolbar preference, native image/media previews, and the native x86/x64 architecture selection boundary."

@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $buildDir = Join-Path $repoRoot 'build'
 $distDir = Join-Path $repoRoot 'dist'
-$releaseDir = Join-Path $repoRoot 'release\v3.1.0'
+$releaseDir = Join-Path $repoRoot 'release\v3.1.1'
 
 Write-Host 'Restoring the exact original Windows 2002 branding artwork...'
 & (Join-Path $PSScriptRoot 'use-original-2002-branding.ps1') `
@@ -242,6 +242,20 @@ Build-ExplorerBand -Compiler $gppX64 `
     -LinkerVersion '-Wl,--major-os-version,5,--minor-os-version,2,--major-subsystem-version,5,--minor-subsystem-version,2' `
     -OutputName 'eXPerience2KExplorerBand64.dll'
 
+$savedPath = $env:PATH
+try {
+    $env:PATH = "$(Split-Path -Parent $gppX86);$env:PATH"
+    Write-Host 'Compiling the isolated x86 legacy-media preview host for both Explorer architectures...'
+    & $gppX86 -std=gnu++11 -Os -Wall -Wextra -Werror -D_WIN32_WINNT=0x0501 `
+        -fno-exceptions -fno-rtti -municode -mwindows -static -s `
+        '-Wl,--major-os-version,5,--minor-os-version,1,--major-subsystem-version,5,--minor-subsystem-version,1' `
+        -o (Join-Path $buildDir 'eXPerience2KMediaPreview.exe') `
+        (Join-Path $repoRoot 'src\eXPerience2KMediaPreview.cpp') `
+        -lole32 -loleaut32 -luuid -lshell32 -luser32 -lgdi32
+    if ($LASTEXITCODE -ne 0) { throw 'Media preview host compilation failed.' }
+}
+finally { $env:PATH = $savedPath }
+
 Write-Host 'Building the installer...'
 Push-Location $repoRoot
 try {
@@ -254,7 +268,7 @@ finally {
     Pop-Location
 }
 
-$installer = Join-Path $distDir 'eXPerience2K-v3.1.0-Setup.exe'
+$installer = Join-Path $distDir 'eXPerience2K-v3.1.1-Setup.exe'
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
     throw "Expected installer was not produced: $installer"
 }

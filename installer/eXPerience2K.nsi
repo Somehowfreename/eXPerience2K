@@ -9,15 +9,15 @@ SetCompressorDictSize 32
 !include "Sections.nsh"
 
 !define PRODUCT_NAME "eXPerience2K"
-!define PRODUCT_VERSION "3.1.0.0"
-!define PRODUCT_DISPLAY_VERSION "3.1.0"
+!define PRODUCT_VERSION "3.1.1.0"
+!define PRODUCT_DISPLAY_VERSION "3.1.1"
 !define PRODUCT_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\eXPerience2K"
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN "$INSTDIR\eXPerience2K.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Open eXPerience2K configuration"
 
 Name "${PRODUCT_NAME}"
-OutFile "..\dist\eXPerience2K-v3.1.0-Setup.exe"
+OutFile "..\dist\eXPerience2K-v3.1.1-Setup.exe"
 InstallDir "$WINDIR\eXPerience2K"
 ShowInstDetails show
 ShowUninstDetails show
@@ -122,7 +122,7 @@ Function .onInit
   SetRegView 32
   unsupported_os:
   MessageBox MB_OK|MB_ICONSTOP \
-    "eXPerience2K 3.1.0 supports only Windows XP Professional x86 Service Pack 3 and Windows XP Professional x64 Edition Service Pack 2.$\r$\n$\r$\nWindows XP Home, Starter, Media Center, Tablet PC, Embedded, IA-64, and every Windows Server edition are not supported.$\r$\n$\r$\nhttps://github.com/Somehowfreename/eXPerience2K$\r$\n$\r$\nNo files or settings have been changed."
+    "eXPerience2K 3.1.1 supports only Windows XP Professional x86 Service Pack 3 and Windows XP Professional x64 Edition Service Pack 2.$\r$\n$\r$\nWindows XP Home, Starter, Media Center, Tablet PC, Embedded, IA-64, and every Windows Server edition are not supported.$\r$\n$\r$\nhttps://github.com/Somehowfreename/eXPerience2K$\r$\n$\r$\nNo files or settings have been changed."
   Abort
 FunctionEnd
 
@@ -134,16 +134,44 @@ Function SelectCore
   ${EndIf}
 FunctionEnd
 
+; Explorer may keep our desk band loaded while the user upgrades. Stage a
+; complete replacement and let Windows replace locked application binaries
+; at reboot. The standard MUI finish page asks for that reboot instead of
+; launching a mixture of old and new components. Clean installs are immediate.
+!macro InstallApplicationBinary FileName
+  File "/oname=${FileName}.new" "..\build\${FileName}"
+  SetFileAttributes "$INSTDIR\${FileName}" NORMAL
+  Delete /REBOOTOK "$INSTDIR\${FileName}"
+  ClearErrors
+  Rename /REBOOTOK "$INSTDIR\${FileName}.new" "$INSTDIR\${FileName}"
+  ${If} ${Errors}
+    MessageBox MB_OK|MB_ICONSTOP "Could not install ${FileName}. Close eXPerience2K and Explorer windows, then run this installer again."
+    Abort
+  ${EndIf}
+!macroend
+
+!macro RemoveApplicationRegistryView View
+  SetRegView ${View}
+  DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run" \
+    "eXPerience2K Resource Reloader"
+  DeleteRegKey HKLM "${PRODUCT_KEY}"
+  DeleteRegKey HKLM "Software\eXPerience2K"
+  DeleteRegKey HKCU "Software\eXPerience2K"
+  DeleteRegKey HKLM "Software\eXPerience2K64"
+  DeleteRegKey HKCU "Software\eXPerience2K64"
+!macroend
+
 Section "eXPerience2K application" SecFiles
   SectionIn RO
   SetShellVarContext all
   SetOutPath "$INSTDIR"
   File /r "..\payload\*.*"
-  File "..\build\eXPerience2K.exe"
-  File "..\build\eXPerience2KCore-x86.exe"
-  File "..\build\eXPerience2KCore-x64.exe"
-  File "..\build\eXPerience2KExplorerBand32.dll"
-  File "..\build\eXPerience2KExplorerBand64.dll"
+  !insertmacro InstallApplicationBinary "eXPerience2K.exe"
+  !insertmacro InstallApplicationBinary "eXPerience2KCore-x86.exe"
+  !insertmacro InstallApplicationBinary "eXPerience2KCore-x64.exe"
+  !insertmacro InstallApplicationBinary "eXPerience2KExplorerBand32.dll"
+  !insertmacro InstallApplicationBinary "eXPerience2KExplorerBand64.dll"
+  !insertmacro InstallApplicationBinary "eXPerience2KMediaPreview.exe"
   SetOutPath "$INSTDIR\Tools"
   File /oname=ResourceHacker.exe "..\tools\resource-hacker\ResourceHacker.exe"
   File /oname=ResourceHacker-ReadMe.txt "..\tools\resource-hacker\ReadMe.txt"
@@ -153,6 +181,7 @@ Section "eXPerience2K application" SecFiles
   File "..\src\eXPerience2KImage.cpp"
   File "..\src\eXPerience2KImage.h"
   File "..\src\eXPerience2KExplorerBand.cpp"
+  File "..\src\eXPerience2KMediaPreview.cpp"
   SetOutPath "$INSTDIR"
 
   WriteUninstaller "$INSTDIR\uninst.exe"
@@ -177,9 +206,7 @@ SectionEnd
 
 Section "Uninstall"
   SetShellVarContext all
-  ${If} ${RunningX64}
-    SetRegView 64
-  ${EndIf}
+  SetRegView 32
   IfFileExists "$INSTDIR\eXPerience2K.exe" 0 restore_helper_missing
     DetailPrint "Restoring original user settings, login presentation, and protected system resources..."
     nsExec::ExecToLog '"$INSTDIR\eXPerience2K.exe" /restore-all'
@@ -196,20 +223,16 @@ Section "Uninstall"
     Abort
   restoration_complete:
   SetRebootFlag true
-  DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run" \
-    "eXPerience2K Resource Reloader"
-  DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run" \
-    "eXPerience2K Resource Reloader"
-  Delete "$SMSTARTUP\eXPerience2K Reloader.lnk"
+  ; Setup writes its Add/Remove Programs entry in the 32-bit view on both
+  ; supported systems. The native engine also uses the 64-bit view on x64.
+  ; Remove both views only after restoration has succeeded.
+  !insertmacro RemoveApplicationRegistryView 32
+  ${If} ${RunningX64}
+    !insertmacro RemoveApplicationRegistryView 64
+  ${EndIf}
+  SetRegView 32
   Delete "$SMSTARTUP\eXPerience2K Reloader.lnk"
   RMDir /r "$SMPROGRAMS\eXPerience2K"
-  DeleteRegKey HKLM "${PRODUCT_KEY}"
-  DeleteRegKey HKLM "Software\eXPerience2K"
-  DeleteRegKey HKCU "Software\eXPerience2K"
-  DeleteRegKey HKLM "Software\eXPerience2K64"
-  DeleteRegKey HKCU "Software\eXPerience2K64"
-  DeleteRegKey HKLM "Software\eXPerience2K"
-  DeleteRegKey HKCU "Software\eXPerience2K"
   RMDir /r /REBOOTOK "$INSTDIR"
   SetRebootFlag true
 SectionEnd

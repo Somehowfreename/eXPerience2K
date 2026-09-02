@@ -53,6 +53,6 @@ jobs:
       - name: Upload CI installer
         uses: actions/upload-artifact@v4
         with:
-          name: eXPerience2K-v3.1.0-unsigned
-          path: dist/eXPerience2K-v3.1.0-Setup.exe
+          name: eXPerience2K-v3.1.1-unsigned
+          path: dist/eXPerience2K-v3.1.1-Setup.exe
           if-no-files-found: error

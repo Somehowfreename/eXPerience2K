@@ -24,6 +24,18 @@ XP x64's WoW64 subsystem without .NET. It:
 - keeps privacy-safe diagnostics in memory; and
 - provides unattended maintenance entry points used by reload and uninstall.
 
+Interactive-user discovery first checks the shell process token. If XP denies
+that token lookup under **Run As**, it resolves the current process session's
+username and domain through the system `wtsapi32.dll`, then looks up that
+account's SID. Apply and restoration stop before changes if the interactive
+account cannot be verified. No token permissions or process ACLs are changed.
+
+Cross-user animation changes persist only the two relevant bits in the
+interactive account's existing `UserPreferencesMask`. Live system-parameter
+notifications omit `SPIF_UPDATEINIFILE` in this case so they cannot accidentally
+save the administrator's preferences. Ordinary same-account behavior is
+unchanged.
+
 ### Logon-image conversion
 
 `src/eXPerience2KImage.cpp` is linked into the shared 32-bit configuration
@@ -72,8 +84,31 @@ modules. The matching module adds the optional Windows 2000-style folder
 information pane while retaining XP's original `explorer.exe`, namespace,
 context menus, drag/drop, shell APIs, file operations, and Win+E folder tree.
 
+Selected-image previews use the shell's `IExtractImage` implementation and
+the selected item's parsing path, so hidden filename extensions do not break
+preview lookup. Media previews use the legacy WMP control used by Windows
+2000's `standard.htt`. Clean XP x64 supplies that control only in 32-bit form,
+so `src/eXPerience2KMediaPreview.cpp` builds a separate PE32/NT 5.1 host for
+both Explorer architectures. Selection changes signal a per-preview stop
+event; closing or hiding the pane also stops playback and releases the host.
+The helper uses the installed system control/codecs, not bundled replacements.
+
+The configuration app sets XP's `Explorer\\SmallIcons` preference rather than
+inferring icon size from toolbar row dimensions. The Windows 2000 ShellState
+reference is adapted to retain XP's native schema version and independent
+Start-menu mode. `SHGetSetSettings` synchronizes the current user's live
+Start-menu cache; a Run As session does not apply that API to the administrator's
+own profile. The older `NoSimpleStartMenu` policy is restored only when the
+application’s ownership marker identifies it as managed by an earlier release.
+
 The integration is explicitly marked experimental and has its own apply and
 restore state. See [EXPLORER-EXPERIMENT.md](EXPLORER-EXPERIMENT.md).
+
+Enablement detection uses the saved user/machine integration markers, the
+structural Common Tasks layout setting, and the installed module/WebView files.
+Native preferences such as hidden extensions, toolbar size, folder visibility
+and menu cascading are not enablement tests: changing them must not make the
+app remove a still-active interface on the next Apply.
 
 ### Installer and uninstaller
 
@@ -92,7 +127,7 @@ remain available for repair.
 - `payload/features.tsv` defines the eleven user-facing features and their
   first-launch defaults, scope, privilege requirements, and maturity.
 - `payload/profiles.tsv` defines the exact XP Professional x86 SP3 and x64 SP2
-  profiles accepted by version 3.1.0.
+  profiles accepted by version 3.1.1.
 - `payload/targets.tsv` describes 147 logical protected-file targets.
 - `payload/operations.tsv` describes 672 resource operations.
 - `payload/Resources/` contains the icon, bitmap, animation, string, and

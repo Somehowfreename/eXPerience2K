@@ -116,6 +116,39 @@ redirected into a temporary test tree and must not change host appearance.
 10. Check diagnostics: image filenames, source/profile paths and image data
     must not be included. No network operation is part of this feature.
 
+## Explorer regression checks (3.1.1)
+
+On each supported architecture, use the exact candidate installer from a clean
+snapshot. In addition to the full lifecycle above:
+
+- Click **My Network Places** in the My Computer information pane. It must
+  open the native network namespace, not an Internet Explorer error page.
+- Select BMP, JPEG and PNG images, including files with hidden extensions.
+  Confirm a proportional thumbnail appears in the information pane. Select
+  another item, a directory, no items and multiple items; no stale preview
+  may remain.
+- Select WAV/MP3 audio and confirm the legacy player controls remain visible
+  through repaint, resize and navigation. Playback must not start merely
+  from selection. Test Play, Pause and Stop, then change selection and close
+  the folder while playing. Its preview process must exit and audio must stop.
+- Open View > Toolbars > Customize and read **Small icons** in the native
+  selector; toolbar height alone is insufficient evidence.
+- Open Taskbar and Start Menu Properties. Both mode choices must remain
+  visible, with Classic selected when its eXPerience2K option is applied.
+  Exercise the classic-menu and Explorer options independently.
+- Upgrade a previously applied 3.1.0 installation and confirm its former
+  Start-menu policy is removed only when owned by eXPerience2K, the first-Apply
+  baseline is retained, and individual clearing and full Revert still work.
+
+For exact state comparisons, build `tests/live-state-snapshot.c` with
+`scripts/build-live-state-snapshot.ps1 -GccX86Path <compiler>` after the normal
+build. Run `live-state-snapshot.exe before.tsv` inside the guest before the
+first Apply, and again after restoration. It only reads settings and writes
+the explicitly named evidence file; it does not run any patcher entry point.
+Compare registry type/data/absence and runtime metrics, and investigate every
+difference. These local evidence files contain raw registry data and are not
+privacy-safe support logs; do not attach them to a public release.
+
 ## Strict operating-system refusal tests
 
 Test an unsupported XP x86 edition or service pack, Server 2003 x86, Server

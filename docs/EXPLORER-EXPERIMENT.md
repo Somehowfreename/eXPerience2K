@@ -23,6 +23,22 @@ It does **not** replace or patch `explorer.exe`. XP continues to provide:
 
 The associated state selects Icons instead of XP's Tiles view and installs the
 reference-derived cabinet, toolbar, address-bar, and per-folder WebView state.
+XP's native Small-icons preference selects the toolbar size. The Start-menu
+mode remains independent of the Explorer setting.
+
+Small icons is an initial preference, not a restriction: the native toolbar
+customization dialog remains available. Sign-in resource repair does not
+clear saved folder views or reset the user's toolbar and Start-menu choices.
+Upgrades retain the previous restoration baseline and capture only newly
+introduced managed values before changing them.
+
+Selected images have a proportional thumbnail in the pane. Sound and movie
+files supported by the system's legacy Windows Media Player control expose
+its native preview controls without automatically starting playback. A small
+32-bit helper hosts that control on both architectures, while the folder
+window stays native. Selecting another item, closing the window, or switching
+to the Folders bar stops and releases the preview. Third-party codec support
+is outside the patcher's control.
 
 ## Assets
 

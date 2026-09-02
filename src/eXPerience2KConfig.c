@@ -10,6 +10,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <sddl.h>
+#include <wtsapi32.h>
 #include <stdio.h>
 #include <string.h>
 #include "eXPerience2KImage.h"
@@ -126,6 +127,7 @@ static size_t g_log_length;
 static char g_interactive_sid[192];
 static int g_use_current_user_fallback;
 static int g_cross_user;
+static int g_interactive_user_verified;
 static PROBE_RESULT g_probe;
 
 static FEATURE g_features[MAX_FEATURES] = {
@@ -381,35 +383,73 @@ static int get_token_sid(HANDLE token, char *output, size_t output_size)
     return 1;
 }
 
+static int get_session_user_sid(char *output, size_t output_size)
+{
+    typedef BOOL (WINAPI *QUERY_SESSION)(HANDLE, DWORD, WTS_INFO_CLASS, LPWSTR *, DWORD *);
+    typedef VOID (WINAPI *FREE_SESSION_MEMORY)(PVOID);
+    WCHAR library[MAX_PATH], account[520], referenced_domain[256];
+    LPWSTR user = NULL, domain = NULL;
+    LPSTR sid_text = NULL;
+    BYTE sid[SECURITY_MAX_SID_SIZE];
+    DWORD session, bytes, sid_size = sizeof(sid), domain_size = 256;
+    SID_NAME_USE sid_type;
+    HMODULE module;
+    QUERY_SESSION query;
+    FREE_SESSION_MEMORY release;
+    int ok = 0;
+    UINT length = GetSystemDirectoryW(library, MAX_PATH);
+    if (!length || length + 13 >= MAX_PATH ||
+        !ProcessIdToSessionId(GetCurrentProcessId(), &session)) return 0;
+    lstrcatW(library, L"\\wtsapi32.dll");
+    module = LoadLibraryW(library);
+    if (!module) return 0;
+    query = (QUERY_SESSION)(void *)GetProcAddress(module, "WTSQuerySessionInformationW");
+    release = (FREE_SESSION_MEMORY)(void *)GetProcAddress(module, "WTSFreeMemory");
+    if (query && release &&
+        query(WTS_CURRENT_SERVER_HANDLE, session, WTSUserName, &user, &bytes) &&
+        user && user[0] &&
+        query(WTS_CURRENT_SERVER_HANDLE, session, WTSDomainName, &domain, &bytes) &&
+        domain && domain[0] && lstrlenW(user) + lstrlenW(domain) + 2 <= 520) {
+        wsprintfW(account, L"%s\\%s", domain, user);
+        if (LookupAccountNameW(NULL, account, sid, &sid_size, referenced_domain,
+                               &domain_size, &sid_type) &&
+            ConvertSidToStringSidA(sid, &sid_text) && strlen(sid_text) < output_size) {
+            lstrcpynA(output, sid_text, (int)output_size);
+            ok = 1;
+        }
+    }
+    if (sid_text) LocalFree(sid_text);
+    if (release && user) release(user);
+    if (release && domain) release(domain);
+    FreeLibrary(module);
+    return ok;
+}
+
 static int discover_interactive_user(void)
 {
     HWND shell = GetShellWindow();
     DWORD process_id = 0;
     HANDLE process = NULL, token = NULL, current_token = NULL;
     char current_sid[192];
+    int found = 0;
     g_use_current_user_fallback = 1;
     g_cross_user = 0;
-    if (!shell) return 0;
-    GetWindowThreadProcessId(shell, &process_id);
-    if (!process_id) return 0;
-    process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process_id);
-    if (!process) return 0;
-    if (!OpenProcessToken(process, TOKEN_QUERY, &token)) {
-        CloseHandle(process);
-        return 0;
-    }
-    if (!get_token_sid(token, g_interactive_sid, sizeof(g_interactive_sid))) {
+    if (shell) GetWindowThreadProcessId(shell, &process_id);
+    if (process_id) process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process_id);
+    if (process && OpenProcessToken(process, TOKEN_QUERY, &token)) {
+        found = get_token_sid(token, g_interactive_sid, sizeof(g_interactive_sid));
         CloseHandle(token);
-        CloseHandle(process);
-        return 0;
     }
-    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &current_token)) {
-        if (get_token_sid(current_token, current_sid, sizeof(current_sid)))
-            g_cross_user = lstrcmpiA(current_sid, g_interactive_sid) != 0;
-        CloseHandle(current_token);
-    }
-    CloseHandle(token);
-    CloseHandle(process);
+    if (process) CloseHandle(process);
+    /* XP Run As can deny both process and token access across users even
+       when the caller is an administrator. Query the native session owner
+       instead; do not take ownership or change process/token permissions. */
+    if (!found) found = get_session_user_sid(g_interactive_sid, sizeof(g_interactive_sid));
+    if (!found || !OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &current_token)) return 0;
+    found = get_token_sid(current_token, current_sid, sizeof(current_sid));
+    CloseHandle(current_token);
+    if (!found) return 0;
+    g_cross_user = lstrcmpiA(current_sid, g_interactive_sid) != 0;
     g_use_current_user_fallback = 0;
     return 1;
 }
@@ -1158,12 +1198,34 @@ static int write_start_panel_on(DWORD panel_on)
                           "ShellState", shell_state, &size) || size < 36) return 0;
     if (panel_on) shell_state[32] |= 0x02;
     else shell_state[32] &= (BYTE)~0x02;
+    if (!g_cross_user) {
+        SHELLSTATE live_state;
+        ZeroMemory(&live_state, sizeof(live_state));
+        live_state.fStartPanelOn = panel_on != 0;
+        /* Update Shell's live cache as well as the persisted bytes. Merely
+           editing the registry can be overwritten by the running shell. */
+        SHGetSetSettings(&live_state, SSF_STARTPANELON, TRUE);
+    }
     if (!write_user_binary("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
                            "ShellState", shell_state, size)) return 0;
     SendMessageTimeoutA(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-        (LPARAM)"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
+        (LPARAM)"ShellState",
         SMTO_ABORTIFHUNG, 3000, NULL);
     return read_start_panel_on(&verified) && verified == panel_on;
+}
+
+static int restore_start_menu_state(void)
+{
+    BYTE original[256];
+    DWORD size = sizeof(original);
+    int ok = 1;
+    if (read_user_binary(CONFIG_KEY, "Original_ClassicStartShellState_Data", original, &size) && size >= 36)
+        ok = write_start_panel_on((original[32] & 0x02) ? 1 : 0);
+    /* Keep the entire immutable value, including its type and absence, not
+       just the one live mode bit used to notify Explorer. */
+    ok &= restore_original_user_value("ClassicStartShellState",
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", "ShellState");
+    return ok;
 }
 
 static int read_machine_dword(const char *subkey, const char *name, DWORD *value)
@@ -1558,12 +1620,29 @@ static int run_probe(void)
 
 static int resource_conversion_detected(void)
 {
-    char state[MAX_PATH];
+    char state[MAX_PATH], application[MAX_PATH];
+    char command[2 * MAX_PATH + 64] = {0};
+    char expected[2 * MAX_PATH + 64];
+    DWORD type = 0, size = sizeof(command);
     DWORD configured = 0, enabled = 0;
     if (read_user_dword(CONFIG_KEY, "Configured", &configured) && configured &&
         read_user_dword(CONFIG_KEY, "ResourceConversionEnabled", &enabled))
         return enabled != 0;
-    return join_path(state, sizeof(state), g_install_root, "state.tsv") && file_exists(state);
+    /* Revert deliberately retains state.tsv and original-file backups. A new
+       account has no Config marker yet, so backup existence alone would make
+       its untouched resource checkbox look active and unnecessarily block
+       current-user-only Apply. Existing accounts retain their transaction
+       marker, including failed-restoration recovery state. For a new account,
+       require the active machine reloader that belongs to this installation. */
+    if (!join_path(state, sizeof(state), g_install_root, "state.tsv") ||
+        !file_exists(state) ||
+        !join_path(application, sizeof(application), g_install_root, "eXPerience2K.exe") ||
+        _snprintf(expected, sizeof(expected), "\"%s\" /reload-resources", application) < 0 ||
+        !read_machine_value("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+            "eXPerience2K Resource Reloader", &type, (BYTE *)command, &size) ||
+        type != REG_SZ || !size || size > sizeof(command)) return 0;
+    command[sizeof(command) - 1] = '\0';
+    return lstrcmpiA(command, expected) == 0;
 }
 
 static int user_string_equals(const char *subkey, const char *name, const char *expected)
@@ -1936,6 +2015,7 @@ static const EXPLORER_DWORD_VALUE g_explorer_dwords[] = {
 };
 
 static const EXPLORER_STRING_VALUE g_explorer_strings[] = {
+    {"ExplorerSmallIcons", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\SmallIcons", "SmallIcons", "yes"},
     {"ExplorerCascadeControlPanel", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "CascadeControlPanel", "NO"},
     {"ExplorerIntelliMenus", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "IntelliMenus", "No"},
     {"ExplorerCascadeMyDocuments", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "CascadeMyDocuments", "NO"},
@@ -1990,6 +2070,24 @@ static int write_user_binary_asset(const EXPLORER_BINARY_VALUE *item)
     DWORD size = 0;
     int result;
     if (!read_explorer_state_asset(item->asset, &data, &size)) return 0;
+    if (strcmp(item->asset, "ShellState.bin") == 0) {
+        BYTE current[256];
+        DWORD current_size = sizeof(current);
+        DWORD panel_on = 0;
+        /* Explorer styling must not override the independent Start-menu
+           choice. Preserve XP's schema version as well as its mode bit:
+           the older Windows 2000 version makes XP migrate the tail flags
+           back to defaults, discarding the requested Classic selection. */
+        if (size != 36 || !read_start_panel_on(&panel_on) ||
+            !read_user_binary("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
+                "ShellState", current, &current_size) || current_size < 36) {
+            HeapFree(GetProcessHeap(), 0, data);
+            return 0;
+        }
+        CopyMemory(data + 24, current + 24, sizeof(DWORD));
+        if (panel_on) data[32] |= 0x02;
+        else data[32] &= (BYTE)~0x02;
+    }
     result = write_user_binary(item->subkey, item->name, data, size);
     HeapFree(GetProcessHeap(), 0, data);
     return result;
@@ -2089,9 +2187,14 @@ static int apply_w2k_explorer_user_state(int enabled)
             g_explorer_binaries[index].subkey, g_explorer_binaries[index].name);
         if (enabled)
             ok &= write_user_binary_asset(&g_explorer_binaries[index]);
-        else
+        else {
+            DWORD panel_on = 0;
+            int preserve_panel = strcmp(g_explorer_binaries[index].asset, "ShellState.bin") == 0 &&
+                                 read_start_panel_on(&panel_on);
             ok &= restore_original_user_value(g_explorer_binaries[index].marker,
                 g_explorer_binaries[index].subkey, g_explorer_binaries[index].name);
+            if (preserve_panel) ok &= write_start_panel_on(panel_on);
+        }
     }
     if (!enabled) {
         ok &= restore_user_tree("BagMRU", "Software\\Microsoft\\Windows\\ShellNoRoam\\BagMRU");
@@ -2099,6 +2202,7 @@ static int apply_w2k_explorer_user_state(int enabled)
         ok &= restore_user_tree("StreamMRU", "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StreamMRU");
     }
     ok &= write_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled", enabled ? 1 : 0);
+    if (ok) ok &= write_user_dword(CONFIG_KEY, "ExplorerDefaultsRevision", enabled ? 1 : 0);
     append_log_line(enabled
         ? "Exact Windows 2000 cabinet, Web View, address-bar, toolbar, and default folder state enabled."
         : "Original Explorer folder state and saved per-folder views restored.");
@@ -2106,30 +2210,46 @@ static int apply_w2k_explorer_user_state(int enabled)
     return ok;
 }
 
-static int explorer_experiment_detected(void)
+static int upgrade_explorer_native_defaults(void)
+{
+    DWORD revision = 0;
+    int ok;
+    read_user_dword(CONFIG_KEY, "ExplorerDefaultsRevision", &revision);
+    if (revision >= 1) return 1;
+    /* Only add the new default; never reinitialize saved folder views or
+       replace an existing baseline with already-patched configuration. */
+    ok = capture_original_user_value_checked("ExplorerSmallIcons",
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\SmallIcons",
+        "SmallIcons");
+    if (ok) ok = write_user_string(
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\SmallIcons",
+        "SmallIcons", "yes");
+    if (ok) ok = write_user_dword(CONFIG_KEY, "ExplorerDefaultsRevision", 1);
+    append_log_line(ok
+        ? "Explorer Small toolbar icons enabled; existing folder views and original backups retained."
+        : "ERROR: the Explorer toolbar preference could not be upgraded.");
+    return ok;
+}
+
+static int explorer_enablement_markers_detected(void)
 {
     DWORD enabled = 0, value = 0;
-    size_t index;
+    return read_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled", &enabled) && enabled &&
+           read_machine_dword(EXPLORER_MACHINE_STATE_KEY, "Enabled", &enabled) && enabled &&
+           read_user_dword("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+                           "WebView", &value) && value == 0;
+}
+
+static int explorer_experiment_detected(void)
+{
     char payload_root[MAX_PATH], payload_file[MAX_PATH], band_file[MAX_PATH];
     char windows[MAX_PATH], web_root[MAX_PATH], installed_file[MAX_PATH];
-    if (!read_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled", &enabled) ||
-        !enabled ||
-        !read_machine_dword(EXPLORER_MACHINE_STATE_KEY, "Enabled", &enabled) ||
-        !enabled) return 0;
-    for (index = 0; index < sizeof(g_explorer_dwords) / sizeof(g_explorer_dwords[0]); ++index) {
-        if (!read_user_dword(g_explorer_dwords[index].subkey,
-                             g_explorer_dwords[index].name, &value) ||
-            value != g_explorer_dwords[index].value) return 0;
-    }
-    for (index = 0; index < sizeof(g_explorer_strings) / sizeof(g_explorer_strings[0]); ++index) {
-        if (!user_string_equals(g_explorer_strings[index].subkey,
-                                g_explorer_strings[index].name,
-                                g_explorer_strings[index].value)) return 0;
-    }
-    /* Cabinet and toolbar blobs are initial defaults, not durable enablement
-       markers.  Normal Explorer actions such as showing the Folders bar or
-       resizing a toolbar legitimately mutate them while the pane remains
-       installed and active. */
+    if (!explorer_enablement_markers_detected()) return 0;
+    /* Folder visibility, toolbar size/layout, menu cascading and view blobs
+       are initial preferences, not durable enablement markers. A normal
+       native preference change must not silently untick this feature and
+       remove the active extension on the next unrelated Apply. Only the
+       Common Tasks setting is structural: our pane replaces that layout. */
     if (!join_path(payload_root, sizeof(payload_root), g_install_root, "ExplorerWeb") ||
         !join_path(payload_file, sizeof(payload_file), payload_root, "folder.htt") ||
         !join_path(band_file, sizeof(band_file), g_install_root,
@@ -2361,10 +2481,11 @@ static int restore_runtime_metrics(void)
         non_client_size != sizeof(non_client) ||
         !read_user_binary(CONFIG_KEY, "Original_RuntimeIconMetrics",
                           (BYTE *)&icon, &icon_size) || icon_size != sizeof(icon)) return 0;
-    ok = SystemParametersInfoA(SPI_SETNONCLIENTMETRICS, sizeof(non_client), &non_client,
-                               SPIF_UPDATEINIFILE | SPIF_SENDCHANGE) != 0;
-    ok &= SystemParametersInfoA(SPI_SETICONMETRICS, sizeof(icon), &icon,
-                                SPIF_UPDATEINIFILE | SPIF_SENDCHANGE) != 0;
+    /* The original registry bytes were already restored separately. Runtime
+       measurements can differ from those stored values (especially under
+       Luna); persisting them here normalizes and overwrites that baseline. */
+    ok = SystemParametersInfoA(SPI_SETNONCLIENTMETRICS, sizeof(non_client), &non_client, 0) != 0;
+    ok &= SystemParametersInfoA(SPI_SETICONMETRICS, sizeof(icon), &icon, 0) != 0;
     return ok;
 }
 
@@ -2419,6 +2540,42 @@ static int apply_w2k_font_metrics(int enabled)
     return ok;
 }
 
+static void set_menu_preference_bits(BYTE *preferences, BOOL animation, BOOL fade)
+{
+    /* XP UserPreferencesMask: menu animation is bit 1; menu fade is bit 9.
+       Preserve all unrelated preference bits and any trailing bytes. */
+    preferences[0] = (BYTE)((preferences[0] & ~0x02) | (animation ? 0x02 : 0));
+    preferences[1] = (BYTE)((preferences[1] & ~0x02) | (fade ? 0x02 : 0));
+}
+
+static int apply_menu_effects(BOOL animation, BOOL fade)
+{
+    UINT flags = SPIF_SENDCHANGE;
+    int animation_ok, fade_ok;
+    if (g_cross_user) {
+        BYTE preferences[64];
+        DWORD size = sizeof(preferences);
+        /* SPI's UPDATEINIFILE writes the Run As account, not our selected
+           HKU account. Persist only these two bits in the interactive user's
+           mask, then update the live session without writing the caller's HKCU. */
+        if (!read_user_binary("Control Panel\\Desktop", "UserPreferencesMask",
+                               preferences, &size) || size < 4) {
+            append_log_line("ERROR: the interactive user's menu preferences could not be read.");
+            return 0;
+        }
+        set_menu_preference_bits(preferences, animation, fade);
+        if (!write_user_binary("Control Panel\\Desktop", "UserPreferencesMask",
+                                preferences, size)) return 0;
+    } else flags |= SPIF_UPDATEINIFILE;
+    animation_ok = SystemParametersInfoA(SPI_SETMENUANIMATION, 0,
+        (PVOID)(INT_PTR)(animation ? TRUE : FALSE), flags) != 0;
+    fade_ok = SystemParametersInfoA(SPI_SETMENUFADE, 0,
+        (PVOID)(INT_PTR)(fade ? TRUE : FALSE), flags) != 0;
+    if (!animation_ok) append_log_line("ERROR: Windows rejected the menu-animation setting.");
+    if (!fade_ok) append_log_line("ERROR: Windows rejected the menu-fade setting.");
+    return animation_ok && fade_ok;
+}
+
 static int apply_user_features(void)
 {
     int ok = 1;
@@ -2445,8 +2602,13 @@ static int apply_user_features(void)
     {
         DWORD policy_managed = 0;
         int start_needs_update = desired != g_features[FEATURE_CLASSIC_START_MENU].detected;
-        if (desired && (!read_user_dword(CONFIG_KEY, "ClassicStartPolicyManaged",
-                                         &policy_managed) || !policy_managed))
+        read_user_dword(CONFIG_KEY, "ClassicStartPolicyManaged", &policy_managed);
+        /* v3.1.0 selected Classic Start menu by also setting
+           NoSimpleStartMenu.  That policy hides XP's alternate Start-menu
+           radio button, which is unnecessary: ShellState selects Classic
+           without removing the user's ability to switch back.  Treat our
+           old ownership marker as a one-time migration request. */
+        if (desired && policy_managed)
             start_needs_update = 1;
         if (start_needs_update) {
             int start_ok;
@@ -2457,15 +2619,18 @@ static int apply_user_features(void)
                 "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
                 "ShellState");
             if (desired) {
-                start_ok = write_start_panel_on(0);
-                start_ok &= write_user_dword(
-                    "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
-                    "NoSimpleStartMenu", 1);
-                start_ok &= write_user_dword(CONFIG_KEY, "ClassicStartPolicyManaged", 1);
+                /* If an earlier eXPerience2K release set the policy, restore
+                   the exact pre-install value before selecting Classic via
+                   the ordinary per-user ShellState bit. */
+                start_ok = 1;
+                if (policy_managed)
+                    start_ok &= restore_original_user_value("NoSimpleStartMenu",
+                        "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+                        "NoSimpleStartMenu");
+                start_ok &= write_start_panel_on(0);
+                start_ok &= write_user_dword(CONFIG_KEY, "ClassicStartPolicyManaged", 0);
             } else {
-                start_ok = restore_original_user_value("ClassicStartShellState",
-                    "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
-                    "ShellState");
+                start_ok = restore_start_menu_state();
                 start_ok &= restore_original_user_value("NoSimpleStartMenu",
                     "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
                     "NoSimpleStartMenu");
@@ -2518,17 +2683,7 @@ static int apply_user_features(void)
             animation = TRUE;
             fade = TRUE;
         }
-        {
-            int animation_ok = SystemParametersInfoA(SPI_SETMENUANIMATION, 0,
-                (PVOID)(INT_PTR)(animation ? TRUE : FALSE),
-                SPIF_UPDATEINIFILE | SPIF_SENDCHANGE) != 0;
-            int fade_ok = SystemParametersInfoA(SPI_SETMENUFADE, 0,
-                (PVOID)(INT_PTR)(fade ? TRUE : FALSE),
-                SPIF_UPDATEINIFILE | SPIF_SENDCHANGE) != 0;
-            ok &= animation_ok && fade_ok;
-            if (!animation_ok) append_log_line("ERROR: Windows rejected the menu-animation setting.");
-            if (!fade_ok) append_log_line("ERROR: Windows rejected the menu-fade setting.");
-        }
+        ok &= apply_menu_effects(animation, fade);
         append_log_line(desired
             ? "Optional sliding Start menu animation enabled and menu fade disabled."
             : (desired_fade
@@ -3330,13 +3485,12 @@ static int apply_machine_features(void)
                     explorer_ok = apply_w2k_explorer_user_state(1);
                 /* Explorer state is installed after the user-facing options.
                    Reassert the selected native Start-menu mode last so the
-                   Taskbar Properties choice and the forced mode agree. */
+                   Taskbar Properties choice and the selected mode agree.
+                   Do not set NoSimpleStartMenu: doing so removes XP's Start
+                   menu choice from Taskbar Properties. */
                 if (explorer_ok &&
                     Button_GetCheck(g_features[FEATURE_CLASSIC_START_MENU].checkbox) == BST_CHECKED) {
                     explorer_ok &= write_start_panel_on(0);
-                    explorer_ok &= write_user_dword(
-                        "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
-                        "NoSimpleStartMenu", 1);
                 }
                 if (!explorer_ok) {
                     apply_w2k_explorer_user_state(0);
@@ -3347,6 +3501,8 @@ static int apply_machine_features(void)
                 explorer_ok &= apply_w2k_explorer_machine_state(0);
             }
             ok &= explorer_ok;
+        } else if (desired_explorer) {
+            ok &= upgrade_explorer_native_defaults();
         }
     }
     if (desired_logon != g_features[FEATURE_CLASSIC_LOGON].detected) {
@@ -3411,6 +3567,10 @@ static int restore_all_managed_features(int clear_saved_state)
     append_log_line(clear_saved_state
         ? "Starting complete uninstall restoration for the interactive user and protected system files..."
         : "Starting complete Revert restoration to the immutable pre-Apply baseline...");
+    if (!g_interactive_user_verified) {
+        append_log_line("ERROR: the interactive account could not be verified; no restoration was attempted.");
+        return 0;
+    }
     if (!g_probe.administrator) {
         append_log_line("ERROR: complete uninstall restoration requires administrator privileges.");
         return 0;
@@ -3465,9 +3625,8 @@ static int restore_all_managed_features(int clear_saved_state)
         }
 
         if (read_user_dword(CONFIG_KEY, "Original_ClassicStartShellState_Captured", &marker))
-            record_restore_result(&ok, restore_original_user_value("ClassicStartShellState",
-                "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
-                "ShellState"), "complete Start-menu and taskbar shell state");
+            record_restore_result(&ok, restore_start_menu_state(),
+                                  "complete Start-menu and taskbar shell state");
         if (read_user_dword(CONFIG_KEY, "Original_NoSimpleStartMenu_Captured", &marker)) {
             record_restore_result(&ok, restore_original_user_value("NoSimpleStartMenu",
                 "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
@@ -3491,14 +3650,8 @@ static int restore_all_managed_features(int clear_saved_state)
             read_user_dword(CONFIG_KEY, "Original_MenuFade_Value", &fade_value);
             animation = animation_value != 0;
             fade = fade_value != 0;
-            record_restore_result(&ok, SystemParametersInfoA(SPI_SETMENUANIMATION, 0,
-                (PVOID)(INT_PTR)(animation ? TRUE : FALSE),
-                SPIF_UPDATEINIFILE | SPIF_SENDCHANGE) != 0,
-                "menu-animation setting");
-            record_restore_result(&ok, SystemParametersInfoA(SPI_SETMENUFADE, 0,
-                (PVOID)(INT_PTR)(fade ? TRUE : FALSE),
-                SPIF_UPDATEINIFILE | SPIF_SENDCHANGE) != 0,
-                "menu-fade setting");
+            record_restore_result(&ok, apply_menu_effects(animation, fade),
+                                   "menu animation and fade settings");
         }
 
         if (read_user_dword(CONFIG_KEY, "Original_LogonType_Present", &present)) {
@@ -3881,6 +4034,12 @@ static void apply_requested_configuration(void)
 {
     int success;
     HWND applying_dialog;
+    if (!g_interactive_user_verified) {
+        MessageBoxA(g_window,
+            "The signed-in desktop account could not be verified. No changes were attempted.\n\nClose the program, sign in directly with the account you want to configure, and try again.",
+            "Desktop account could not be verified", MB_OK | MB_ICONWARNING);
+        return;
+    }
     if (!g_probe.supported) {
         show_error_guidance("This operating-system profile is not explicitly supported. No changes were attempted.");
         return;
@@ -4207,7 +4366,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         MessageBoxA(NULL,
             "Only Windows XP Professional x86 Service Pack 3 and Windows XP "
             "Professional x64 Edition Service Pack 2 are supported by "
-            "eXPerience2K 3.1.0.\n\n"
+            "eXPerience2K 3.1.1.\n\n"
             "No files or settings have been changed.",
             "eXPerience2K - Unsupported operating system",
             MB_OK | MB_ICONSTOP);
@@ -4217,7 +4376,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
             ? "eXPerience2KCore-x64.exe"
             : "eXPerience2KCore-x86.exe");
-    discover_interactive_user();
+    g_interactive_user_verified = discover_interactive_user();
     g_probe.administrator = token_is_administrator();
     append_log_line("eXPerience2K diagnostic log (privacy-safe; no account names, SIDs, profile paths, or product keys)." );
     if (lstrcmpiA(command_line, "/reload-resources") == 0) {
@@ -4231,7 +4390,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
             read_machine_dword(EXPLORER_MACHINE_STATE_KEY, "Enabled",
                                &explorer_enabled) && explorer_enabled) {
             reload_ok &= apply_w2k_explorer_machine_state(1);
-            reload_ok &= apply_w2k_explorer_user_state(1);
+            /* Resource persistence must not clear saved views or reassert
+               initial user preferences at every sign-in. A user who chose
+               a different toolbar size or Start menu keeps that choice. */
+            if (read_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled",
+                               &explorer_enabled) && explorer_enabled)
+                reload_ok &= upgrade_explorer_native_defaults();
         }
         return reload_ok ? 0 : 1;
     }

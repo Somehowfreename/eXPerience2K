@@ -48,6 +48,65 @@ static int state_test(const WCHAR *directory, const WCHAR *source)
                              MAX_PATH, NULL, NULL)) goto cleanup;
     join_path(assets, sizeof(assets), g_install_root, "Assets");
     SHCreateDirectoryExA(NULL, assets, NULL);
+    {
+        BYTE preferences[] = {0x9e, 0x3e, 0x07, 0x80, 0x55};
+        set_menu_preference_bits(preferences, TRUE, FALSE);
+        CHECK(preferences[0] == 0x9e && preferences[1] == 0x3c &&
+              preferences[2] == 0x07 && preferences[3] == 0x80 && preferences[4] == 0x55,
+              "Run As sliding updates only menu preference bits");
+        set_menu_preference_bits(preferences, FALSE, TRUE);
+        CHECK(preferences[0] == 0x9c && preferences[1] == 0x3e && preferences[4] == 0x55,
+              "Run As animation and fade bits remain independent");
+    }
+    {
+        HANDLE retained_state;
+        join_path(path, sizeof(path), g_install_root, "state.tsv");
+        retained_state = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                                      FILE_ATTRIBUTE_NORMAL, NULL);
+        CHECK(retained_state != INVALID_HANDLE_VALUE, "create retained-backup fixture");
+        if (retained_state != INVALID_HANDLE_VALUE) CloseHandle(retained_state);
+        CHECK(!resource_conversion_detected(), "retained backups alone are not active conversion for a new user");
+        CHECK(configure_resource_reloader(1) && resource_conversion_detected(),
+              "new user detects the active installation reloader");
+        write_machine_string("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                             "eXPerience2K Resource Reloader", "unrelated-command.exe");
+        CHECK(!resource_conversion_detected(), "unrelated Run value is not an active conversion");
+        delete_machine_value("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                             "eXPerience2K Resource Reloader");
+        write_user_dword(CONFIG_KEY, "Configured", 1);
+        write_user_dword(CONFIG_KEY, "ResourceConversionEnabled", 1);
+        CHECK(resource_conversion_detected(), "existing transaction marker retains failed-restore recovery state");
+        delete_user_value(CONFIG_KEY, "Configured");
+        delete_user_value(CONFIG_KEY, "ResourceConversionEnabled");
+        DeleteFileA(path);
+    }
+    {
+        size_t preference;
+        write_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled", 1);
+        write_machine_dword(EXPLORER_MACHINE_STATE_KEY, "Enabled", 1);
+        write_user_dword("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "WebView", 0);
+        CHECK(explorer_enablement_markers_detected(), "Explorer enablement does not require every initial preference");
+        for (preference = 0; preference < sizeof(g_explorer_dwords) / sizeof(g_explorer_dwords[0]); ++preference) {
+            const EXPLORER_DWORD_VALUE *item = &g_explorer_dwords[preference];
+            if (strcmp(item->marker, "ExplorerWebView"))
+                write_user_dword(item->subkey, item->name, item->value + 1);
+        }
+        for (preference = 0; preference < sizeof(g_explorer_strings) / sizeof(g_explorer_strings[0]); ++preference) {
+            const EXPLORER_STRING_VALUE *item = &g_explorer_strings[preference];
+            write_user_string(item->subkey, item->name, "user preference");
+        }
+        CHECK(explorer_enablement_markers_detected(), "native folder and toolbar choices do not disable Explorer integration");
+        write_user_dword("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "WebView", 1);
+        CHECK(!explorer_enablement_markers_detected(), "Common Tasks remains a structural layout conflict");
+        write_user_dword("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "WebView", 0);
+        write_machine_dword(EXPLORER_MACHINE_STATE_KEY, "Enabled", 0);
+        CHECK(!explorer_enablement_markers_detected(), "disabled machine integration is not reported enabled");
+        write_machine_dword(EXPLORER_MACHINE_STATE_KEY, "Enabled", 1);
+        write_user_dword(CONFIG_KEY, "ExplorerExperimentEnabled", 0);
+        CHECK(!explorer_enablement_markers_detected(), "disabled user integration is not reported enabled");
+        delete_user_value(CONFIG_KEY, "ExplorerExperimentEnabled");
+        delete_machine_value(EXPLORER_MACHINE_STATE_KEY, "Enabled");
+    }
     g_features[FEATURE_CLASSIC_LOGON].checkbox = CreateWindowA("BUTTON", "",
         WS_POPUP | BS_AUTOCHECKBOX, 0, 0, 0, 0, NULL, NULL, g_instance, NULL);
     g_logon_background_combo = CreateWindowA("COMBOBOX", "",

@@ -8,14 +8,15 @@ $coreX64 = Join-Path $repoRoot 'build\eXPerience2KCore-x64.exe'
 $configApp = Join-Path $repoRoot 'build\eXPerience2K.exe'
 $explorerBandX86 = Join-Path $repoRoot 'build\eXPerience2KExplorerBand32.dll'
 $explorerBandX64 = Join-Path $repoRoot 'build\eXPerience2KExplorerBand64.dll'
-$installer = Join-Path $repoRoot 'dist\eXPerience2K-v3.1.0-Setup.exe'
+$mediaPreview = Join-Path $repoRoot 'build\eXPerience2KMediaPreview.exe'
+$installer = Join-Path $repoRoot 'dist\eXPerience2K-v3.1.1-Setup.exe'
 $nsisSource = Join-Path $repoRoot 'installer\eXPerience2K.nsi'
 $configSource = Join-Path $repoRoot 'src\eXPerience2KConfig.c'
 $coreSource = Join-Path $repoRoot 'src\eXPerience2KCore.c'
 $profilesSource = Join-Path $repoRoot 'payload\profiles.tsv'
 $buildSource = Join-Path $repoRoot 'scripts\build.ps1'
 
-foreach ($required in @($coreX86, $coreX64, $configApp, $explorerBandX86, $explorerBandX64, $installer)) {
+foreach ($required in @($coreX86, $coreX64, $configApp, $explorerBandX86, $explorerBandX64, $mediaPreview, $installer)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "Required build output is missing: $required"
     }
@@ -48,6 +49,7 @@ Assert-PeCompatibility -Path $coreX64 -ExpectedMagic 0x20b -ExpectedMinor 2
 Assert-PeCompatibility -Path $configApp -ExpectedMagic 0x10b -ExpectedMinor 1
 Assert-PeCompatibility -Path $explorerBandX86 -ExpectedMagic 0x10b -ExpectedMinor 1
 Assert-PeCompatibility -Path $explorerBandX64 -ExpectedMagic 0x20b -ExpectedMinor 2
+Assert-PeCompatibility -Path $mediaPreview -ExpectedMagic 0x10b -ExpectedMinor 1
 
 $operationCount = (Import-Csv -LiteralPath (Join-Path $repoRoot 'payload\operations.tsv') -Delimiter "`t").Count
 $targetCount = (Import-Csv -LiteralPath (Join-Path $repoRoot 'payload\targets.tsv') -Delimiter "`t").Count
@@ -168,9 +170,15 @@ foreach ($revertContract in @(
         throw "The Revert-button contract is missing: $revertContract"
     }
 }
-if (-not $configText.Contains('Cabinet and toolbar blobs are initial defaults') -or
-    $configText.Contains('user_binary_matches_asset')) {
-    throw 'Explorer enablement detection still depends on mutable window-layout blobs.'
+$explorerDetection = [regex]::Match($configText,
+    '(?s)static int explorer_enablement_markers_detected\(void\).*?(?=static void apply_registered_colors_to_session)')
+if (-not $explorerDetection.Success -or
+    -not $explorerDetection.Value.Contains('"ExplorerExperimentEnabled"') -or
+    -not $explorerDetection.Value.Contains('EXPLORER_MACHINE_STATE_KEY') -or
+    -not $explorerDetection.Value.Contains('"WebView", &value) && value == 0') -or
+    -not $explorerDetection.Value.Contains('files_are_identical(payload_file, installed_file)') -or
+    $explorerDetection.Value -match 'g_explorer_(dwords|strings|binaries)|user_binary_matches_asset') {
+    throw 'Explorer detection must validate enabled integration, structural layout and files without requiring mutable preferences.'
 }
 foreach ($windowContract in @(
     'WS_OVERLAPPEDWINDOW | WS_VSCROLL',
@@ -187,13 +195,29 @@ foreach ($windowContract in @(
     }
 }
 foreach ($packagedBinary in @(
-    'File "..\build\eXPerience2KCore-x86.exe"',
-    'File "..\build\eXPerience2KCore-x64.exe"',
-    'File "..\build\eXPerience2KExplorerBand32.dll"',
-    'File "..\build\eXPerience2KExplorerBand64.dll"'
+    '!insertmacro InstallApplicationBinary "eXPerience2K.exe"',
+    '!insertmacro InstallApplicationBinary "eXPerience2KCore-x86.exe"',
+    '!insertmacro InstallApplicationBinary "eXPerience2KCore-x64.exe"',
+    '!insertmacro InstallApplicationBinary "eXPerience2KExplorerBand32.dll"',
+    '!insertmacro InstallApplicationBinary "eXPerience2KExplorerBand64.dll"',
+    '!insertmacro InstallApplicationBinary "eXPerience2KMediaPreview.exe"'
 )) {
     if (-not $nsisText.Contains($packagedBinary)) {
         throw "Required dual-architecture binary is not packaged: $packagedBinary"
+    }
+}
+foreach ($upgradeContract in @(
+    'File "/oname=${FileName}.new" "..\build\${FileName}"',
+    'Delete /REBOOTOK "$INSTDIR\${FileName}"',
+    'Rename /REBOOTOK "$INSTDIR\${FileName}.new" "$INSTDIR\${FileName}"'
+)) {
+    if (-not $nsisText.Contains($upgradeContract)) {
+        throw "Missing locked-binary upgrade handling: $upgradeContract"
+    }
+}
+foreach ($view in @(32, 64)) {
+    if (-not $nsisText.Contains("!insertmacro RemoveApplicationRegistryView $view")) {
+        throw "Uninstall must remove application entries in registry view $view."
     }
 }
 
@@ -230,10 +254,10 @@ foreach ($obsoleteBrandingContract in @(
     -RepositoryRoot $repoRoot
 
 $version = (Get-Item -LiteralPath $installer).VersionInfo
-if ($version.ProductVersion -ne '3.1.0.0' -or
-    $version.FileVersion -ne '3.1.0.0' -or
+if ($version.ProductVersion -ne '3.1.1.0' -or
+    $version.FileVersion -ne '3.1.1.0' -or
     $version.FileDescription -ne 'Windows 2000-style conversion for Windows XP Professional') {
-    throw 'Installer version metadata does not match the dual-platform 3.1.0 release contract.'
+    throw 'Installer version metadata does not match the dual-platform 3.1.1 release contract.'
 }
 
 $legacyMarker = -join (105,110,101,120,112,101,114,105,101,110,99,101 | ForEach-Object { [char]$_ })

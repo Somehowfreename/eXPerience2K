@@ -1,5 +1,121 @@
 # Validation record
 
+## Version 3.1.1 regression and release validation
+
+The tested final installer is `eXPerience2K-v3.1.1-Setup.exe`, 4,356,311 bytes,
+SHA-256:
+
+```text
+D9B4027A3F73104937035381F4E911DCEC75A59C2D23C5DDEBF49ADE2AF4CE7F
+```
+
+Validation used isolated, clean English Windows XP Professional x86 SP3 and
+Windows XP Professional x64 SP2 installations with Guest Additions and audio.
+The same installer was used on both. No kernel or boot-screen changes were
+included. The original VM snapshots and earlier source/releases were preserved.
+
+### Clean lifecycle and restoration
+
+- All default selections completed through the actual configuration UI.
+- After reboot, the native verifier reported all 134 x86 and all 208 x64
+  applicable protected files patched, with no original, changed, or missing
+  targets.
+- The desktop, resource icons, taskbar, captions, Start menu, Winver, System
+  Properties, classic logon, Control Panel and Explorer were visually checked.
+- Full Revert on x86 and clearing every option on x64 completed successfully.
+  After reboot, all 276 captured managed registry values/runtime structures
+  matched their pre-Apply baselines exactly on each architecture.
+- An independent read-only resource audit matched all 134/208 restored files
+  to their original CRCs, with zero mismatches.
+- The final candidate also passed direct uninstall while applied on x64,
+  including restored state/resources and removal of both registry-view
+  uninstall entries, the application, shortcuts and startup hooks.
+
+### Explorer and Start-menu fixes
+
+- Actual information-pane clicks opened native My Network Places on both
+  systems, rather than an Internet Explorer error page.
+- Native Customize Toolbar dialogs showed **Small icons**. Native Taskbar
+  Properties showed both Start-menu choices, with Classic initially selected.
+- BMP/JPEG/PNG selection produced proportional previews, including after
+  hiding filename extensions through native Folder Options. Directory,
+  multiple-item and empty selections cleared the previous image preview.
+- WAV/MP3 selection showed the real legacy player controls. Play, Pause,
+  Stop, selection changes, Folders-bar navigation and window-close cleanup
+  were exercised. Selection alone did not start playback. Audio recordings
+  corroborated playback and silence transitions for the unchanged final
+  Explorer/media binaries.
+- Native folder/toolbar preferences did not make the active Explorer option
+  appear disabled. Reopening the final configuration application and applying
+  an unrelated option preserved hidden-extension preferences on both systems.
+- Native XP Start-menu and Large-toolbar overrides survived sign-in without
+  the reloader reasserting initial preferences. Slide and Fade were mutually
+  exclusive; recorded native menu output distinguished movement from fading.
+
+### Existing features and account handling
+
+The regression sequence covered all eleven options, including alternatives
+that cannot be selected together. Individual clearing covered theme/font/
+metrics, Start menu, Control Panel, Explorer, sounds and navigation sound;
+clearing sounds retained the separately selected navigation event, and clearing
+navigation restored its own original values. Wallpaper and sound payload bytes
+matched all five JPEGs and eight original Windows 2000 WAVs.
+
+Both caption presets, blue/teal/custom logon backgrounds, saved selections,
+custom-image persistence after removing the source, resizing/scrolling to all
+controls, Revert/No, repeated subset Apply/Revert, and uninstall before Apply
+were exercised during this release's regression sequence. Restoration compared
+actual type/data/value absence with captured baselines, not assumed defaults.
+
+On both architectures, actual limited-user and XP Run As sessions verified
+privilege refusal before machine changes, interactive-user targeting, separate
+administrator-profile preservation, navigation-only Apply/undo, and complete
+restoration after signing out/in. The final session-resolution and animation
+code passed these checks. Final Explorer enablement changes additionally passed
+native UI regressions and isolated production-function tests.
+
+### Final published-version upgrade
+
+Both pristine guests installed and applied the actual published 3.1.0
+installer, then rebooted. The final 3.1.1 installer upgraded each with the
+previous native Explorer module loaded. After the replacement reboot, the
+installed configuration executable and architecture-matched Explorer module
+hashes matched the final build, and Apply succeeded on both.
+
+All 804 pre-existing immutable backup records remained byte-for-byte
+unchanged. Only two new Small-icons backup markers were added. Both native
+Start-menu choices were visible, all 134/208 resources verified as patched,
+and final MP3/WAV preview recordings confirmed no autoplay, Play/Pause/resume,
+Stop and window-close cleanup. The closed preview helper was absent from the
+process list. An unrelated XP Security Center notification in the x64 capture
+was distinguished from preview playback.
+
+Full Revert after upgrade succeeded on both. After reboot, all 276 managed
+records again matched the pristine baselines exactly, and independent CRC
+checks confirmed all 134/208 original resources with zero mismatches. All six
+source files embedded in the tested installer matched the release source.
+
+### Build and test evidence
+
+The documented build succeeded independently in a separate directory with the
+same build inputs. The release verifier checks 672 resource operations, 147
+manifest targets, 671 resource files, nineteen original branding assets, 501
+icon files/503 mappings, five wallpapers, eight sounds, 74 Web files, eight
+Explorer-state inputs, both native architectures, legacy media hosting, strict
+OS gates and installer metadata.
+
+The image/state harness passed format conversion, 24-bit BMP output, exact
+colors, transparency, EXIF orientation, Unicode, invalid/oversized input,
+immutable baseline/repeated restoration, saved images without source files,
+privacy-safe diagnostics, retained-backup detection, Run As animation bits,
+and Explorer enablement independent of mutable preferences.
+
+These are results for the stated supported systems and test configurations,
+not a guarantee for every codec, third-party shell extension, hardware driver
+or modified XP installation. Raw guest registry captures contain private
+profile information and are retained locally, not distributed as support logs
+or release assets. Older-version results below remain identified separately.
+
 ## Version 3.1.0 logon-background validation
 
 The release installer SHA-256 is

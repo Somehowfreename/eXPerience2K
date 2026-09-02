@@ -28,6 +28,7 @@
 static HINSTANCE g_instance;
 static LONG g_objects;
 static LONG g_locks;
+static LONG g_preview_sequence;
 
 /* Keep this NT 5.2 shell extension independent of the MinGW C++ runtime.
    The stock runtime imports post-XP APIs when it is statically linked. */
@@ -229,14 +230,139 @@ static BOOL selected_item(HWND pane, wchar_t *name, size_t count)
     return name[0] != 0;
 }
 
+static BOOL selected_item_path(IWebBrowser2 *browser,
+                               wchar_t *full_path, size_t count)
+{
+    IServiceProvider *provider = NULL;
+    IShellBrowser *shell_browser = NULL;
+    IShellView *shell_view = NULL;
+    IFolderView *folder_view = NULL;
+    IShellFolder *folder = NULL;
+    IEnumIDList *items = NULL;
+    LPITEMIDLIST item = NULL;
+    STRRET name;
+    int selected_count = 0;
+    BOOL result = FALSE;
+    if (!full_path || count == 0) return FALSE;
+    full_path[0] = 0;
+    /* Use the selected shell item's parsing name, not its visible caption:
+       Explorer can hide extensions, and virtual folders need not expose a
+       filesystem path through IWebBrowser2::LocationURL. */
+    if (browser &&
+        SUCCEEDED(browser->QueryInterface(IID_IServiceProvider, (void **)&provider)) &&
+        SUCCEEDED(provider->QueryService(SID_STopLevelBrowser, IID_IShellBrowser,
+                                         (void **)&shell_browser)) &&
+        SUCCEEDED(shell_browser->QueryActiveShellView(&shell_view)) &&
+        SUCCEEDED(shell_view->QueryInterface(IID_IFolderView, (void **)&folder_view)) &&
+        SUCCEEDED(folder_view->ItemCount(SVGIO_SELECTION, &selected_count)) &&
+        selected_count == 1 &&
+        SUCCEEDED(folder_view->GetFolder(IID_IShellFolder, (void **)&folder)) &&
+        SUCCEEDED(folder_view->Items(SVGIO_SELECTION, IID_IEnumIDList, (void **)&items)) &&
+        items->Next(1, &item, NULL) == S_OK && item &&
+        SUCCEEDED(folder->GetDisplayNameOf(item, SHGDN_FORPARSING, &name)) &&
+        SUCCEEDED(StrRetToBufW(&name, item, full_path, (UINT)count))) {
+        DWORD attributes = GetFileAttributesW(full_path);
+        result = attributes != INVALID_FILE_ATTRIBUTES &&
+                 !(attributes & FILE_ATTRIBUTE_DIRECTORY);
+    }
+    if (item) CoTaskMemFree(item);
+    safe_release(items);
+    safe_release(folder);
+    safe_release(folder_view);
+    safe_release(shell_view);
+    safe_release(shell_browser);
+    safe_release(provider);
+    if (!result) full_path[0] = 0;
+    return result;
+}
+
+static BOOL extension_in_list(const wchar_t *path, const wchar_t *const *extensions,
+                              size_t extension_count)
+{
+    const wchar_t *extension = PathFindExtensionW(path);
+    if (!extension || !extension[0]) return FALSE;
+    ++extension;
+    for (size_t index = 0; index < extension_count; ++index)
+        if (lstrcmpiW(extension, extensions[index]) == 0) return TRUE;
+    return FALSE;
+}
+
+static BOOL is_image_file(const wchar_t *path)
+{
+    static const wchar_t *const extensions[] = {
+        L"bmp", L"dib", L"emf", L"gif", L"ico", L"jfif", L"jpe",
+        L"jpeg", L"jpg", L"png", L"tif", L"tiff", L"wmf"
+    };
+    return extension_in_list(path, extensions,
+                             sizeof(extensions) / sizeof(extensions[0]));
+}
+
+static BOOL is_sound_file(const wchar_t *path)
+{
+    /* This is the exact sound-extension set used by Windows 2000's
+       standard.htt WebView template. */
+    static const wchar_t *const extensions[] = {
+        L"aif", L"aiff", L"au", L"mid", L"midi", L"rmi", L"snd",
+        L"wav", L"mp3", L"m3u", L"wma"
+    };
+    return extension_in_list(path, extensions,
+                             sizeof(extensions) / sizeof(extensions[0]));
+}
+
+static BOOL is_movie_file(const wchar_t *path)
+{
+    /* This is the exact movie-extension set used by Windows 2000's
+       standard.htt WebView template. */
+    static const wchar_t *const extensions[] = {
+        L"asf", L"avi", L"m1v", L"mov", L"mp2", L"mpa", L"mpe",
+        L"mpeg", L"mpg", L"mpv2", L"qt", L"asx"
+    };
+    return extension_in_list(path, extensions,
+                             sizeof(extensions) / sizeof(extensions[0]));
+}
+
+static HBITMAP extract_thumbnail(const wchar_t *path)
+{
+    PIDLIST_ABSOLUTE absolute = NULL;
+    PCUITEMID_CHILD child = NULL;
+    IShellFolder *folder = NULL;
+    IExtractImage *extractor = NULL;
+    HBITMAP bitmap = NULL;
+    SIZE size = {120, 120};
+    DWORD priority = 0;
+    DWORD flags = IEIFLAG_ASPECT | IEIFLAG_SCREEN | IEIFLAG_QUALITY;
+    wchar_t cache_path[MAX_PATH];
+    if (!path ||
+        FAILED(SHParseDisplayName(path, NULL, &absolute, 0, NULL)) || !absolute)
+        return NULL;
+    if (SUCCEEDED(SHBindToParent(absolute, IID_IShellFolder, (void **)&folder,
+                                 &child)) && folder && child) {
+        PCUITEMID_CHILD children[1] = {child};
+        if (SUCCEEDED(folder->GetUIObjectOf(NULL, 1, children, IID_IExtractImage,
+                                            NULL, (void **)&extractor)) && extractor) {
+            cache_path[0] = 0;
+            if (SUCCEEDED(extractor->GetLocation(cache_path, MAX_PATH, &priority,
+                                                  &size, 32, &flags)))
+                extractor->Extract(&bitmap);
+        }
+    }
+    safe_release(extractor);
+    safe_release(folder);
+    CoTaskMemFree(absolute);
+    return bitmap;
+}
+
 class ExplorerBand : public IDeskBand, public IObjectWithSite,
                      public IPersistStream, public IInputObject {
 public:
     ExplorerBand() : refs_(1), site_(NULL), browser_(NULL), window_(NULL),
                      background_(NULL), normal_font_(NULL), title_font_(NULL),
                      bold_font_(NULL), link_font_(NULL), link_count_(0),
-                     inline_mode_(FALSE), view_mode_initialized_(FALSE)
+                     inline_mode_(FALSE), view_mode_initialized_(FALSE),
+                     preview_bitmap_(NULL), media_process_(NULL),
+                     media_stop_(NULL)
     {
+        preview_path_[0] = 0;
         InterlockedIncrement(&g_objects);
     }
 
@@ -260,7 +386,7 @@ public:
         inline_mode_ = TRUE;
         view_mode_initialized_ = FALSE;
         register_window_class();
-        window_ = CreateWindowExW(0, PANE_CLASS, L"", WS_CHILD | WS_VISIBLE,
+        window_ = CreateWindowExW(0, PANE_CLASS, L"", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
                                   0, 0, 200, 200, parent, NULL, g_instance, this);
         if (!window_) {
             HRESULT result = HRESULT_FROM_WIN32(GetLastError());
@@ -361,7 +487,7 @@ public:
         }
         safe_release(ole_window);
         register_window_class();
-        window_ = CreateWindowExW(0, PANE_CLASS, L"", WS_CHILD | WS_VISIBLE,
+        window_ = CreateWindowExW(0, PANE_CLASS, L"", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
                                   0, 0, 200, 200, parent, NULL, g_instance, this);
         if (!window_) {
             detach();
@@ -455,10 +581,14 @@ public:
             DrawTextW(dc, selection, -1, &item_rect,
                       DT_LEFT | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS);
             SelectObject(dc, normal_font_);
-            if (path[0]) {
+            {
                 wchar_t full[MAX_PATH];
-                lstrcpynW(full, path, MAX_PATH);
-                if (PathAppendW(full, selection)) {
+                BOOL have_full = selected_item_path(browser_, full, MAX_PATH);
+                if (!have_full && path[0]) {
+                    lstrcpynW(full, path, MAX_PATH);
+                    have_full = PathAppendW(full, selection);
+                }
+                if (have_full) {
                     WIN32_FILE_ATTRIBUTE_DATA data;
                     if (GetFileAttributesExW(full, GetFileExInfoStandard, &data)) {
                         wchar_t kind[128];
@@ -507,6 +637,7 @@ public:
                     }
                 }
             }
+            draw_image_preview(dc);
         } else {
             paint_location_details(dc, client, title);
         }
@@ -644,7 +775,11 @@ public:
         switch (target) {
         case LINK_MY_DOCUMENTS: address = L"shell:Personal"; break;
         case LINK_MY_COMPUTER: address = L"shell:MyComputerFolder"; break;
-        case LINK_NETWORK_PLACES: address = L"shell:NetworkPlacesFolder"; break;
+        /* XP's shell namespace accepts the Windows 2000 WebView moniker
+           "shell:NetworkFolder".  "shell:NetworkPlacesFolder" is not a
+           registered XP shell command and is handed to Internet Explorer as
+           an invalid address instead. */
+        case LINK_NETWORK_PLACES: address = L"shell:NetworkFolder"; break;
         case LINK_CONNECTIONS: address = L"shell:ConnectionsFolder"; break;
         case LINK_WINDOWS_UPDATE: address = L"http://windowsupdate.microsoft.com/"; break;
         case LINK_WINDOWS_SUPPORT: address = L"https://support.microsoft.com/"; break;
@@ -755,6 +890,119 @@ private:
     int link_count_;
     BOOL inline_mode_;
     BOOL view_mode_initialized_;
+    HBITMAP preview_bitmap_;
+    wchar_t preview_path_[MAX_PATH];
+    HANDLE media_process_;
+    HANDLE media_stop_;
+
+    enum { PREVIEW_LEFT = 12, PREVIEW_TOP = 184, PREVIEW_WIDTH = 120 };
+
+    void clear_preview(BOOL clear_path)
+    {
+        if (media_stop_) SetEvent(media_stop_);
+        if (media_process_) {
+            /* A faulty codec must not keep playing after selection changes or
+               hold up Explorer indefinitely. This is only our own child. */
+            if (WaitForSingleObject(media_process_, 1000) == WAIT_TIMEOUT)
+                TerminateProcess(media_process_, ERROR_CANCELLED);
+            CloseHandle(media_process_);
+            media_process_ = NULL;
+        }
+        if (media_stop_) CloseHandle(media_stop_);
+        media_stop_ = NULL;
+        if (preview_bitmap_) {
+            DeleteObject(preview_bitmap_);
+            preview_bitmap_ = NULL;
+        }
+        if (clear_path) preview_path_[0] = 0;
+    }
+
+    BOOL create_media_preview(const wchar_t *path, BOOL sound)
+    {
+        wchar_t executable[MAX_PATH], event_name[100], command[MAX_PATH * 2 + 200];
+        STARTUPINFOW startup;
+        PROCESS_INFORMATION process;
+        DWORD length = GetModuleFileNameW(g_instance, executable, MAX_PATH);
+        if (!length || length >= MAX_PATH || !PathRemoveFileSpecW(executable) ||
+            !PathAppendW(executable, L"eXPerience2KMediaPreview.exe")) return FALSE;
+        wsprintfW(event_name, L"Local\\eXPerience2K.Preview.%lu.%lu",
+                  GetCurrentProcessId(), (DWORD)InterlockedIncrement(&g_preview_sequence));
+        media_stop_ = CreateEventW(NULL, TRUE, FALSE, event_name);
+        if (!media_stop_) return FALSE;
+        /* The legacy WMP control exists only in 32-bit form on clean XP x64.
+           Isolate its codecs in a 32-bit child; keep Explorer itself native. */
+        wsprintfW(command, L"\"%s\" %lu %lu %s \"%s\" \"%s\"", executable,
+                  (DWORD)(ULONG_PTR)window_, GetCurrentProcessId(),
+                  sound ? L"sound" : L"movie", event_name, path);
+        ZeroMemory(&startup, sizeof(startup));
+        ZeroMemory(&process, sizeof(process));
+        startup.cb = sizeof(startup);
+        if (!CreateProcessW(executable, command, NULL, NULL, FALSE, 0,
+                             NULL, NULL, &startup, &process)) {
+            clear_preview(FALSE);
+            return FALSE;
+        }
+        CloseHandle(process.hThread);
+        media_process_ = process.hProcess;
+        return TRUE;
+    }
+
+    void update_preview()
+    {
+        wchar_t path[MAX_PATH];
+        if (!window_ || !IsWindowVisible(window_)) {
+            clear_preview(TRUE);
+            return;
+        }
+        if (!selected_item_path(browser_, path,
+                                sizeof(path) / sizeof(path[0]))) {
+            if (preview_path_[0]) clear_preview(TRUE);
+            return;
+        }
+        if (lstrcmpiW(path, preview_path_) == 0) return;
+        clear_preview(TRUE);
+        lstrcpynW(preview_path_, path,
+                  (int)(sizeof(preview_path_) / sizeof(preview_path_[0])));
+        if (is_image_file(path))
+            preview_bitmap_ = extract_thumbnail(path);
+        else if (is_sound_file(path))
+            create_media_preview(path, TRUE);
+        else if (is_movie_file(path))
+            create_media_preview(path, FALSE);
+    }
+
+    void draw_image_preview(HDC dc)
+    {
+        BITMAP bitmap;
+        HDC memory;
+        HGDIOBJ old;
+        int width, height, x, y;
+        if (!preview_bitmap_ || !dc ||
+            GetObject(preview_bitmap_, sizeof(bitmap), &bitmap) != (int)sizeof(bitmap) ||
+            bitmap.bmWidth <= 0 || bitmap.bmHeight <= 0)
+            return;
+        width = bitmap.bmWidth;
+        height = bitmap.bmHeight;
+        if (width > PREVIEW_WIDTH || height > PREVIEW_WIDTH) {
+            if (width >= height) {
+                height = MulDiv(height, PREVIEW_WIDTH, width);
+                width = PREVIEW_WIDTH;
+            } else {
+                width = MulDiv(width, PREVIEW_WIDTH, height);
+                height = PREVIEW_WIDTH;
+            }
+        }
+        x = PREVIEW_LEFT + (PREVIEW_WIDTH - width) / 2;
+        y = PREVIEW_TOP + (PREVIEW_WIDTH - height) / 2;
+        memory = CreateCompatibleDC(dc);
+        if (!memory) return;
+        old = SelectObject(memory, preview_bitmap_);
+        SetStretchBltMode(dc, HALFTONE);
+        StretchBlt(dc, x, y, width, height, memory, 0, 0,
+                   bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+        SelectObject(memory, old);
+        DeleteDC(memory);
+    }
 
     static LRESULT CALLBACK pane_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
     {
@@ -768,7 +1016,10 @@ private:
         case WM_ERASEBKGND:
             return 1;
         case WM_TIMER:
-            if (self) self->enforce_windows_2000_layout();
+            if (self) {
+                self->enforce_windows_2000_layout();
+                self->update_preview();
+            }
             InvalidateRect(window, NULL, FALSE);
             return 0;
         case WM_PAINT:
@@ -855,6 +1106,7 @@ private:
 
     void detach()
     {
+        clear_preview(TRUE);
         if (window_) {
             KillTimer(window_, 1);
             DestroyWindow(window_);

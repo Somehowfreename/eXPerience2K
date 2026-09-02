@@ -28,4 +28,4 @@ system binaries, product keys, installation media, SIDs, account names, or
 profile paths.
 
 Windows Server, specialized XP edition, and unsupported service-pack reports
-remain outside the supported 3.0.0 boundary.
+remain outside the supported 3.1.1 boundary.

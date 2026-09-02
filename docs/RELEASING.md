@@ -7,9 +7,9 @@
 5. Record the installer size and SHA-256 in the README, release notes, and
    release body.
 6. Commit the exact source and documentation.
-7. Tag the verified commit `v3.0.0`.
+7. Tag the verified commit `v3.1.1`.
 8. Create a non-draft, non-prerelease GitHub release and mark it Latest.
-9. Attach only `eXPerience2K-v3.0.0-Setup.exe`.
+9. Attach only `eXPerience2K-v3.1.1-Setup.exe`.
 10. Verify the repository remains public and the release is marked Latest.
 
 Do not attach an independently generated source archive: GitHub automatically

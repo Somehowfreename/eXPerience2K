@@ -1,6 +1,6 @@
 # Branding and visual resources
 
-Version 3.0.0 uses the exact Windows 2002 Professional branding artwork from
+Version 3.1.1 uses the exact Windows 2002 Professional branding artwork from
 the original conversion resource set. Branding is intrinsic to the visual
 resource conversion and is not a selectable or customizable field in the
 configuration window.
@@ -15,7 +15,7 @@ logon presentation where the corresponding resources are used.
 The project currently favors fidelity to the proven original artwork rather
 than shipping the discarded hand-edited 2005 variants. Earlier development
 experiments attempted year-specific replacements, but those assets are not in
-the v3.0.0 release path.
+the current release path.
 
 ## Resource scope
 

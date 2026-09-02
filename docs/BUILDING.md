@@ -35,10 +35,12 @@ build/eXPerience2KCore-x86.exe
 build/eXPerience2KCore-x64.exe
 build/eXPerience2KExplorerBand32.dll
 build/eXPerience2KExplorerBand64.dll
-dist/eXPerience2K-v3.1.0-Setup.exe
+build/eXPerience2KMediaPreview.exe
+dist/eXPerience2K-v3.1.1-Setup.exe
 ```
 
-Both native cores and both Explorer modules are included. The installer and
+Both native cores, both Explorer modules, and the x86 legacy-media host are
+included. Explorer remains native to each system's architecture. The installer and
 configuration application enforce the exact XP Professional x86 SP3/x64 SP2
 support boundary.
 
@@ -62,7 +64,7 @@ XP virtual-machine visual checks. The converter links to XP's built-in
 
 `.github/workflows/build.yml` runs the same build and verification sequence on
 Windows. Workflow artifacts are continuous-integration outputs, not official
-releases. The official 3.1.0 release asset is the single installer attached to
+releases. The official 3.1.1 release asset is the single installer attached to
 the GitHub release.
 
 ## Reproducibility note

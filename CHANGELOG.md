@@ -1,5 +1,40 @@
 # Changelog
 
+## 3.1.1
+
+- Fixes the My Network Places link in the Windows 2000-style Explorer pane
+  so it opens the native network folder instead of an Internet Explorer error.
+- Restores selected-image thumbnails and Windows 2000-style media-preview
+  controls in the Explorer pane. The legacy media control runs in an isolated
+  32-bit helper on both architectures; Explorer itself remains native x86/x64.
+- Selects Small toolbar icons through XP's native preference and preserves
+  its original value for restoration.
+- Keeps the Explorer interface selected when users change native preferences
+  such as hiding extensions, folder visibility, or toolbar size. Those choices
+  no longer cause an unrelated Apply to remove the active interface.
+- Keeps the XP Start-menu choice visible in Taskbar Properties while selecting
+  Classic Start through the normal shell state. Migrates the restrictive
+  policy previously set by eXPerience2K without overwriting the original
+  restoration baseline.
+- Preserves XP's ShellState format and the independent Start-menu selection
+  when applying or clearing the Explorer interface.
+- Restores saved font/window-metric registry values without overwriting them
+  with normalized runtime measurements from the active theme.
+- Preserves saved Explorer folder views and user preferences during sign-in
+  resource repair, and safely replaces loaded application components on reboot
+  when upgrading an existing installation.
+- Removes the Add/Remove Programs entry from the correct registry view when
+  uninstalling on XP x64, rather than leaving a stale entry after file cleanup.
+- Avoids treating retained resource backups as an active conversion for a new
+  account after Revert, so current-user-only changes do not wrongly require
+  administrator access.
+- Identifies the signed-in account through XP's native session information
+  when Run As cannot read the shell process token. Apply and restoration stop
+  without changes if the interactive account cannot be verified.
+- Saves menu-animation preferences to the interactive user's profile when
+  running under another administrator account, leaving that administrator's
+  preferences unchanged.
+
 ## 3.1.0
 
 - Adds a logon-background selector under the classic login-window option:
